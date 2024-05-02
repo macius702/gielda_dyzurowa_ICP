@@ -1,0 +1,126 @@
+# dfx identity --network dev set-wallet $(dfx identity --network ic get-wallet)
+$ dfx wallet --network ic redeem-faucet-coupon C9BE9-47B89-8946A
+$ Your seed phrase for identity 'ForDeployment': divorce august art drink gun you month now pilot trust recycle cargo guard steak song staff parrot follow process code senior quote deposit boat
+$ cat wallets.json
+{
+  "identities": {
+    "ForDeployment": {
+      "ic": "r5g7j-diaaa-aaaag-acd4a-cai"
+    }
+  }
+}
+
+
+docker build -t mycanister .
+
+cd ~/mydes2/UEKatowice/rust_journey
+docker run -it -v .:/canister --rm -p 4943:4943 --name my_rust_journey mycanister
+docker run -it  -u $(id -u):$(id -g) -v .:/canister --rm -p 4943:4943 --name my_rust_journey mycanister2
+
+? docker cp /home/maciej/.config/dfx/identity/default/ my_rust_journey:/root/.config/dfx/identity/
+
+
+
+inside docker container:
+cd rust_journey
+dfx start --background --clean --host 0.0.0.0:4943
+dfx deploy
+
+# list all canisters
+dfx canister status  --all
+
+# list all identities 
+dfx identity list
+
+# mainnet cycles balance
+dfx wallet balance --network ic
+
+# mainnet wallets
+dfx wallet addresses --network ic
+
+
+dfx identity deploy-wallet [flag] <canister id>
+
+
+
+dfx canister --network ic call fg7gi-vyaaa-aaaal-qadca-cai wallet_create_wallet '(record { cycles = 5000000 : nat64; controller = principal "yxbxy-57nrv-toshq-jso5v-kwrub-pygan-gfpg6-kmc54-ocq3y-aa3iy-dae"})'
+
+
+Matiki yxbxy-57nrv-toshq-jso5v-kwrub-pygan-gfpg6-kmc54-ocq3y-aa3iy-dae
+
+
+ b
+maciej@:~/mydes2/UEKatowice/rust_journey/b$ dfx canister status --all
+Error: Failed to get canister status for 'b_backend'.
+Caused by: Failed to get canister status for 'b_backend'.
+  Failed to get canister status of bkyz2-fmaaa-aaaaa-qaaaq-cai.
+    Failed to call update function 'canister_status' regarding canister 'bkyz2-fmaaa-aaaaa-qaaaq-cai'.
+      Update call (without wallet) failed.
+        The replica returned a rejection error: reject code CanisterError, reject message Only controllers of canister bkyz2-fmaaa-aaaaa-qaaaq-cai can call ic00 method canister_status, error code Some("IC0512")
+Error explanation:
+Each canister has a set of controllers. Only those controllers have access to the canister's management functions (like install_code or stop_canister).
+The principal you are using to call a management function is not part of the controllers.
+How to resolve the error:
+To make the management function call succeed, you have to make sure the principal that calls the function is a controller.
+To see the current controllers of a canister, use the 'dfx canister info (--network ic)' command.
+To figure out which principal is calling the management function, look at the command you entered:
+    If you used '--wallet <wallet id>', then the wallet's principal (the '<wallet id>') is calling the function.
+    If you used '--no-wallet' or none of the flags, then your own principal is calling the function. You can see your own principal by running 'dfx identity get-principal'.
+To add a principal to the list of controllers, one of the existing controllers has to add the new principal. The base command to do this is 'dfx canister update-settings --add-controller <controller principal to add> <canister id/name or --all> (--network ic)'.
+If your wallet is a controller, but not your own principal, then you have to make your wallet perform the call by adding '--wallet <your wallet id>' to the command.
+The most common way this error is solved is by running 'dfx canister update-settings --network ic --wallet "$(dfx identity get-wallet)" --all --add-controller "$(dfx identity get-principal)"'.
+
+
+The wallet canister on the "local" network for user "default" is "bnz7o-iuaaa-aaaaa-qaaaa-cai
+alper-liaaa-aaaak-qctxa-cai
+
+
+ 2018  dfx identity new Matiki
+ 2019  dfx identity use Matiki
+dfx identity get-principal
+
+
+dfx identity new Matiki 
+
+
+
+Using identity from seed phrase and wallet.json 
+dfx start --background --clean --host 0.0.0.0:4943
+cd rust_journey/
+dfx new dok
+cd dok
+dfx deploy
+dfx identity list
+apt install wget
+cd ..
+mkdir keysmith
+cd keysmith
+wget https://github.com/dfinity/keysmith/releases/download/v1.6.2/keysmith-linux-amd64.tar.gz
+tar -f keysmith-*.tar* -x
+echo divorce august art drink gun you month now pilot trust recycle cargo guard steak song staff parrot follow process code senior quote deposit boat > seed.txt
+./keysmith private-key
+echo {} > dfx.json
+dfx identity import ForDeployment identity.pem
+echo '{
+  "identities": {
+    "ForDeployment": {
+      "ic": "r5g7j-diaaa-aaaag-acd4a-cai"
+    }
+  }
+}' >> ~/.config/dfx/identity/ForDeployment/wallets.json
+dfx identity use ForDeployment
+dfx wallet --network=ic balance
+dfx identity --network ic get-wallet
+dfx wallet balance --network=ic
+cd rust_journey/dok/
+dfx deploy --network=ic
+  
+
+
+
+dfx start --background --clean --host 0.0.0.0:4943
+    3  dfx new d
+    4  cd d
+    5  dfx deploy
+    6  hist
+    7  history 

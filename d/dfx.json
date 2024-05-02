@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "d_backend": {
+      "candid": "src/d_backend/d_backend.did",
+      "package": "d_backend",
+      "type": "custom",
+      "build": "./build.sh d_backend",
+      "wasm": "target/wasm32-unknown-unknown/release/d_backend.wasm"
+    },
+    "d_frontend": {
+      "dependencies": [
+        "d_backend"
+      ],
+      "source": [
+        "src/d_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "d_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

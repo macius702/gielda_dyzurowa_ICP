@@ -1,0 +1,5 @@
+service : {
+  greet : (text) -> (text) query;
+  greet2 : (text) -> (text) query;
+  greet3 : (text) -> (text) query;
+}
