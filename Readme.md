@@ -1,5 +1,4 @@
-# Rust_one Project
-This project is a simple example of a Rust application. It includes a Dockerfile for building and running the project in a Docker container. The application is designed to run on the Internet Computer blockchain, with a Rust backend and JavaScript frontend. It's configured to deploy to a local replica of the blockchain.
+# gielda_dyzurowa_ICP Project
 
 ## Prerequisites
 
@@ -13,7 +12,7 @@ This project is a simple example of a Rust application. It includes a Dockerfile
     Use the following command to clone the repository:
 
     ```bash
-    git clone git@github.com:macius702/Rust_one.git
+    git clone git@github.com:macius702/gielda_dyzurowa_ICP.git
     ```
 
 2. **Navigate into the project directory**
@@ -21,7 +20,7 @@ This project is a simple example of a Rust application. It includes a Dockerfile
     Use the following command to navigate into the cloned repository:
 
     ```bash
-    cd Rust_one
+    cd gielda_dyzurowa_ICP
     ```
 
 3. **Build and run the Docker image**

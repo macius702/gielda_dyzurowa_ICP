@@ -18,14 +18,15 @@ git push
 echo -e "${CYAN}Changing to parent directory...${NC}"
 cd ..
 
-echo -e "${CYAN}Removing Rust_one directory...${NC}"
-rm -rf Rust_one
+echo -e "${CYAN}Removing gielda_dyzurowa_ICP directory...${NC}"
+rm -rf gielda_dyzurowa_ICP
 
 echo -e "${CYAN}Cloning from git...${NC}"
-git clone git@github.com:macius702/Rust_one.git
+git clone git@github.com:macius702/gielda_dyzurowa_ICP.git
 
-echo -e "${CYAN}Changing to Rust_one directory...${NC}"
-cd Rust_one
+
+echo -e "${CYAN}Changing to gielda_dyzurowa_ICP directory...${NC}"
+cd gielda_dyzurowa_ICP
 
 echo -e "${CYAN}Running build_and_run.sh...${NC}"
 ./build_and_run.sh
