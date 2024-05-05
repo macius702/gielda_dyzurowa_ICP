@@ -10,6 +10,9 @@ use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, Storable,
     storable::Bound};
 use std::{borrow::Cow, cell::RefCell};
 
+mod specialties;
+use specialties::SPECIALTIES_STRINGS;
+
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 
 const MAX_VALUE_SIZE: u32 = 1000; // Adjust this value as needed
@@ -58,6 +61,8 @@ thread_local! {
             MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
         )
     );
+
+    static SPECIALTIES: RefCell<Vec<String>> = RefCell::new(SPECIALTIES_STRINGS.iter().map(|&s| s.to_string()).collect());
 }
 
 
@@ -70,6 +75,12 @@ fn get_all() -> Vec<DutySlot> {
 #[ic_cdk_macros::update]
 fn insert(key: u32, value: DutySlot) -> Option<DutySlot> {
     MAP.with(|p| p.borrow_mut().insert(key, value))
+}
+
+// Retirieve all specialties
+#[ic_cdk_macros::query]
+fn get_specialties() -> Vec<String> {
+    SPECIALTIES.with(|p| p.borrow().clone())
 }
 
 

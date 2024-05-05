@@ -12,5 +12,6 @@ type DutySlot = record {
 type DutyStatus = variant { Open; Waiting; Filled };
 service : {
   get_all : () -> (vec DutySlot) query;
+  get_specialties : () -> (vec text) query;
   insert : (nat32, DutySlot) -> (opt DutySlot);
 }
