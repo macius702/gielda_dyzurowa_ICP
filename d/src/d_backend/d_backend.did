@@ -10,8 +10,21 @@ type DutySlot = record {
   price_from : opt float64;
 };
 type DutyStatus = variant { Open; Waiting; Filled };
+type User = record {
+  localization : opt text;
+  username : text;
+  password : text;
+  role : UserRole;
+  profile_visible : bool;
+  email : opt text;
+  specialty : opt nat64;
+  phone_number : opt text;
+};
+type UserRole = variant { Doctor; Hospital };
 service : {
-  get_all : () -> (vec DutySlot) query;
+  get_all_duty_slots : () -> (vec DutySlot) query;
+  get_all_users : () -> (vec User) query;
   get_specialties : () -> (vec text) query;
-  insert : (nat32, DutySlot) -> (opt DutySlot);
+  insert_duty_slot : (DutySlot) -> (nat32);
+  insert_user : (User) -> (nat32);
 }
