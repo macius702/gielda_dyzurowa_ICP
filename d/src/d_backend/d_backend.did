@@ -1,5 +1,16 @@
+type DutySlot = record {
+  status : DutyStatus;
+  hospital_id : nat64;
+  assigned_doctor_id : opt nat64;
+  currency : opt text;
+  end_date_time : int64;
+  price_to : opt float64;
+  required_specialty : nat64;
+  start_date_time : int64;
+  price_from : opt float64;
+};
+type DutyStatus = variant { Open; Waiting; Filled };
 service : {
-  greet : (text) -> (text) query;
-  greet2 : (text) -> (text) query;
-  greet3 : (text) -> (text) query;
+  get_all : () -> (vec DutySlot) query;
+  insert : (nat32, DutySlot) -> (opt DutySlot);
 }
