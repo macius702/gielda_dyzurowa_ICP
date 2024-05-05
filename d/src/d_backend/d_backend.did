@@ -15,7 +15,6 @@ type User = record {
   username : text;
   password : text;
   role : UserRole;
-  profile_visible : bool;
   email : opt text;
   specialty : opt nat64;
   phone_number : opt text;

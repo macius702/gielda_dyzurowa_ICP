@@ -60,7 +60,6 @@ pub struct User {
     pub role: UserRole,
     pub specialty: Option<usize>,
     pub localization: Option<String>,
-    pub profile_visible: bool,
     pub email: Option<String>,
     pub phone_number: Option<String>,
 }
