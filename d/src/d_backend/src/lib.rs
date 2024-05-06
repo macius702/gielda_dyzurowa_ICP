@@ -27,11 +27,11 @@ pub enum DutyStatus {
 #[derive(CandidType, Deserialize, Clone)]
 pub struct DutySlot {
     pub required_specialty: usize,
-    pub hospital_id: usize,
+    pub hospital_id: u32,
     pub start_date_time: i64,
     pub end_date_time: i64,
     pub status: DutyStatus,
-    pub assigned_doctor_id: Option<usize>,
+    pub assigned_doctor_id: Option<u32>,
     pub price_from: Option<f64>,
     pub price_to: Option<f64>,
     pub currency: Option<String>,
@@ -58,7 +58,7 @@ pub struct User {
     pub username: String,
     pub password: String,
     pub role: UserRole,
-    pub specialty: Option<usize>,
+    pub specialty: Option<u16>,
     pub localization: Option<String>,
     pub email: Option<String>,
     pub phone_number: Option<String>,
