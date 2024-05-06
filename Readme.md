@@ -30,3 +30,14 @@
     ```bash
     ./build_and_run.sh
     ```
+
+
+## Useful commands
+
+For Docker, you can run the following command:
+
+```bash
+command="curl -X POST -H \"Content-Type: application/json\" -d \"{ \\\"hello\\\": \\\"world\\\" }\" \"http://$(dfx canister id d_backend).localhost:$(dfx info webserver-port)\"" ; echo $command
+```
+
+After running this command in the Docker terminal, you can copy the output and paste it into the host's terminal to execute it.

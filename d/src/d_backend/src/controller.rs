@@ -25,6 +25,8 @@ pub(crate) fn setup() -> Router {
         })
     });
     router.post("/", false, |req: HttpRequest| async move {
+        ic_cdk::println!("println from POST {:?}", req.params.get("value"));
+
         let received_body: Result<String, HttpResponse> = String::from_utf8(req.body)
             .map_err(|_| HttpServe::internal_server_error().unwrap_err());
         Ok(HttpResponse {

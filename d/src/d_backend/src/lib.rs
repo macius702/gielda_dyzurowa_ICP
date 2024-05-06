@@ -142,6 +142,7 @@ fn insert_duty_slot(value: DutySlot) -> u32 {
 // Retirieve all specialties
 #[ic_cdk_macros::query]
 fn get_specialties() -> Vec<String> {
+    ic_cdk::println!("println from get_specialties()\n");
     SPECIALTIES.with(|p| p.borrow().clone())
 }
 
