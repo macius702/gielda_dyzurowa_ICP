@@ -10,6 +10,8 @@ use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, Storable,
     storable::Bound};
 use std::{borrow::Cow, cell::RefCell};
 
+use serde::Serialize;
+
 mod specialties;
 use specialties::SPECIALTIES_STRINGS;
 
@@ -23,14 +25,14 @@ type Memory = VirtualMemory<DefaultMemoryImpl>;
 
 const MAX_VALUE_SIZE: u32 = 1000; // Adjust this value as needed
 
-#[derive(CandidType, Deserialize, Clone)]
+#[derive(CandidType, Deserialize, Clone, Serialize, Debug)]
 pub enum DutyStatus {
     Open,
     Waiting,
     Filled,
 }
 
-#[derive(CandidType, Deserialize, Clone)]
+#[derive(CandidType, Deserialize, Clone, Serialize, Debug)]
 pub struct DutySlot {
     pub required_specialty: usize,
     pub hospital_id: u32,

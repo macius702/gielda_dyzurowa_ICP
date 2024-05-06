@@ -6,6 +6,7 @@ use pluto::{
     router::Router,
 };
 use serde_json::json;
+use crate::get_all_duty_slots;
 
 pub(crate) fn setup() -> Router {
     let mut router = Router::new();
@@ -40,13 +41,20 @@ pub(crate) fn setup() -> Router {
             .into(),
         })
     });
-    router.get("/", false, |_req: HttpRequest| async move {
+
+    router.get("/duty/slots/json", false, |req: HttpRequest| async move {
+        println!("Hello World from GET /duty/slots/json");
+        println!("Duty slots: {:?}", get_all_duty_slots());
+
+
+        //respond with json using duty_slots
         Ok(HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
             body: json!({
                 "statusCode": 200,
-                "message": "Hello World from GET",
+                "message": "Hello World from GET /duty/slots/json",
+                "dutySlots": get_all_duty_slots()
             })
             .into(),
         })
