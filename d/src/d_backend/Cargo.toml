@@ -12,10 +12,12 @@ crate-type = ["cdylib"]
 
 
 [dependencies]
+pluto = { git = "https://github.com/pu0238/pluto.git" }
 candid = "0.10"
 ic-cdk = "0.13"
 ic-cdk-macros = "0.13.2"
 ic-stable-structures = "0.6.4"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 chrono = "0.4"
 

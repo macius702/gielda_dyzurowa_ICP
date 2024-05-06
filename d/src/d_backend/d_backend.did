@@ -1,7 +1,7 @@
 type DutySlot = record {
   status : DutyStatus;
-  hospital_id : nat64;
-  assigned_doctor_id : opt nat64;
+  hospital_id : nat32;
+  assigned_doctor_id : opt nat32;
   currency : opt text;
   end_date_time : int64;
   price_to : opt float64;
@@ -10,13 +10,25 @@ type DutySlot = record {
   price_from : opt float64;
 };
 type DutyStatus = variant { Open; Waiting; Filled };
+type RawHttpRequest = record {
+  url : text;
+  method : text;
+  body : blob;
+  headers : vec record { text; text };
+};
+type RawHttpResponse = record {
+  body : blob;
+  headers : vec record { text; text };
+  upgrade : opt bool;
+  status_code : nat16;
+};
 type User = record {
   localization : opt text;
   username : text;
   password : text;
   role : UserRole;
   email : opt text;
-  specialty : opt nat64;
+  specialty : opt nat16;
   phone_number : opt text;
 };
 type UserRole = variant { Doctor; Hospital };
@@ -24,6 +36,8 @@ service : {
   get_all_duty_slots : () -> (vec DutySlot) query;
   get_all_users : () -> (vec User) query;
   get_specialties : () -> (vec text) query;
+  http_request : (RawHttpRequest) -> (RawHttpResponse) query;
+  http_request_update : (RawHttpRequest) -> (RawHttpResponse);
   insert_duty_slot : (DutySlot) -> (nat32);
   insert_user : (User) -> (nat32);
 }
