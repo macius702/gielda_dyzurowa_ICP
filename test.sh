@@ -1,4 +1,12 @@
+
 #!/usr/bin/env bash
+# Example usage: ./test.sh from_backend.json
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <file>"
+    echo "One argument is mandatory, which is the file from backend."
+    exit 1
+fi
 
 file_name=$1
 
