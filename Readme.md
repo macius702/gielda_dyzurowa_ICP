@@ -25,12 +25,23 @@
 
 3. **Build and run the Docker image**
 
-    Use the following command to build the Docker image and run it:
+    Use the following command to build the Docker image and run it in interactive mode:
 
     ```bash
     ./build_and_run.sh
     ```
+    You can then go to another terminal and run tests with:
+    ```
+    ./test.sh from_backend.json
+    ```
+    This command will run the tests using the data from `from_backend.json`.
 
+4. **Or build, run and test in one go**
+
+    ```
+    ./build_and_run.sh test
+    ```
+    This command will build the Docker image, run it in detached mode, and then run the tests.
 
 ## Useful commands
 
