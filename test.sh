@@ -19,8 +19,9 @@ declare -A expected_responses
 
 # Add your curl commands and expected responses here
 data='{ "hello": "world" }'
-curl_commands[0]="curl -X GET -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port/duty/slots/json"
+command="/duty/slots/json"
 expected_responses[0]='{"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}'
+curl_commands[0]="curl -X GET -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port$command"
 
 data='{
   "username": "D1",
@@ -29,8 +30,9 @@ data='{
   "specialty": 12,
   "localization": "example_localization"
 }'
-curl_commands[1]="curl -X POST -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port/auth/register"
+command="/auth/register"
 expected_responses[1]='{"key":1,"message":"User registered","statusCode":200}'
+curl_commands[1]="curl -X POST -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port$command"
 
 
 for i in "${!curl_commands[@]}"; do
