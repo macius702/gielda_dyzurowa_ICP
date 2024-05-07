@@ -13,34 +13,34 @@ file_name=$1
 canister_id=$(jq -r '.canister_id' $file_name)
 webserver_port=$(jq -r '.webserver_port' $file_name)
 
-declare -A curl_commands
-declare -A expected_responses
+declare -a data
+declare -a expected_responses
+declare -a endpoints
+declare -a commands
 
-
-# Add your curl commands and expected responses here
-data='{ "hello": "world" }'
-endpoint="/duty/slots/json"
-command="GET"
+# Add your data, expected responses, endpoints, and commands here
+data[0]='{ "hello": "world" }'
 expected_responses[0]='{"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}'
-curl_commands[0]="curl -X $command -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port$endpoint"
+endpoints[0]="/duty/slots/json"
+commands[0]="GET"
 
-data='{
+data[1]='{
   "username": "D1",
   "password": "a",
   "role":  "Doctor",
   "specialty": 12,
   "localization": "example_localization"
 }'
-endpoint="/auth/register"
-command="POST"
 expected_responses[1]='{"key":1,"message":"User registered","statusCode":200}'
-curl_commands[1]="curl -X $command -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port$endpoint"
+endpoints[1]="/auth/register"
+commands[1]="POST"
 
-
-for i in "${!curl_commands[@]}"; do
+# Loop over the arrays
+for i in "${!data[@]}"; do
     echo "Issuing curl command for testing..."
-    echo "${curl_commands[$i]}"
-    response=$(eval "${curl_commands[$i]}")
+    curl_command="curl -X ${commands[$i]} -H \"Content-Type: application/json\" -d '${data[$i]}' http://$canister_id.localhost:$webserver_port${endpoints[$i]}"
+    echo $curl_command
+    response=$(eval $curl_command)
 
     echo "Response from server:"
     echo $response 
@@ -55,4 +55,3 @@ for i in "${!curl_commands[@]}"; do
         echo $response
     fi
 done
-
