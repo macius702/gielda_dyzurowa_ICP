@@ -17,15 +17,15 @@ webserver_port=$(jq -r '.webserver_port' $file_name)
 json_array='[
     {
         "data": { "hello": "world" },
-        "expected_response": {"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200},
+        "command": "GET",
         "endpoint": "/duty/slots/json",
-        "command": "GET"
+        "expected_response": {"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}
     },
     {
         "data": { "username": "D1", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
-        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}",
+        "command": "POST",
         "endpoint": "/auth/register",
-        "command": "POST"
+        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
     }
 ]'
 
