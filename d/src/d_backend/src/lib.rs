@@ -2,7 +2,7 @@
 
 
 
-
+pub mod types;
 
 use candid::{CandidType, Deserialize, Encode, Decode};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
