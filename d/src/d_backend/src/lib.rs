@@ -61,7 +61,7 @@ impl Storable for DutySlot {
 }
 
 // A storable type of User
-#[derive(CandidType, Deserialize, Clone)]
+#[derive(CandidType, Deserialize, Clone, Debug, Serialize)]
 pub struct User {
     pub username: String,
     pub password: String,
@@ -89,7 +89,7 @@ impl Storable for User {
 
 
 
-#[derive(CandidType, Deserialize, Clone)]
+#[derive(CandidType, Deserialize, Clone, Debug, Serialize)]
 pub enum UserRole {
     Doctor,
     Hospital,

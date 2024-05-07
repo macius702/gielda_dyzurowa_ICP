@@ -10,56 +10,45 @@ fi
 
 file_name=$1
 
-echo "Issuing curl command for testing..."
 canister_id=$(jq -r '.canister_id' $file_name)
 webserver_port=$(jq -r '.webserver_port' $file_name)
-curl_command=("curl" "-X" "GET" "-H" "Content-Type: application/json" "-d" "{ \"hello\": \"world\" }" "http://$canister_id.localhost:$webserver_port/duty/slots/json")
-echo "${curl_command[@]}"
-response=$("${curl_command[@]}")
 
-echo "Response from server:"
-
-echo $response | jq
-
-expected_response='{"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}'
-# expected_response='{
-#     "dutySlots": [
-#         {
-#             "assigned_doctor_id": null,
-#             "currency": null,
-#             "end_date_time": 0,
-#             "hospital_id": 1,
-#             "price_from": 234,
-#             "price_to": null,
-#             "required_specialty": 4,
-#             "start_date_time": 355,
-#             "status": "Open"
-#         },
-#         {
-#             "assigned_doctor_id": null,
-#             "currency": null,
-#             "end_date_time": 0,
-#             "hospital_id": 1,
-#             "price_from": 233,
-#             "price_to": null,
-#             "required_specialty": 4,
-#             "start_date_time": 356,
-#             "status": "Waiting"
-#         }
-#     ],
-#     "message": "Hello World from GET /duty/slots/json",
-#     "statusCode": 200
-# }'
-
-if [ "$response" == "$expected_response" ]; then
-    echo "Test passed"
-else
-    echo "Test failed"
-    echo "Expected response:"
-    echo $expected_response
-    echo "Actual response:"
-    echo $response
-fi
+declare -A curl_commands
+declare -A expected_responses
 
 
+# Add your curl commands and expected responses here
+data='{ "hello": "world" }'
+curl_commands[0]="curl -X GET -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port/duty/slots/json"
+expected_responses[0]='{"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}'
+
+data='{
+  "username": "D1",
+  "password": "a",
+  "role":  "Doctor",
+  "specialty": 12,
+  "localization": "example_localization"
+}'
+curl_commands[1]="curl -X POST -H \"Content-Type: application/json\" -d '$data' http://$canister_id.localhost:$webserver_port/auth/register"
+expected_responses[1]='{"key":1,"message":"User registered","statusCode":200}'
+
+
+for i in "${!curl_commands[@]}"; do
+    echo "Issuing curl command for testing..."
+    echo "${curl_commands[$i]}"
+    response=$(eval "${curl_commands[$i]}")
+
+    echo "Response from server:"
+    echo $response 
+
+    if [ "$response" == "${expected_responses[$i]}" ]; then
+        echo "Test passed"
+    else
+        echo "Test failed"
+        echo "Expected response:"
+        echo "${expected_responses[$i]}"
+        echo "Actual response:"
+        echo $response
+    fi
+done
 

@@ -6,10 +6,11 @@ use pluto::{
     router::Router,
 };
 use serde_json::json;
-use crate::{get_all_duty_slots, insert_duty_slot};
+use crate::{get_all_duty_slots, insert_duty_slot, insert_user, get_all_users};
 use crate::DutySlot;
 use crate::DutyStatus;
 use crate::types::PublishDutySlotRequest;
+use crate::User;
 
 //define  a global u32 constant 
 pub const TODO_SESSION_USER_ID: u32 = 1;
@@ -107,8 +108,51 @@ pub(crate) fn setup() -> Router {
             "key": key
         })
         .into(),
-    })
-});  
+        })
+    });  
+
+
+    router.post("/auth/register"
+        , false
+        , |req: HttpRequest| async move {
+            // req body has fields : username, password, role, specialty, localization 
+            let body_string = String::from_utf8(req.body.clone()).unwrap();
+            println!("Received body: {}", body_string); // Debug print
+            let user: User = serde_json::from_str(&body_string).unwrap();
+            println!("Parsed user: {:?}", user); // Debug print
+            let key = insert_user(user);
+            println!("Inserted user with key: {}", key); // Debug print
+            Ok(HttpResponse {
+                status_code: 200,
+                headers: HashMap::new(),
+                body: json!({
+                    "statusCode": 200,
+                    "message": "User registered",
+                    "key": key
+                })
+                .into(),
+            })
+        });
+    router.get("/users", false, |_: HttpRequest| async move {
+        println!("Hello World from GET /users");
+        println!("Users: {:?}", get_all_users());
+
+        //respond with json using users
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({
+                "statusCode": 200,
+                "message": "Hello World from GET /users",
+                "users": get_all_users()
+            })
+            .into(),
+        })
+    });
+
+
+
+
 
     router
 }
