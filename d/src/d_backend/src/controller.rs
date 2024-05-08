@@ -6,7 +6,7 @@ use pluto::{
     router::Router,
 };
 use serde_json::json;
-use crate::{get_all_duty_slots, insert_duty_slot, insert_user, get_all_users};
+use crate::{get_all_duty_slots_internal, insert_duty_slot_internal, insert_user_internal, get_all_users_internal};
 use crate::DutySlot;
 use crate::DutyStatus;
 use crate::types::PublishDutySlotRequest;
@@ -62,7 +62,7 @@ pub(crate) fn setup() -> Router {
 
     router.get("/duty/slots/json", false, |_: HttpRequest| async move {
         println!("Hello World from GET /duty/slots/json");
-        println!("Duty slots: {:?}", get_all_duty_slots());
+        println!("Duty slots: {:?}", get_all_duty_slots_internal());
 
 
         //respond with json using duty_slots
@@ -72,7 +72,7 @@ pub(crate) fn setup() -> Router {
             body: json!({
                 "statusCode": 200,
                 "message": "Hello World from GET /duty/slots/json",
-                "dutySlots": get_all_duty_slots()
+                "dutySlots": get_all_duty_slots_internal()
             })
             .into(),
         })
@@ -97,7 +97,7 @@ pub(crate) fn setup() -> Router {
         assigned_doctor_id: None
     };
 
-    let key = insert_duty_slot(duty_slot);
+    let key = insert_duty_slot_internal(duty_slot);
 
     Ok(HttpResponse {
         status_code: 200,
@@ -120,8 +120,8 @@ pub(crate) fn setup() -> Router {
             println!("Received body: {}", body_string); // Debug print
             let user: User = serde_json::from_str(&body_string).unwrap();
             println!("Parsed user: {:?}", user); // Debug print
-            let key = insert_user(user);
-            println!("Inserted user with key: {}", key); // Debug print
+            let key = insert_user_internal(user);
+            println!("Inserted user with key: {:?}", key); // Debug print
             Ok(HttpResponse {
                 status_code: 200,
                 headers: HashMap::new(),
@@ -135,7 +135,7 @@ pub(crate) fn setup() -> Router {
         });
     router.get("/users", false, |_: HttpRequest| async move {
         println!("Hello World from GET /users");
-        println!("Users: {:?}", get_all_users());
+        println!("Users: {:?}", get_all_users_internal());
 
         //respond with json using users
         Ok(HttpResponse {
@@ -144,7 +144,7 @@ pub(crate) fn setup() -> Router {
             body: json!({
                 "statusCode": 200,
                 "message": "Hello World from GET /users",
-                "users": get_all_users()
+                "users": get_all_users_internal()
             })
             .into(),
         })

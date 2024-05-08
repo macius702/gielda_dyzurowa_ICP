@@ -126,11 +126,19 @@ thread_local! {
 /// Retrieves all DutySlots as a Vec.
 #[ic_cdk_macros::query]
 fn get_all_duty_slots() -> Vec<DutySlot> {
+    get_all_duty_slots_internal()
+}
+
+fn get_all_duty_slots_internal() -> Vec<DutySlot> {
     MAP.with(|p| p.borrow().iter().map(|(_, v)| v.clone()).collect())
 }
 
 #[ic_cdk_macros::update]
 fn insert_duty_slot(value: DutySlot) -> u32 {
+    insert_duty_slot_internal(value)
+}
+
+fn insert_duty_slot_internal(value: DutySlot) -> u32 {
     let key = NEXT_DUTYSLOTS_KEY.with(|k| {
         let key = *k.borrow();
         *k.borrow_mut() += 1;
@@ -144,6 +152,10 @@ fn insert_duty_slot(value: DutySlot) -> u32 {
 // Retirieve all specialties
 #[ic_cdk_macros::query]
 fn get_specialties() -> Vec<String> {
+    get_specialties_internal()
+}
+
+fn get_specialties_internal() -> Vec<String> {
     ic_cdk::println!("println from get_specialties()\n");
     SPECIALTIES.with(|p| p.borrow().clone())
 }
@@ -151,19 +163,37 @@ fn get_specialties() -> Vec<String> {
 // Insert a new user
 #[ic_cdk_macros::update]
 fn insert_user(value: User) -> u32 {
+    insert_user_internal(value)
+}
+
+fn insert_user_internal(value: User) -> u32 {
+    println!("Entering function insert_user");
+    println!("Inserting user: {:?}", value);
+
     let key = NEXT_USER_KEY.with(|k| {
         let key = *k.borrow();
+        println!("Current key: {}", key);
+
         *k.borrow_mut() += 1;
+        println!("Incremented key: {}", key);
         key
     });
 
-    USER_MAP.with(|p| p.borrow_mut().insert(key, value));
+    USER_MAP.with(|p| {
+        p.borrow_mut().insert(key, value);
+    });
+
+    println!("Leaving function insert_user");
     key
 }
 
 // Get all users
 #[ic_cdk_macros::query]
 fn get_all_users() -> Vec<User> {
+    get_all_users_internal()
+}
+
+fn get_all_users_internal() -> Vec<User> {
     USER_MAP.with(|p| p.borrow().iter().map(|(_, v)| v.clone()).collect())
 }
 
