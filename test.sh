@@ -22,9 +22,27 @@ json_array='[
         "expected_response": {"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}
     },
     {
-        "data": { "username": "D1", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
+        "data": { "username": "D2", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
         "command": "POST",
         "endpoint": "/auth/register",
+        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
+    },
+    {
+        "data": { "hello": "world" },
+        "command": "GET",
+        "endpoint": "/users",
+        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
+    },
+    {
+        "data": { "username": "D3", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
+        "command": "POST",
+        "endpoint": "/auth/register",
+        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
+    },
+    {
+        "data": { "hello": "world" },
+        "command": "GET",
+        "endpoint": "/users",
         "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
     }
 ]'
