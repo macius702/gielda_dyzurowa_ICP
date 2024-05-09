@@ -29,7 +29,7 @@ pub const TODO_SESSION_USER_ID: u32 = 1;
 pub(crate) fn setup() -> Router {
     let mut router = Router::new();
 
-    router.put("/:value", false, |req: HttpRequest| async move {
+    router.put("/:value", true, |req: HttpRequest| async move {
         println!("Hello World from PUT {:?}", req.params.get("value"));
 
         Ok(HttpResponse {
@@ -43,7 +43,7 @@ pub(crate) fn setup() -> Router {
             .into(),
         })
     });
-    router.post("/", false, |req: HttpRequest| async move {
+    router.post("/", true, |req: HttpRequest| async move {
         ic_cdk::println!("println from POST {:?}", req.params.get("value"));
 
         let received_body: Result<String, HttpResponse> = String::from_utf8(req.body)
@@ -78,7 +78,7 @@ pub(crate) fn setup() -> Router {
         })
     });
 
-    router.post("/duty/publish", false, |req: HttpRequest| async move {
+    router.post("/duty/publish", true, |req: HttpRequest| async move {
     let body_string = String::from_utf8(req.body.clone()).unwrap();
     let publish_duty_slot_request: PublishDutySlotRequest = serde_json::from_str(&body_string).unwrap();
 
@@ -113,7 +113,7 @@ pub(crate) fn setup() -> Router {
 
 
     router.post("/auth/register"
-        , false
+        , true
         , |req: HttpRequest| async move {
             // req body has fields : username, password, role, specialty, localization 
             let body_string = String::from_utf8(req.body.clone()).unwrap();
