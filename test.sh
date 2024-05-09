@@ -31,19 +31,20 @@ json_array='[
         "data": { "hello": "world" },
         "command": "GET",
         "endpoint": "/users",
-        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
+        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"Doctor","specialty":12,"username":"D2"}]}
+
     },
     {
         "data": { "username": "D3", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
         "command": "POST",
         "endpoint": "/auth/register",
-        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
+        "expected_response": {"key":2,"message":"User registered","statusCode":200}
     },
     {
         "data": { "hello": "world" },
         "command": "GET",
         "endpoint": "/users",
-        "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
+        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"Doctor","specialty":12,"username":"D2"},{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"Doctor","specialty":12,"username":"D3"}]}
     }
 ]'
 
@@ -54,7 +55,12 @@ echo $json_array > records.json
 length=$(jq '. | length' records.json)
 
 # Loop over the array
+total_tests=0
+failed_tests=0
+failed_tests_indices=()
+
 for (( i=0; i<$length; i++ )); do
+    total_tests=$((total_tests+1))
     record=$(jq -c ".[$i]" records.json)
     data=$(echo $record | jq -r '.data')
     expected_response=$(echo $record | jq -r '.expected_response')
@@ -79,8 +85,17 @@ for (( i=0; i<$length; i++ )); do
         echo "$expected_response"
         echo "Actual response:"
         echo $response
+        failed_tests=$((failed_tests+1))
+        failed_tests_indices+=($i)
     fi
 done
 
+if [ $failed_tests -eq 0 ]; then
+    echo -e "\e[32mAll tests passed\e[0m"
+else
+    echo "Total tests: $total_tests"
+    echo "Failed tests: $failed_tests"
+    echo "Failed tests indices: ${failed_tests_indices[@]}"
+fi
 # Remove the temporary file
 rm records.json
