@@ -2,6 +2,12 @@
 #!/usr/bin/env bash
 # Example usage: ./test.sh from_backend.json
 
+
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+
+
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <file>"
     echo "One argument is mandatory, which is the file from backend."
@@ -91,7 +97,7 @@ for (( i=0; i<$length; i++ )); do
 done
 
 if [ $failed_tests -eq 0 ]; then
-    echo -e "\e[32mAll tests passed\e[0m"
+    echo -e "${GREEN}All tests passed${NC}"
 else
     echo "Total tests: $total_tests"
     echo "Failed tests: $failed_tests"
