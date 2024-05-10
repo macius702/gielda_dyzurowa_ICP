@@ -28,7 +28,7 @@ json_array='[
         "expected_response": {"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}
     },
     {
-        "data": { "username": "D2", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
+        "data": { "username": "D2", "password": "a", "role":  "doctor", "specialty": 12, "localization": "example_localization" },
         "command": "POST",
         "endpoint": "/auth/register",
         "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
@@ -37,11 +37,11 @@ json_array='[
         "data": { "hello": "world" },
         "command": "GET",
         "endpoint": "/users",
-        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"Doctor","specialty":12,"username":"D2"}]}
+        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"doctor","specialty":12,"username":"D2"}]}
 
     },
     {
-        "data": { "username": "D3", "password": "a", "role":  "Doctor", "specialty": 12, "localization": "example_localization" },
+        "data": { "username": "D3", "password": "a", "role":  "doctor", "specialty": 12, "localization": "example_localization" },
         "command": "POST",
         "endpoint": "/auth/register",
         "expected_response": {"key":2,"message":"User registered","statusCode":200}
@@ -50,7 +50,7 @@ json_array='[
         "data": { "hello": "world" },
         "command": "GET",
         "endpoint": "/users",
-        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"Doctor","specialty":12,"username":"D2"},{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"Doctor","specialty":12,"username":"D3"}]}
+        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"doctor","specialty":12,"username":"D2"},{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"doctor","specialty":12,"username":"D3"}]}
     }
 ]'
 

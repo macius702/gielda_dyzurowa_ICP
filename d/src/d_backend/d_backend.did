@@ -31,7 +31,7 @@ type User = record {
   specialty : opt nat16;
   phone_number : opt text;
 };
-type UserRole = variant { Doctor; Hospital };
+type UserRole = variant { hospital; doctor };
 service : {
   get_all_duty_slots : () -> (vec DutySlot) query;
   get_all_users : () -> (vec User) query;

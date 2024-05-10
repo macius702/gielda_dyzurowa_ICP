@@ -91,8 +91,8 @@ impl Storable for User {
 
 #[derive(CandidType, Deserialize, Clone, Debug, Serialize)]
 pub enum UserRole {
-    Doctor,
-    Hospital,
+    doctor,
+    hospital,
 }
 
 thread_local! {
