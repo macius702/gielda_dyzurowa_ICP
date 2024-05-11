@@ -18,7 +18,24 @@ pub const TODO_SESSION_USER_ID: u32 = 1;
 
 
 
+use ring::pbkdf2;
+use ring::digest;
 
+static PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
+const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+type Credential = [u8; CREDENTIAL_LEN];
+
+fn hash_password(password: &str, salt: &[u8]) -> Credential {
+    let mut credential = [0u8; CREDENTIAL_LEN];
+    pbkdf2::derive(
+        PBKDF2_ALG,
+        std::num::NonZeroU32::new(10000).unwrap(),
+        salt,
+        password.as_bytes(),
+        &mut credential,
+    );
+    credential
+}
 
 
 
@@ -118,7 +135,15 @@ pub(crate) fn setup() -> Router {
             // req body has fields : username, password, role, specialty, localization 
             let body_string = String::from_utf8(req.body.clone()).unwrap();
             println!("Received body: {}", body_string); // Debug print
-            let user: User = serde_json::from_str(&body_string).unwrap();
+            let mut user: User = serde_json::from_str(&body_string).unwrap();
+            
+            // hash the passworf using bcrypt
+            println!("Before hashing password");
+
+            let salt_string = "your_salt_string";
+            let hashed_password = hex::encode(hash_password(&user.password, salt_string.as_bytes()));
+            println!("After hashing password: {}", hashed_password); 
+            user.password = hashed_password;
             println!("Parsed user: {:?}", user); // Debug print
             let key = insert_user_internal(user);
             println!("Inserted user with key: {:?}", key); // Debug print

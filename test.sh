@@ -22,35 +22,97 @@ webserver_port=$(jq -r '.webserver_port' $file_name)
 # JSON array of records
 json_array='[
     {
-        "data": { "hello": "world" },
+        "data": {
+            "hello": "world"
+        },
         "command": "GET",
         "endpoint": "/duty/slots/json",
-        "expected_response": {"dutySlots":[],"message":"Hello World from GET /duty/slots/json","statusCode":200}
+        "expected_response": {
+            "dutySlots": [],
+            "message": "Hello World from GET /duty/slots/json",
+            "statusCode": 200
+        }
     },
     {
-        "data": { "username": "D2", "password": "a", "role":  "doctor", "specialty": 12, "localization": "example_localization" },
+        "data": {
+            "username": "D2",
+            "password": "a",
+            "role": "doctor",
+            "specialty": 12,
+            "localization": "example_localization"
+        },
         "command": "POST",
         "endpoint": "/auth/register",
         "expected_response": "{\"key\":1,\"message\":\"User registered\",\"statusCode\":200}"
     },
     {
-        "data": { "hello": "world" },
+        "data": {
+            "hello": "world"
+        },
         "command": "GET",
         "endpoint": "/users",
-        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"doctor","specialty":12,"username":"D2"}]}
-
+        "expected_response": {
+            "message": "Hello World from GET /users",
+            "statusCode": 200,
+            "users": [
+                {
+                    "email": null,
+                    "localization": "example_localization",
+                    "password": "2ce11de647a6f556268d4ae9ec33413dbb39e8c66a7c6344854460b790932016",
+                    "phone_number": null,
+                    "role": "doctor",
+                    "specialty": 12,
+                    "username": "D2"
+                }
+            ]
+        }
     },
     {
-        "data": { "username": "D3", "password": "a", "role":  "doctor", "specialty": 12, "localization": "example_localization" },
+        "data": {
+            "username": "D3",
+            "password": "b",
+            "role": "doctor",
+            "specialty": 12,
+            "localization": "example_localization"
+        },
         "command": "POST",
         "endpoint": "/auth/register",
-        "expected_response": {"key":2,"message":"User registered","statusCode":200}
+        "expected_response": {
+            "key": 2,
+            "message": "User registered",
+            "statusCode": 200
+        }
     },
     {
-        "data": { "hello": "world" },
+        "data": {
+            "hello": "world"
+        },
         "command": "GET",
         "endpoint": "/users",
-        "expected_response": {"message":"Hello World from GET /users","statusCode":200,"users":[{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"doctor","specialty":12,"username":"D2"},{"email":null,"localization":"example_localization","password":"a","phone_number":null,"role":"doctor","specialty":12,"username":"D3"}]}
+        "expected_response": {
+            "message": "Hello World from GET /users",
+            "statusCode": 200,
+            "users": [
+                {
+                    "email": null,
+                    "localization": "example_localization",
+                    "password": "2ce11de647a6f556268d4ae9ec33413dbb39e8c66a7c6344854460b790932016",
+                    "phone_number": null,
+                    "role": "doctor",
+                    "specialty": 12,
+                    "username": "D2"
+                },
+                {
+                    "email": null,
+                    "localization": "example_localization",
+                    "password": "d5653d3b9589851de6dd763749c19bb876c53e5924835c31c2ac48abd9e9ec86",
+                    "phone_number": null,
+                    "role": "doctor",
+                    "specialty": 12,
+                    "username": "D3"
+                }
+            ]
+        }
     }
 ]'
 
@@ -88,9 +150,9 @@ for (( i=0; i<$length; i++ )); do
     else
         echo "Test failed"
         echo "Expected response:"
-        echo "$expected_response"
+        echo "$expected_response" | jq
         echo "Actual response:"
-        echo $response
+        echo $response | jq
         failed_tests=$((failed_tests+1))
         failed_tests_indices+=($i)
     fi
