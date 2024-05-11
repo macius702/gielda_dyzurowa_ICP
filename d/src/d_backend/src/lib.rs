@@ -88,7 +88,7 @@ impl Storable for User {
 }       
 
 
-
+#[allow(non_camel_case_types)]
 #[derive(CandidType, Deserialize, Clone, Debug, Serialize)]
 pub enum UserRole {
     doctor,
