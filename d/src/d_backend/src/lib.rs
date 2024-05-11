@@ -122,6 +122,19 @@ thread_local! {
 
 }
 
+fn find_user_by_username(username: &str) -> Option<User> {
+    USER_MAP.with(|user_map| {
+        let user_map = user_map.borrow();
+
+        for (_key, user) in user_map.iter() {
+            if user.username == username {
+                return Some(user.clone());
+            }
+        }
+
+        None
+    })
+}
 
 /// Retrieves all DutySlots as a Vec.
 #[ic_cdk_macros::query]

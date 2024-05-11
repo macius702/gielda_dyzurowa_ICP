@@ -113,7 +113,20 @@ json_array='[
                 }
             ]
         }
-    }
+    },
+    {
+        "data": {
+            "username": "D2",
+            "password": "a"
+        },
+        "command": "POST",
+        "endpoint": "/auth/login",
+        "expected_response": {
+            "message": "User logged in",
+            "statusCode": 200,
+            "username": "D2"
+        }
+    }    
 ]'
 
 # Save the JSON array to a file

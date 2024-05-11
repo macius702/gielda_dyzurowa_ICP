@@ -6,7 +6,7 @@ use pluto::{
     router::Router,
 };
 use serde_json::json;
-use crate::{get_all_duty_slots_internal, insert_duty_slot_internal, insert_user_internal, get_all_users_internal};
+use crate::{find_user_by_username, get_all_duty_slots_internal, get_all_users_internal, insert_duty_slot_internal, insert_user_internal};
 use crate::DutySlot;
 use crate::DutyStatus;
 use crate::types::PublishDutySlotRequest;
@@ -158,6 +158,72 @@ pub(crate) fn setup() -> Router {
                 .into(),
             })
         });
+
+    router.post("/auth/login", true, move |req: HttpRequest| async move {
+        // Log the full incoming request
+        println!("Incoming Request: method = {}, url = {}", req.method, req.url);
+        // Parse the request body
+        let body_string = String::from_utf8(req.body.clone()).unwrap();
+
+        println!("Incoming Request Body: {}", body_string);
+
+        let data: serde_json::Value = serde_json::from_str(&body_string).unwrap();
+        let username = data["username"].as_str().unwrap();
+        let password = data["password"].as_str().unwrap();
+
+        println!("Parsed Username: {}", username);
+        println!("Parsed Password: {}", password);
+
+        // Find the user
+        let user = find_user_by_username(username);
+
+        match user {
+            None => {
+                println!("Login attempt: User not found");
+                // Send response with status 400
+                Ok(HttpResponse {
+                    status_code: 400,
+                    headers: HashMap::new(),
+                    body: json!({
+                        "statusCode": 400,
+                        "message": "Invalid username or password"
+                    })
+                    .into(),
+                })
+            }
+            Some(user) => {
+                // Check the password
+                let hashed_password = hex::encode(hash_password(password, "your_salt_string".as_bytes()));
+                if user.password == hashed_password {
+                    println!("User logged in: {}", user.username);
+                    // Send response with status 200
+                    Ok(HttpResponse {
+                        status_code: 200,
+                        headers: HashMap::new(),
+                        body: json!({
+                            "statusCode": 200,
+                            "message": "User logged in",
+                            "username": user.username
+                        })
+                        .into(),
+                    })
+                } else {
+                    println!("Login attempt failed for user: {}", username);
+                    // Send response with status 400
+                    Ok(HttpResponse {
+                        status_code: 400,
+                        headers: HashMap::new(),
+                        body: json!({
+                            "statusCode": 400,
+                            "message": "Invalid username or password"
+                        })
+                        .into(),
+                    })
+                }
+            }
+        }
+    });
+
     router.get("/users", false, |_: HttpRequest| async move {
         println!("Hello World from GET /users");
         println!("Users: {:?}", get_all_users_internal());
