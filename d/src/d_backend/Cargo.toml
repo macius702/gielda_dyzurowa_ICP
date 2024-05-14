@@ -24,3 +24,4 @@ chrono = "0.4"
 ring = "*"
 getrandom = {version = "0.2", default-features = false, features = ["custom"]}
 hex = "0.4.3"
+cookie = "0.16.0"

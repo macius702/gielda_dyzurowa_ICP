@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, io::Read};
 
 use ic_cdk::println;
 use pluto::{
@@ -6,6 +6,18 @@ use pluto::{
     router::Router,
 };
 use serde_json::json;
+use serde_json::from_str;
+use serde::Serialize;
+use candid::ser::IDLBuilder;
+use candid;
+use candid::de::IDLDeserialize;
+use candid::{CandidType, Deserialize};
+use cookie::{Cookie, SameSite};
+
+// for display private HeaderField fields
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct MyHeaderField(pub String, pub String);
+
 use crate::{find_user_by_username, get_all_duty_slots_internal, get_all_users_internal, insert_duty_slot_internal, insert_user_internal};
 use crate::DutySlot;
 use crate::DutyStatus;
@@ -196,8 +208,9 @@ pub(crate) fn setup() -> Router {
                 let hashed_password = hex::encode(hash_password(password, "your_salt_string".as_bytes()));
                 if user.password == hashed_password {
                     println!("User logged in: {}", user.username);
-                    // Send response with status 200
-                    Ok(HttpResponse {
+
+                    // Define response first
+                    let mut response = HttpResponse {
                         status_code: 200,
                         headers: HashMap::new(),
                         body: json!({
@@ -206,7 +219,17 @@ pub(crate) fn setup() -> Router {
                             "username": user.username
                         })
                         .into(),
-                    })
+                    };
+
+                    let cookie = Cookie::build("session", user.username)
+                        .same_site(SameSite::Strict)
+                        .secure(true)
+                        .http_only(true)
+                        .finish();
+                    response.headers.insert("Set-Cookie".to_string(), cookie.to_string());
+
+                    Ok(response)
+
                 } else {
                     println!("Login attempt failed for user: {}", username);
                     // Send response with status 400
@@ -222,6 +245,49 @@ pub(crate) fn setup() -> Router {
                 }
             }
         }
+    });
+
+    router.get("/user/data", false, |req: HttpRequest| async move {
+        // Log the full incoming request
+        println!("Incoming Request: method = {}, url = {}", req.method, req.url);
+
+        // method
+        println!("Incoming Request Method: {}", req.method);
+        // url
+        println!("Incoming Request URL: {}", req.url);
+
+        // headers
+        let mut serializer = IDLBuilder::new();
+        serializer.arg(&req).unwrap();
+        let candid_message = serializer.serialize_to_vec().unwrap();
+        println!("Candid message: {:?}", candid_message);
+        // loop over HeaderFileds
+        for header in req.headers.iter() {
+            // serialize header to Candid, and deserialize to MyHeaderField
+            let mut serializer = IDLBuilder::new();
+            serializer.arg(&header).unwrap();
+            let candid_message = serializer.serialize_to_vec().unwrap();
+            
+            let mut deserializer = IDLDeserialize::new(&candid_message).unwrap();
+            let header_field: MyHeaderField = deserializer.get_value().unwrap();
+            println!("header_field {:?}", header_field);            
+
+        }
+
+        let body_string = String::from_utf8(req.body.clone()).unwrap();
+        println!("Incoming Request Body: {}", body_string);
+        // params
+        println!("Incoming Request Params: {:?}", req.params);
+        // path
+        println!("Incoming Request Path: {}", req.path);
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({
+                "statusCode": 200
+            })
+            .into(),
+        })
     });
 
     router.get("/users", false, |_: HttpRequest| async move {
