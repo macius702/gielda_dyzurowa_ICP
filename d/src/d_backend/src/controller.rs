@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Read};
+use std::collections::HashMap;
 
 use ic_cdk::println;
 use pluto::{
@@ -6,8 +6,6 @@ use pluto::{
     router::Router,
 };
 use serde_json::json;
-use serde_json::from_str;
-use serde::Serialize;
 use candid::ser::IDLBuilder;
 use candid;
 use candid::de::IDLDeserialize;
