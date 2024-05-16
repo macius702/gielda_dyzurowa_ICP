@@ -64,3 +64,21 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - set_cookie in login ,  get_cookie in other
 - try call login from Android - working
 - the two above would be replaced by JWT
+
+## Interesting commands by AI
+
+traceroute: This command shows the path that packets take to reach a network host. It can help you identify where a connection is failing.
+
+nslookup or dig: These commands can be used to query the Domain Name System (DNS) and get information about domain names and IP addresses.
+
+netstat: This command displays network connections, routing tables, and network interface statistics.
+
+nmap: This is a powerful tool for network discovery and security auditing. It can be used to scan a network host for open ports and running services.
+
+tcpdump: This is a command-line packet analyzer. It allows you to capture and analyze network traffic.
+
+ss: This command is used to dump socket statistics and displays information similar to netstat.
+
+ip: This command is used to show / manipulate routing, devices, policy routing and tunnels.
+
+whois: This command is used to query databases that store the registered users or assignees of an Internet resource, such as a domain name or an IP address block.

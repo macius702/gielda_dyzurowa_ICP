@@ -1,9 +1,11 @@
 #! /usr/bin/env bash
 
 
+
 # Function to build the Docker image
 build_image() {
     docker build -t rust_one_image .
+    echo
 }
 
 # Function to run the Docker container
