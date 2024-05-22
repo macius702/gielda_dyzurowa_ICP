@@ -11,6 +11,9 @@ use candid;
 use candid::de::IDLDeserialize;
 use candid::{CandidType, Deserialize};
 use cookie::{Cookie, SameSite};
+use crate::jwt::JWT;
+use maplit::hashmap;
+
 
 // for display private HeaderField fields
 #[derive(CandidType, Deserialize, Clone, Debug)]
@@ -35,7 +38,7 @@ static PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
 type Credential = [u8; CREDENTIAL_LEN];
 
-fn hash_password(password: &str, salt: &[u8]) -> Credential {
+fn hash_password_with_pbkdf2(password: &str, salt: &[u8]) -> Credential {
     let mut credential = [0u8; CREDENTIAL_LEN];
     pbkdf2::derive(
         PBKDF2_ALG,
@@ -151,7 +154,7 @@ pub(crate) fn setup() -> Router {
             println!("Before hashing password");
 
             let salt_string = "your_salt_string";
-            let hashed_password = hex::encode(hash_password(&user.password, salt_string.as_bytes()));
+            let hashed_password = hex::encode(hash_password_with_pbkdf2(&user.password, salt_string.as_bytes()));
             println!("After hashing password: {}", hashed_password); 
             user.password = hashed_password;
             println!("Parsed user: {:?}", user); // Debug print
@@ -185,9 +188,9 @@ pub(crate) fn setup() -> Router {
         println!("Parsed Password: {}", password);
 
         // Find the user
-        let user = find_user_by_username(username);
+        let user_result = find_user_by_username(username);
 
-        match user {
+        match user_result {
             None => {
                 println!("Login attempt: User not found");
                 // Send response with status 400
@@ -201,16 +204,30 @@ pub(crate) fn setup() -> Router {
                     .into(),
                 })
             }
-            Some(user) => {
+            Some((id, user)) => {
                 // Check the password
-                let hashed_password = hex::encode(hash_password(password, "your_salt_string".as_bytes()));
+                let hashed_password = hex::encode(hash_password_with_pbkdf2(password, "your_salt_string".as_bytes()));
+
                 if user.password == hashed_password {
                     println!("User logged in: {}", user.username);
 
-                    // Define response first
-                    let mut response = HttpResponse {
+                    // Create a JWT
+                    let payload = json!({ "userId": id, "role": user.role, "username": user.username });
+                    let token = JWT::sign(payload, "your_secret", 3600);
+                    // Create a cookie
+                    let mut cookie = Cookie::new("token", token);
+                    cookie.set_http_only(true);
+                    cookie.set_same_site(SameSite::Strict);
+
+                    // Convert the cookie to a string
+                    let cookie_string = cookie.to_string();
+
+                    // Define response
+                    let response = HttpResponse {
                         status_code: 200,
-                        headers: HashMap::new(),
+                        headers: hashmap! {
+                            "Set-Cookie".to_string() => cookie_string,
+                        },
                         body: json!({
                             "statusCode": 200,
                             "message": "User logged in",
@@ -218,13 +235,6 @@ pub(crate) fn setup() -> Router {
                         })
                         .into(),
                     };
-
-                    let cookie = Cookie::build("session", user.username)
-                        .same_site(SameSite::Strict)
-                        .secure(true)
-                        .http_only(true)
-                        .finish();
-                    response.headers.insert("Set-Cookie".to_string(), cookie.to_string());
 
                     Ok(response)
 

@@ -17,6 +17,7 @@ use specialties::SPECIALTIES_STRINGS;
 
 mod bootstrap;
 mod controller;
+mod jwt;
 use pluto::http::RawHttpRequest;
 use pluto::http::RawHttpResponse;
 
@@ -95,6 +96,17 @@ pub enum UserRole {
     hospital,
 }
 
+use std::fmt;
+
+impl fmt::Display for UserRole {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            UserRole::doctor => write!(f, "doctor"),
+            UserRole::hospital => write!(f, "hospital"),
+        }
+    }
+}
+
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
@@ -122,13 +134,13 @@ thread_local! {
 
 }
 
-fn find_user_by_username(username: &str) -> Option<User> {
+fn find_user_by_username(username: &str) -> Option<(u32, User)> {
     USER_MAP.with(|user_map| {
         let user_map = user_map.borrow();
 
-        for (_key, user) in user_map.iter() {
+        for (key, user) in user_map.iter() {
             if user.username == username {
-                return Some(user.clone());
+                return Some((key.clone(), user.clone()));
             }
         }
 
