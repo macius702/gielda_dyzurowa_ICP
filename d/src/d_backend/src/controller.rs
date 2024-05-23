@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ic_cdk::println;
+use ic_cdk::{print, println};
 use pluto::{
     http::{HttpRequest, HttpResponse, HttpServe},
     router::Router,
@@ -255,48 +255,47 @@ pub(crate) fn setup() -> Router {
         }
     });
 
+
     router.get("/user/data", false, |req: HttpRequest| async move {
-        // Log the full incoming request
-        println!("Incoming Request: method = {}, url = {}", req.method, req.url);
+        let token = extract_token_from_cookie(&req);
+        println!("In the user data route Token: {:?}",  token);
+        let secret = "your_secret";
 
-        // method
-        println!("Incoming Request Method: {}", req.method);
-        // url
-        println!("Incoming Request URL: {}", req.url);
+        let token = match token {
+            Some(token) => token,
+            None => return Ok(unauthorized_response("No token found in request")),
+        };
 
-        // headers
-        let mut serializer = IDLBuilder::new();
-        serializer.arg(&req).unwrap();
-        let candid_message = serializer.serialize_to_vec().unwrap();
-        println!("Candid message: {:?}", candid_message);
-        // loop over HeaderFileds
-        for header in req.headers.iter() {
-            // serialize header to Candid, and deserialize to MyHeaderField
-            let mut serializer = IDLBuilder::new();
-            serializer.arg(&header).unwrap();
-            let candid_message = serializer.serialize_to_vec().unwrap();
-            
-            let mut deserializer = IDLDeserialize::new(&candid_message).unwrap();
-            let header_field: MyHeaderField = deserializer.get_value().unwrap();
-            println!("header_field {:?}", header_field);            
+        let result = JWT::verify(&token, secret);
+        println!("Result: {:?}", result);
 
-        }
+        let payload = match result {
+            Ok(Some(payload)) => payload,
+            _ => return Ok(unauthorized_response("Failed to verify token")),
+        };
 
-        let body_string = String::from_utf8(req.body.clone()).unwrap();
-        println!("Incoming Request Body: {}", body_string);
-        // params
-        println!("Incoming Request Params: {:?}", req.params);
-        // path
-        println!("Incoming Request Path: {}", req.path);
+        println!("Payload: {:?}", payload);
+
+        let user_id = payload["userId"].as_u64().unwrap();
+        let user_role = payload["role"].as_str().unwrap();
+        let user_username = payload["username"].as_str().unwrap();
+
+        println!("User ID: {}", user_id);
+        println!("User Role: {}", user_role);
+        println!("User Username: {}", user_username);
+
         Ok(HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
             body: json!({
-                "statusCode": 200
+                "statusCode": 200,
+                "_id": user_id,
+                "role": user_role
             })
             .into(),
         })
     });
+
 
     router.get("/users", false, |_: HttpRequest| async move {
         println!("Hello World from GET /users");
@@ -320,4 +319,38 @@ pub(crate) fn setup() -> Router {
 
 
     router
+}
+
+fn extract_token_from_cookie(req: &HttpRequest) -> Option<String> {
+    for header in req.headers.iter() {
+        // serialize header to Candid, and deserialize to MyHeaderField
+        let mut serializer = IDLBuilder::new();
+        serializer.arg(&header).unwrap();
+        let candid_message = serializer.serialize_to_vec().unwrap();
+        
+        let mut deserializer = IDLDeserialize::new(&candid_message).unwrap();
+        let header_field: MyHeaderField = deserializer.get_value().unwrap();
+
+        if header_field.0 == "cookie" {
+            let cookie = Cookie::parse(header_field.1).unwrap();
+            if cookie.name() == "token" {
+                return Some(cookie.value().to_string());
+            }
+        }
+
+        
+    }
+    None
+}
+
+fn unauthorized_response(message: &str) -> HttpResponse {
+    HttpResponse {
+        status_code: 401,
+        headers: HashMap::new(),
+        body: json!({
+            "statusCode": 401,
+            "message": message
+        })
+        .into(),
+    }
 }
