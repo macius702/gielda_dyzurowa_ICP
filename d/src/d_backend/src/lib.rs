@@ -8,6 +8,7 @@ use candid::{CandidType, Deserialize, Encode, Decode};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, Storable, 
     storable::Bound};
+use std::str::FromStr;
 use std::{borrow::Cow, cell::RefCell};
 
 use serde::Serialize;
@@ -94,6 +95,18 @@ impl Storable for User {
 pub enum UserRole {
     doctor,
     hospital,
+}
+
+impl FromStr for UserRole {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "doctor" => Ok(UserRole::doctor),
+            "hospital" => Ok(UserRole::hospital),
+            _ => Err(()),
+        }
+    }
 }
 
 use std::fmt;
