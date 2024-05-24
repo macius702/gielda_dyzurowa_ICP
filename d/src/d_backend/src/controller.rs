@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ic_cdk::{print, println};
+use ic_cdk::println;
 use pluto::{
     http::{HttpRequest, HttpResponse, HttpServe},
     router::Router,
@@ -12,6 +12,7 @@ use candid::de::IDLDeserialize;
 use candid::{CandidType, Deserialize};
 use cookie::{Cookie, SameSite};
 use crate::jwt::JWT;
+use crate::UserRole;
 use maplit::hashmap;
 
 
@@ -142,16 +143,36 @@ pub(crate) fn setup() -> Router {
         })
     });  
 
-
+    
     router.post("/auth/register"
         , true
         , |req: HttpRequest| async move {
             // req body has fields : username, password, role, specialty, localization 
             let body_string = String::from_utf8(req.body.clone()).unwrap();
             println!("Received body: {}", body_string); // Debug print
-            let mut user: User = serde_json::from_str(&body_string).unwrap();
+            #[derive(serde::Deserialize, Debug)]
+            struct UserDeserialize {
+                username: String,
+                password: String,
+                role: String,
+                specialty: Option<String>,
+                localization: Option<String>,
+                email: Option<String>,
+                phone_number: Option<String>,
+            }
+            let user_deserialize: UserDeserialize = serde_json::from_str(&body_string).unwrap();
+            println!("Deserialized user: {:?}", user_deserialize); // Debug print
+            let mut user = User {
+                username: user_deserialize.username,
+                password: user_deserialize.password,
+                role: user_deserialize.role.parse().unwrap_or(UserRole::doctor),
+                localization: user_deserialize.localization,
+                specialty: user_deserialize.specialty.as_ref().and_then(|s| s.parse::<u16>().ok()),
+                email: user_deserialize.email,
+                phone_number: user_deserialize.phone_number
+            };
             
-            // hash the passworf using bcrypt
+            // hash the passworf using pbkdf2
             println!("Before hashing password");
 
             let salt_string = "your_salt_string";
