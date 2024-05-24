@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
+
 use ic_cdk::println;
 use pluto::{
     http::{HttpRequest, HttpResponse, HttpServe},
     router::Router,
 };
-use serde_json::json;
+use serde_json::{json, Value};
 use candid::ser::IDLBuilder;
 use candid;
 use candid::de::IDLDeserialize;
@@ -14,6 +15,10 @@ use cookie::{Cookie, SameSite};
 use crate::jwt::JWT;
 use crate::UserRole;
 use maplit::hashmap;
+use time::{PrimitiveDateTime, UtcOffset};
+use time::macros::format_description;
+
+
 
 
 // for display private HeaderField fields
@@ -112,20 +117,53 @@ pub(crate) fn setup() -> Router {
 
     router.post("/duty/publish", true, |req: HttpRequest| async move {
     let body_string = String::from_utf8(req.body.clone()).unwrap();
+    println!("Received body: {}", body_string);
     let publish_duty_slot_request: PublishDutySlotRequest = serde_json::from_str(&body_string).unwrap();
+    println!("Deserialized request: {:?}", publish_duty_slot_request);
 
-    let start_date_time = format!("{}T{}", publish_duty_slot_request.start_date, publish_duty_slot_request.start_time);
-    let end_date_time = format!("{}T{}", publish_duty_slot_request.end_date, publish_duty_slot_request.end_time);
+// use time::OffsetDateTime;
+
+// let unix_timestamp: i64 = 1615866792; // Replace with your Unix timestamp
+// let date_time = OffsetDateTime::from_unix_timestamp(unix_timestamp);
+// let date_time = match date_time {
+//     Ok(date_time) => date_time,
+//     Err(_) => return Err(HttpResponse {
+//         status_code: 400,
+//         headers: HashMap::new(),
+//         body: json!({
+//             "statusCode": 400,
+//             "message": "Invalid date time"
+//         })
+//         .into(),
+//     }),
+// };
+
+
+
+    let start_date_time_str = format!("{} {}", publish_duty_slot_request.startDate, publish_duty_slot_request.startTime);
+    println!("1 Start date time: {}", start_date_time_str);
+    let start_date_time = convert_to_unix_timestamp(&start_date_time_str);
+    println!("2 Start date time: {}", start_date_time);
+
+    let end_date_time = format!("{} {}", publish_duty_slot_request.endDate, publish_duty_slot_request.endTime);
+    println!("1 End date time: {}", end_date_time);
+    let end_date_time = convert_to_unix_timestamp(&end_date_time);
+    println!("2 End date time: {}", end_date_time);
+
+    // let end_date_time = NaiveDateTime::parse_from_str(&end_date_time, "%Y-%m-%dT%H:%M").expect("Failed to parse end_date_time as datetime");
+    // let end_date_time = end_date_time.and_utc().timestamp();
+
+
 
     let duty_slot = DutySlot {
-        required_specialty: publish_duty_slot_request.required_specialty,
+        required_specialty: publish_duty_slot_request.requiredSpecialty._id.parse::<u16>().unwrap(),
         hospital_id: TODO_SESSION_USER_ID, //req.session.user_id,
-        start_date_time: start_date_time.parse::<i64>().unwrap(),
-        end_date_time: end_date_time.parse::<i64>().unwrap(),
-        price_from: publish_duty_slot_request.price_from,
-        price_to: publish_duty_slot_request.price_to,
+        start_date_time: start_date_time,
+        end_date_time: end_date_time,
+        price_from: publish_duty_slot_request.priceFrom,
+        price_to: publish_duty_slot_request.priceTo,
         currency: publish_duty_slot_request.currency,
-        status: DutyStatus::Open,
+        status: DutyStatus::open,
         assigned_doctor_id: None
     };
 
@@ -298,9 +336,7 @@ pub(crate) fn setup() -> Router {
 
         println!("Payload: {:?}", payload);
 
-        let user_id = payload["userId"].as_u64().unwrap();
-        let user_role = payload["role"].as_str().unwrap();
-        let user_username = payload["username"].as_str().unwrap();
+        let (user_id, user_role, user_username) = extract_user_info(&payload);
 
         println!("User ID: {}", user_id);
         println!("User Role: {}", user_role);
@@ -396,3 +432,22 @@ fn unauthorized_response(message: &str) -> HttpResponse {
         .into(),
     }
 }
+
+
+
+fn convert_to_unix_timestamp(date_time_str: &str) -> i64 {
+    let format = format_description!("[year]-[month]-[day] [hour]:[minute]");
+    let date_time = PrimitiveDateTime::parse(date_time_str, &format)
+        .expect("Failed to parse date_time_str as datetime");
+    let date_time = date_time.assume_offset(UtcOffset::UTC);
+    date_time.unix_timestamp()
+}
+
+fn extract_user_info(payload: &Value) -> (u64, &str, &str) {
+    let user_id = payload["userId"].as_u64().unwrap();
+    let user_role = payload["role"].as_str().unwrap();
+    let user_username = payload["username"].as_str().unwrap();
+
+    (user_id, user_role, user_username)
+}
+

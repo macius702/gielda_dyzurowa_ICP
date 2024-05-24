@@ -29,14 +29,14 @@ const MAX_VALUE_SIZE: u32 = 1000; // Adjust this value as needed
 
 #[derive(CandidType, Deserialize, Clone, Serialize, Debug)]
 pub enum DutyStatus {
-    Open,
-    Waiting,
-    Filled,
+    open,
+    pending,
+    filled,
 }
 
 #[derive(CandidType, Deserialize, Clone, Serialize, Debug)]
 pub struct DutySlot {
-    pub required_specialty: usize,
+    pub required_specialty: u16,
     pub hospital_id: u32,
     pub start_date_time: i64,
     pub end_date_time: i64,

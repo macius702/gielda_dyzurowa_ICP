@@ -1,18 +1,22 @@
 
 use serde::Serialize;
-use candid::Deserialize;
+use serde::Deserialize;
 
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublishDutySlotRequest {
-    pub required_specialty: usize,
-    pub start_date: String,
-    pub start_time: String,
-    pub end_date: String,
-    pub end_time: String,
-    pub price_from: Option<f64>,
-    pub price_to: Option<f64>,
+    pub requiredSpecialty: Specialty,
+    pub startDate: String,
+    pub startTime: String,
+    pub endDate: String,
+    pub endTime: String,
+    pub priceFrom: Option<f64>,
+    pub priceTo: Option<f64>,
     pub currency: Option<String>,
-}       
+}
 
-
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Specialty {
+    pub _id: String,
+    pub name: String,
+}

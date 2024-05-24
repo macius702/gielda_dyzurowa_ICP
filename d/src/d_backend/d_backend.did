@@ -5,11 +5,11 @@ type DutySlot = record {
   currency : opt text;
   end_date_time : int64;
   price_to : opt float64;
-  required_specialty : nat64;
+  required_specialty : nat16;
   start_date_time : int64;
   price_from : opt float64;
 };
-type DutyStatus = variant { Open; Waiting; Filled };
+type DutyStatus = variant { pending; open; filled };
 type RawHttpRequest = record {
   url : text;
   method : text;
