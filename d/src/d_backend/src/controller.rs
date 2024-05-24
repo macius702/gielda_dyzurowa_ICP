@@ -24,6 +24,7 @@ use crate::DutySlot;
 use crate::DutyStatus;
 use crate::types::PublishDutySlotRequest;
 use crate::User;
+use crate::specialties::SPECIALTIES_STRINGS;
 
 //define  a global u32 constant 
 pub const TODO_SESSION_USER_ID: u32 = 1;
@@ -314,10 +315,30 @@ pub(crate) fn setup() -> Router {
         })
     });
 
+    router.get("/specialties", false, |_: HttpRequest| async move {
+        println!("Received a request at GET /specialties");
 
+        let specialties: Vec<_> = SPECIALTIES_STRINGS.iter().enumerate().map(|(i, &name)| {
+            json!({
+                "_id": format!("{:04x}", i),
+                "name": name,
+                "__v": 0
+            })
+        }).collect();            
 
+        println!("Specialties: {:?}", specialties);
 
+        let response = HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: serde_json::to_string(&specialties).unwrap()
+            .into()
+        };
 
+        println!("Responding with status code: {}", response.status_code);
+        println!("Response body: {:?}", response.body);
+        Ok(response)
+    });
     router
 }
 
