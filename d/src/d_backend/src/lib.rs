@@ -22,6 +22,8 @@ mod jwt;
 use pluto::http::RawHttpRequest;
 use pluto::http::RawHttpResponse;
 
+use controller::convert_from_unix_timestamp;
+
 
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 
@@ -169,6 +171,76 @@ fn get_all_duty_slots() -> Vec<DutySlot> {
 
 fn get_all_duty_slots_internal() -> Vec<DutySlot> {
     MAP.with(|p| p.borrow().iter().map(|(_, v)| v.clone()).collect())
+}
+
+// Retrieve all DutySlots as Vec<DutyVacancyForDisplay>
+fn get_all_duty_slots_for_display() -> Vec<types::DutyVacancyForDisplay> {
+    get_all_duty_slots_for_display_internal()
+}
+
+fn get_all_duty_slots_for_display_internal() -> Vec<types::DutyVacancyForDisplay> {
+    MAP.with(|p| {
+        p.borrow().iter().map(|(k, v)| {
+            types::DutyVacancyForDisplay {
+                // for _id I need the key of the MAP
+                _id: k.to_string(),
+                startDateTime: convert_from_unix_timestamp(v.start_date_time),
+                endDateTime: convert_from_unix_timestamp(v.end_date_time),
+                status: v.status.clone(),
+                currency: v.currency.clone(),
+                priceFrom: v.price_from,
+                priceTo: v.price_to,
+                hospitalId: get_hospital_by_id(v.hospital_id),
+                assignedDoctorId: get_doctor_by_id(v.assigned_doctor_id),
+                requiredSpecialty: get_specialty_by_id(v.required_specialty),
+            }
+        }).collect()
+    })
+}
+
+fn get_hospital_by_id(_id: u32) -> types::Hospital {
+    let user = get_user_by_id(_id);
+    types::Hospital {
+        _id: _id.to_string(),
+        username: user.username,
+        password: user.password,
+        role: user.role.to_string(),
+        profileVisible: true,
+    }
+}
+
+fn get_doctor_by_id(doctor_id: Option<u32>) -> Option<types::Doctor> {
+    match doctor_id {
+        Some(id) => {
+            let user = get_user_by_id(id);
+            Some(types::Doctor {
+                _id: id.to_string(),
+                username: user.username,
+                password: user.password,
+                role: user.role.to_string(),
+                specialty: user.specialty.unwrap().to_string(),
+                localization: user.localization.unwrap(),
+                profileVisible: true,
+            })
+        },
+        None => None,
+    }
+}
+
+
+fn get_user_by_id(user_id: u32) -> User {
+    USER_MAP.with(|p| p.borrow().get(&user_id).unwrap().clone())
+}
+
+fn get_specialty_by_id(specialty_id: u16) -> types::Specialty {
+    SPECIALTIES.with(|p| {
+        let specialties = p.borrow();
+        let specialty = specialties.get(specialty_id as usize).unwrap();
+        types::Specialty {
+            _id: specialty_id.to_string(),
+            name: specialty.to_string(),
+        }
+    })
 }
 
 #[ic_cdk_macros::update]

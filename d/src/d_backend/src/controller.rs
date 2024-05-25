@@ -15,7 +15,7 @@ use cookie::{Cookie, SameSite};
 use crate::jwt::JWT;
 use crate::UserRole;
 use maplit::hashmap;
-use time::{PrimitiveDateTime, UtcOffset};
+use time::{OffsetDateTime, PrimitiveDateTime, UtcOffset};
 use time::macros::format_description;
 
 
@@ -106,11 +106,9 @@ pub(crate) fn setup() -> Router {
         Ok(HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
-            body: json!({
-                "statusCode": 200,
-                "message": "Hello World from GET /duty/slots/json",
-                "dutySlots": get_all_duty_slots_internal()
-            })
+            body: json!(
+                crate::get_all_duty_slots_for_display()
+            )
             .into(),
         })
     });
@@ -441,6 +439,27 @@ fn convert_to_unix_timestamp(date_time_str: &str) -> i64 {
         .expect("Failed to parse date_time_str as datetime");
     let date_time = date_time.assume_offset(UtcOffset::UTC);
     date_time.unix_timestamp()
+}
+
+pub fn convert_from_unix_timestamp(unix_timestamp: i64) -> String {
+    let format = format_description!("[year]-[month]-[day]T[hour]:[minute]:00.000Z");
+    let date_time = OffsetDateTime::from_unix_timestamp(unix_timestamp);
+
+    match date_time {
+        Ok(dt) => {
+            match dt.format(format) {
+                Ok(formatted_datetime) => formatted_datetime,
+                Err(e) => {
+                    eprintln!("An error occurred: {}", e);
+                    String::new() // return an empty string in case of an error
+                },
+            }
+        },
+        Err(e) => {
+            eprintln!("An error occurred: {}", e);
+            String::new() // return an empty string in case of an error
+        },
+    }
 }
 
 fn extract_user_info(payload: &Value) -> (u64, &str, &str) {
