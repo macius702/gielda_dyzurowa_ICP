@@ -290,27 +290,11 @@ pub(crate) fn setup() -> Router {
 
 
     router.get("/user/data", false, |req: HttpRequest| async move {
-        let token_userid_pair = extract_cookies_from_request(&req);
-
-
-        let token_userid_pair = match token_userid_pair {
-            Some(token_userid_pair) => token_userid_pair,
-            None => return Ok(unauthorized_response("No token found in request")),
+        let user_info = match get_authorized_user_info(&req) {
+            Ok(user_info) => user_info,
+            Err(response) => return Ok(response),
         };
-
-        let (token, userid) = token_userid_pair;
-
-        let user = get_user_by_id(userid.parse().unwrap());
-        let secret = user.password;
-        let result = JWT::verify(&token, &secret);
-
-        let payload = match result {
-            Ok(Some(payload)) => payload,
-            _ => return Ok(unauthorized_response("Failed to verify token")),
-        };
-
-
-        let (user_id, user_role, user_username) = extract_user_info(&payload);
+        let (userid, userrole, username) = user_info;
 
 
         Ok(HttpResponse {
@@ -318,8 +302,8 @@ pub(crate) fn setup() -> Router {
             headers: HashMap::new(),
             body: json!({
                 "statusCode": 200,
-                "_id": user_id,
-                "role": user_role
+                "_id": userid,
+                "role": userrole
             })
             .into(),
         })
@@ -455,3 +439,27 @@ fn extract_user_info(payload: &Value) -> (u64, &str, &str) {
     (user_id, user_role, user_username)
 }
 
+
+fn get_authorized_user_info(req: &HttpRequest) -> Result<(u64, String, String), HttpResponse> {
+    let token_userid_pair = extract_cookies_from_request(req);
+
+    let token_userid_pair = match token_userid_pair {
+        Some(token_userid_pair) => token_userid_pair,
+        None => return Err(unauthorized_response("No token found in request")),
+    };
+
+    let (token, userid) = token_userid_pair;
+
+    let user = get_user_by_id(userid.parse().unwrap());
+    let secret = user.password;
+    let result = JWT::verify(&token, &secret);
+
+    let payload = match result {
+        Ok(Some(payload)) => payload,
+        _ => return Err(unauthorized_response("Failed to verify token")),
+    };
+
+    let (user_id, user_role, user_username) = extract_user_info(&payload);
+
+    Ok((user_id, user_role.to_string(), user_username.to_string()))
+}
