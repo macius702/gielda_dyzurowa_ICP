@@ -12,7 +12,7 @@ use candid;
 use candid::de::IDLDeserialize;
 use candid::{CandidType, Deserialize};
 use cookie::{Cookie, SameSite};
-use crate::jwt::JWT;
+use crate::{get_user_by_id, jwt::JWT};
 use crate::UserRole;
 use maplit::hashmap;
 use time::{OffsetDateTime, PrimitiveDateTime, UtcOffset};
@@ -119,25 +119,6 @@ pub(crate) fn setup() -> Router {
     let publish_duty_slot_request: PublishDutySlotRequest = serde_json::from_str(&body_string).unwrap();
     println!("Deserialized request: {:?}", publish_duty_slot_request);
 
-// use time::OffsetDateTime;
-
-// let unix_timestamp: i64 = 1615866792; // Replace with your Unix timestamp
-// let date_time = OffsetDateTime::from_unix_timestamp(unix_timestamp);
-// let date_time = match date_time {
-//     Ok(date_time) => date_time,
-//     Err(_) => return Err(HttpResponse {
-//         status_code: 400,
-//         headers: HashMap::new(),
-//         body: json!({
-//             "statusCode": 400,
-//             "message": "Invalid date time"
-//         })
-//         .into(),
-//     }),
-// };
-
-
-
     let start_date_time_str = format!("{} {}", publish_duty_slot_request.startDate, publish_duty_slot_request.startTime);
     println!("1 Start date time: {}", start_date_time_str);
     let start_date_time = convert_to_unix_timestamp(&start_date_time_str);
@@ -147,11 +128,6 @@ pub(crate) fn setup() -> Router {
     println!("1 End date time: {}", end_date_time);
     let end_date_time = convert_to_unix_timestamp(&end_date_time);
     println!("2 End date time: {}", end_date_time);
-
-    // let end_date_time = NaiveDateTime::parse_from_str(&end_date_time, "%Y-%m-%dT%H:%M").expect("Failed to parse end_date_time as datetime");
-    // let end_date_time = end_date_time.and_utc().timestamp();
-
-
 
     let duty_slot = DutySlot {
         required_specialty: publish_duty_slot_request.requiredSpecialty._id.parse::<u16>().unwrap(),
@@ -269,30 +245,29 @@ pub(crate) fn setup() -> Router {
                 if user.password == hashed_password {
                     println!("User logged in: {}", user.username);
 
-                    // Create a JWT
                     let payload = json!({ "userId": id, "role": user.role, "username": user.username });
-                    let token = JWT::sign(payload, "your_secret", 3600);
-                    // Create a cookie
-                    let mut cookie = Cookie::new("token", token);
-                    cookie.set_http_only(true);
-                    cookie.set_same_site(SameSite::Strict);
+                    let secret = user.password;
+                    let token = JWT::sign(payload, &secret, 3600);
 
-                    // Convert the cookie to a string
-                    let cookie_string = cookie.to_string();
+                    let mut token_cookie = Cookie::new("token", token);
+                    let mut userid_cookie = Cookie::new("userid", id.to_string());
 
-                    // Define response
-                    let response = HttpResponse {
+                    let token_cookie_string = token_cookie.to_string();
+                    let userid_cookie_string = userid_cookie.to_string();
+
+                    let cookies = format!("{}, {}", userid_cookie_string, token_cookie_string);
+
+                    let mut response = HttpResponse {
                         status_code: 200,
-                        headers: hashmap! {
-                            "Set-Cookie".to_string() => cookie_string,
-                        },
+                        headers : HashMap::new(),
                         body: json!({
                             "statusCode": 200,
                             "message": "User logged in",
-                            "username": user.username
+                            "username": user.username // TODO - is it needed?
                         })
                         .into(),
                     };
+                    response.add_raw_header("Set-Cookie", cookies);
 
                     Ok(response)
 
@@ -315,30 +290,28 @@ pub(crate) fn setup() -> Router {
 
 
     router.get("/user/data", false, |req: HttpRequest| async move {
-        let token = extract_token_from_cookie(&req);
-        println!("In the user data route Token: {:?}",  token);
-        let secret = "your_secret";
+        let token_userid_pair = extract_cookies_from_request(&req);
 
-        let token = match token {
-            Some(token) => token,
+
+        let token_userid_pair = match token_userid_pair {
+            Some(token_userid_pair) => token_userid_pair,
             None => return Ok(unauthorized_response("No token found in request")),
         };
 
-        let result = JWT::verify(&token, secret);
-        println!("Result: {:?}", result);
+        let (token, userid) = token_userid_pair;
+
+        let user = get_user_by_id(userid.parse().unwrap());
+        let secret = user.password;
+        let result = JWT::verify(&token, &secret);
 
         let payload = match result {
             Ok(Some(payload)) => payload,
             _ => return Ok(unauthorized_response("Failed to verify token")),
         };
 
-        println!("Payload: {:?}", payload);
 
         let (user_id, user_role, user_username) = extract_user_info(&payload);
 
-        println!("User ID: {}", user_id);
-        println!("User Role: {}", user_role);
-        println!("User Username: {}", user_username);
 
         Ok(HttpResponse {
             status_code: 200,
@@ -397,26 +370,38 @@ pub(crate) fn setup() -> Router {
     router
 }
 
-fn extract_token_from_cookie(req: &HttpRequest) -> Option<String> {
+fn extract_cookies_from_request(req: &HttpRequest) -> Option<(String, String)> {
+    let mut token = None;
+    let mut userid = None;
+
     for header in req.headers.iter() {
         // serialize header to Candid, and deserialize to MyHeaderField
         let mut serializer = IDLBuilder::new();
         serializer.arg(&header).unwrap();
         let candid_message = serializer.serialize_to_vec().unwrap();
-        
+
         let mut deserializer = IDLDeserialize::new(&candid_message).unwrap();
         let header_field: MyHeaderField = deserializer.get_value().unwrap();
 
         if header_field.0 == "cookie" {
-            let cookie = Cookie::parse(header_field.1).unwrap();
-            if cookie.name() == "token" {
-                return Some(cookie.value().to_string());
+            let cookies = header_field.1.split(',').map(|s| s.trim());
+            for cookie_str in cookies {
+                let cookie = Cookie::parse(cookie_str).unwrap();
+                match cookie.name() {
+                    "token" => {
+                        token = Some(cookie.value().to_string());
+                    },
+                    "userid" => {
+                        userid = Some(cookie.value().to_string());
+                    },
+                    _ => {}
+                }
             }
-        }
-
-        
+        }    }
+    match (token, userid) {
+        (Some(t), Some(u)) => Some((t, u)),
+        _ => None,
     }
-    None
 }
 
 fn unauthorized_response(message: &str) -> HttpResponse {
