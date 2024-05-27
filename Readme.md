@@ -52,3 +52,7 @@ command="curl -X POST -H \"Content-Type: application/json\" -d \"{ \\\"hello\\\"
 ```
 
 After running this command in the Docker terminal, you can copy the output and paste it into the host's terminal to execute it.
+
+# TODO
+- [ ] is router async - I mean no need to specifically guard the common data operations 
+- [ ] @Query("canisterId") canisterId: String into headers
