@@ -114,6 +114,25 @@ pub(crate) fn setup() -> Router {
     });
 
     router.post("/duty/publish", true, |req: HttpRequest| async move {
+    let user_info = match get_authorized_user_info(&req) {
+        Ok(user_info) => user_info,
+        Err(response) => return Ok(response),
+    };
+    let (userid, userrole, username) = user_info;
+    if userrole != "hospital" {
+        return Ok(HttpResponse {
+            status_code: 403,
+            headers: HashMap::new(),
+            body: json!({
+                "statusCode": 403,
+                "message": "Only hospitals can publish duty slots"
+            })
+            .into(),
+        });
+    }
+    assert_eq!(userrole, "hospital");
+
+
     let body_string = String::from_utf8(req.body.clone()).unwrap();
     println!("Received body: {}", body_string);
     let publish_duty_slot_request: PublishDutySlotRequest = serde_json::from_str(&body_string).unwrap();
@@ -131,7 +150,7 @@ pub(crate) fn setup() -> Router {
 
     let duty_slot = DutySlot {
         required_specialty: publish_duty_slot_request.requiredSpecialty._id.parse::<u16>().unwrap(),
-        hospital_id: TODO_SESSION_USER_ID, //req.session.user_id,
+        hospital_id: userid,
         start_date_time: start_date_time,
         end_date_time: end_date_time,
         price_from: publish_duty_slot_request.priceFrom,
@@ -431,8 +450,8 @@ pub fn convert_from_unix_timestamp(unix_timestamp: i64) -> String {
     }
 }
 
-fn extract_user_info(payload: &Value) -> (u64, &str, &str) {
-    let user_id = payload["userId"].as_u64().unwrap();
+fn extract_user_info(payload: &Value) -> (u32, &str, &str) {
+    let user_id = payload["userId"].as_u64().unwrap() as u32;
     let user_role = payload["role"].as_str().unwrap();
     let user_username = payload["username"].as_str().unwrap();
 
@@ -440,7 +459,7 @@ fn extract_user_info(payload: &Value) -> (u64, &str, &str) {
 }
 
 
-fn get_authorized_user_info(req: &HttpRequest) -> Result<(u64, String, String), HttpResponse> {
+fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), HttpResponse> {
     let token_userid_pair = extract_cookies_from_request(req);
 
     let token_userid_pair = match token_userid_pair {
