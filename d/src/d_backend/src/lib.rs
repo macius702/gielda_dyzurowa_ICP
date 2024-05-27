@@ -149,6 +149,16 @@ thread_local! {
 
 }
 
+fn get_duty_slot_by_id(id: u32) -> Option<DutySlot> {
+    MAP.with(|p| p.borrow().get(&id).clone())
+}
+
+fn remove_duty_slot_by_id(id: u32) {
+    MAP.with(|p| {
+        p.borrow_mut().remove(&id);
+    });
+}
+
 fn find_user_by_username(username: &str) -> Option<(u32, User)> {
     USER_MAP.with(|user_map| {
         let user_map = user_map.borrow();

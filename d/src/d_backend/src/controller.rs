@@ -12,7 +12,7 @@ use candid;
 use candid::de::IDLDeserialize;
 use candid::{CandidType, Deserialize};
 use cookie::{Cookie, SameSite};
-use crate::{get_user_by_id, jwt::JWT};
+use crate::{get_user_by_id, jwt::JWT, get_duty_slot_by_id, remove_duty_slot_by_id};
 use crate::UserRole;
 use maplit::hashmap;
 use time::{OffsetDateTime, PrimitiveDateTime, UtcOffset};
@@ -173,6 +173,102 @@ pub(crate) fn setup() -> Router {
         .into(),
         })
     });  
+
+    router.post("/duty/remove", true, |req: HttpRequest| async move {
+        let user_info = match get_authorized_user_info(&req) {
+            Ok(user_info) => user_info,
+            Err(response) => return Ok(response),
+        };
+        let (userid, userrole, username) = user_info;
+        if userrole != "hospital" {
+            return Ok(HttpResponse {
+                status_code: 403,
+                headers: HashMap::new(),
+                body: json!({
+                    "statusCode": 403,
+                    "message": "Only hospitals can remove duty slots"
+                })
+                .into(),
+            });
+        }
+        assert_eq!(userrole, "hospital");
+
+        let body_string = String::from_utf8(req.body.clone()).unwrap();
+        println!("Received body: {}", body_string);
+
+        let data: serde_json::Value = serde_json::from_str(&body_string).unwrap();
+        println!("Parsed data: {:?}", data);
+
+        let duty_slot_id = match data["_id"].as_str() {
+            Some(id_str) => match id_str.parse::<u32>() {
+                Ok(id) => id,
+                Err(_) => {
+                    let response = HttpResponse {
+                        status_code: 400,
+                        headers: HashMap::new(),
+                        body: json!({
+                            "statusCode": 400,
+                            "message": "Cannot parse _id to u32"
+                        }).into(),
+                    };
+                    return Ok(response);
+                },
+            },
+            None => {
+                let response = HttpResponse {
+                    status_code: 400,
+                    headers: HashMap::new(),
+                    body: json!({
+                        "statusCode": 400,
+                        "message": "_id does not exist or is not a string"
+                    }).into(),
+                };
+                return Ok(response);
+            },
+        };
+
+        let duty_slot = get_duty_slot_by_id(duty_slot_id);
+
+        // handle duty slot not found with match
+        let duty_slot = match duty_slot {
+            Some(duty_slot) => duty_slot,
+            None => {
+                return Ok(HttpResponse {
+                    status_code: 404,
+                    headers: HashMap::new(),
+                    body: json!({
+                        "statusCode": 404,
+                        "message": "Duty slot not found"
+                    })
+                    .into(),
+                });
+            }
+        };
+
+        if duty_slot.hospital_id != userid {
+            return Ok(HttpResponse {
+                status_code: 403,
+                headers: HashMap::new(),
+                body: json!({
+                    "statusCode": 403,
+                    "message": "Hospital can only remove its own duty slots"
+                })
+                .into(),
+            });
+        }
+
+        // take the duty slot id and remove it from the duty slots
+        let removed_duty_slot = remove_duty_slot_by_id(duty_slot_id);
+        println!("Removed duty slot: {:?}", removed_duty_slot);
+
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({})
+            .into(),
+        })
+    });
+
 
     
     router.post("/auth/register"
