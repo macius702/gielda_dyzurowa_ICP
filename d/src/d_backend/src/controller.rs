@@ -332,7 +332,7 @@ pub(crate) fn setup() -> Router {
 
         let specialties: Vec<_> = SPECIALTIES_STRINGS.iter().enumerate().map(|(i, &name)| {
             json!({
-                "_id": format!("{:04x}", i),
+                "_id": format!("{:04}", i),
                 "name": name,
                 "__v": 0
             })
