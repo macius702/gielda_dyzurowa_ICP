@@ -12,10 +12,9 @@
         "d_backend"
       ],
       "source": [
-        "src/d_frontend/dist"
+        "src/d_frontend/build/web"
       ],
-      "type": "assets",
-      "workspace": "d_frontend"
+      "type": "assets"
     }
   },
   "defaults": {
