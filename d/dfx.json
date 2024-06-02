@@ -11,6 +11,9 @@
       "dependencies": [
         "d_backend"
       ],
+			"frontend": {
+				"entrypoint": "src/d_frontend/build/web/index.html"
+			},
       "source": [
         "src/d_frontend/build/web"
       ],
@@ -19,10 +22,15 @@
   },
   "defaults": {
     "build": {
-      "args": "",
-      "packtool": ""
+			"packtool": ""
     }
   },
+	"networks": {
+		"local": {
+			"bind": "127.0.0.1:4944",
+			"type": "ephemeral"
+		}
+	},  
   "output_env_file": ".env",
   "version": 1
 }

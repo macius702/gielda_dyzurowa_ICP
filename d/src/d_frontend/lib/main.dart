@@ -1,5 +1,11 @@
 import 'package:agent_dart/agent_dart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'config.dart' show backendCanisterId, Mode, mode;
+
+
+
+import 'counter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,22 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Matiki Flutter Demo Home Page'),
@@ -40,15 +31,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -57,39 +39,87 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  bool _loading = false;
+  // setup state class variable;
+  Counter? counter;
 
-  void _incrementCounter() {
+  @override
+  void initState() {
+    initCounter();
+    super.initState();
+  }
+
+  Future<void> initCounter({Identity? identity}) async {
+    // initialize counter, change canister id here 
+     //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
+
+    // String url;
+    // var backendCanisterId;
+    // if (kIsWeb) {
+    //   print("kIsWeb");
+    //   url = 'http://localhost:4944'; 
+  
+
+    // } else {
+    //     print("not kIsWeb");
+
+    //   // url = 'http://10.0.2.2:4944'; // default to localhost for other platforms
+
+    //   // url = 'https://mdwwn-niaaa-aaaab-qabta-cai.ic0.app:4944';
+
+    // }
+
+
+    // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
+    // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
+
+
+  var frontend_url;
+
+  if (mode == Mode.playground) {
+    frontend_url = 'https://icp-api.io';
+  } else if (mode == Mode.local) {
+    if (kIsWeb  ) {
+      frontend_url = 'http://localhost:4944';
+    } else {  // for android emulator
+      frontend_url = 'http://10.0.2.2:4944';  
+    }
+  } else if (mode == Mode.network) {
+  }
+
+
+
+    counter = Counter(canisterId: backendCanisterId, url: frontend_url);    // set agent when other paramater comes in like new Identity
+    await counter?.setAgent(newIdentity: identity);
+    await getValue();
+  }
+
+  // get value from canister
+  Future<void> getValue() async {
+    var counterValue = await counter?.getValue();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _counter = counterValue ?? _counter;
+      _loading = false;
     });
+  }
+
+  // increment counter
+  Future<void> _incrementCounter() async {
+    setState(() {
+      _loading = true;
+    });
+    await counter?.increment();
+    await getValue();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+        backgroundColor: Colors.blue ,
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
           // Column is also a layout widget. It takes a list of children and
           // arranges them vertically. By default, it sizes itself to fit its
@@ -106,8 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            Text(
+              'The canister counter is now:',
             ),
             Text(
               '$_counter',
