@@ -40,6 +40,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   bool _loading = false;
+
+   // for the return nvalue of : CounterMethod.get_specialties: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+   // ineed a variable to hold the specialties
+  List<String> _specialties = [];
+
   // setup state class variable;
   Counter? counter;
 
@@ -91,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     counter = Counter(canisterId: backendCanisterId, url: frontend_url);    // set agent when other paramater comes in like new Identity
     await counter?.setAgent(newIdentity: identity);
-    await getValue();
+    await get_specialties();
   }
 
   // get value from canister
@@ -111,6 +116,16 @@ class _MyHomePageState extends State<MyHomePage> {
     await counter?.increment();
     await getValue();
   }
+
+  Future<void> get_specialties() async {
+    var specialties = await counter?.get_specialties();
+    print('Returned Specialties: $specialties');
+    setState(() {
+      _specialties = specialties ?? _specialties;
+      _loading = false;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
               'The canister counter is now:',
             ),
             Text(
-              '$_counter',
+              '$_specialties',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],

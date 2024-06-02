@@ -5,6 +5,8 @@
 # 2. playground: Deploys to the playground (which is on the mainnet). This is a free service but is limited to 20-minute sessions.
 # 3. mainnet: Deploys to the mainnet. This is the production environment and consumes cycles.
 
+set -e
+
 if [ -z "$1" ]
 then
     echo "Please provide the mode as the first parameter"
@@ -47,14 +49,14 @@ echo "Running dfx deploy with parameter: $deploy_param"
 dfx deploy -v $deploy_param
 flutter devices
 
-# if [ "$1" == "playground" ]
-# then
-#     source web_front_end.sh
-#     xdg-open https://$FRONTEND_CANISTER_ID.ic0.app &
-#     flutter run --release -d emulator-5554 &
-# elif [ "$1" == "local" ]
-# then
-#     flutter run --release -d chrome &
-#     flutter run --release -d emulator-5554 & # (cd build/web && http-server  -p 8765)
-# fi
+if [ "$1" == "playground" ]
+then
+    source web_front_end.sh
+    xdg-open https://$FRONTEND_CANISTER_ID.ic0.app &
+    flutter run --release -d emulator-5554 &
+elif [ "$1" == "local" ]
+then
+    flutter run --release -d chrome &
+    # flutter run --release -d emulator-5554 & # (cd build/web && http-server  -p 8765)
+fi
 

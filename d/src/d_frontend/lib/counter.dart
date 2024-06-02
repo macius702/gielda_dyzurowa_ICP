@@ -8,11 +8,13 @@ abstract class CounterMethod {
   /// use staic const as method name
   static const increment = "increment";
   static const getValue = "getValue";
+  static const get_specialties = "get_specialties";
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
     CounterMethod.getValue: IDL.Func([], [IDL.Nat], ['query']),
     CounterMethod.increment: IDL.Func([], [], []),
+    CounterMethod.get_specialties: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   });
 }
 
@@ -110,5 +112,34 @@ class Counter {
       print("Caught error: $e");
       rethrow;
     }
-  }  
+  }
+
+  Future<List<String>> get_specialties() async {
+    try {
+      ActorMethod? func = actor?.getFunc(CounterMethod.get_specialties);
+      if (func != null) {
+        var res = await func([]);
+        print("Function call result: $res");
+
+        if (res != null) {
+          // return (res as BigInt).toInt();
+          print("get_spectialties: $res");
+          return (res as List<String>);
+        } else {
+          print("Function call returned null");
+        }
+      } else {
+        print("getFunc returned null");
+      }
+
+
+      
+   } catch (e) {
+      print("Caught error: $e");
+      rethrow;
+    }  
+  
+    return <String>[];
+
+  }
 }
