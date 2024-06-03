@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:agent_dart/agent_dart.dart';
+import 'dart:math';
+
 
 /// motoko/rust function of the Counter canister
 /// see ./dfx/local/counter.did
@@ -116,6 +119,9 @@ class Counter {
 
   Future<List<String>> get_specialties() async {
     try {
+
+      await saveValue();
+      await retrieveValue();
       ActorMethod? func = actor?.getFunc(CounterMethod.get_specialties);
       if (func != null) {
         var res = await func([]);
@@ -141,5 +147,24 @@ class Counter {
   
     return <String>[];
 
+
+
   }
+
+
+  // Save a value
+  saveValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int randomNumber = Random().nextInt(100) + 1; // Generates a random integer from 1 to 100
+
+    await prefs.setInt('myNumber', randomNumber);
+    print('Saved number: $randomNumber');
+  }
+  // Retrieve a value
+  retrieveValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? myNumber = prefs.getInt('myNumber');
+    print('Retrieved number: $myNumber');
+    return myNumber;
+  }  
 }
