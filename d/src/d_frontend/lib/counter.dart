@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:agent_dart/agent_dart.dart';
 import 'dart:math';
+
+import 'config.dart' show backendCanisterId, Mode, mode;
+
 
 
 /// motoko/rust function of the Counter canister
@@ -169,4 +173,52 @@ class Counter {
     print('Retrieved number: $myNumber');
     return myNumber;
   }  
+}
+
+
+Counter? counter;
+
+Future<void> initCounter({Identity? identity}) async {
+  // initialize counter, change canister id here 
+    //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
+
+  // String url;
+  // var backendCanisterId;
+  // if (kIsWeb) {
+  //   print("kIsWeb");
+  //   url = 'http://localhost:4944'; 
+
+
+  // } else {
+  //     print("not kIsWeb");
+
+  //   // url = 'http://10.0.2.2:4944'; // default to localhost for other platforms
+
+  //   // url = 'https://mdwwn-niaaa-aaaab-qabta-cai.ic0.app:4944';
+
+  // }
+
+
+  // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
+  // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
+
+
+var frontend_url;
+
+if (mode == Mode.playground) {
+  frontend_url = 'https://icp-api.io';
+} else if (mode == Mode.local) {
+  if (kIsWeb  ) {
+    frontend_url = 'http://localhost:4944';
+  } else {  // for android emulator
+    frontend_url = 'http://10.0.2.2:4944';  
+  }
+} else if (mode == Mode.network) {
+}
+
+
+
+  counter = Counter(canisterId: backendCanisterId, url: frontend_url);    // set agent when other paramater comes in like new Identity
+  await counter?.setAgent(newIdentity: identity);
+  await counter?.get_specialties();
 }
