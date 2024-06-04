@@ -12,6 +12,8 @@ abstract class CounterMethod {
   static const increment = "increment";
   static const getValue = "getValue";
   static const get_specialties = "get_specialties";
+  static const get_users = "get_users";
+
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({

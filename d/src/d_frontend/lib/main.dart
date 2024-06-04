@@ -1,8 +1,10 @@
 import 'package:agent_dart/agent_dart.dart';
+import 'package:d_frontend/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'config.dart' show backendCanisterId, Mode, mode;
-
+import 'package:d_frontend/login_screen.dart';
+import 'package:d_frontend/register_screen.dart';
 
 
 import 'counter.dart';
@@ -134,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.blue ,
         title: Text(widget.title),
       ),
+      drawer: CommonDrawer(),
       body: Center(
         child: Column(
           // Column is also a layout widget. It takes a list of children and
@@ -155,7 +158,8 @@ class _MyHomePageState extends State<MyHomePage> {
               'The canister counter is now:',
             ),
             Text(
-              '$_specialties',
+//              '$_specialties',
+              'NIC',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
