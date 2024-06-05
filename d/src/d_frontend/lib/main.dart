@@ -14,25 +14,33 @@ import 'counter.dart';
 }
 
 class MyApp extends StatelessWidget {
-   MyApp({super.key});
+  MyApp({Key? key}) : super(key: key);
 
   final Future<void> _initCounterFuture = initCounter();
 
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Matiki Flutter Demo Home Page'),
+    return FutureBuilder(
+      future: _initCounterFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading spinner while waiting
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}'); // Show error if something went wrong
+        } else {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+              useMaterial3: true,
+            ),
+            home: const MyHomePage(title: 'Matiki Flutter Demo Home Page'),
+          );
+        }
+      },
     );
   }
 }
-
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
