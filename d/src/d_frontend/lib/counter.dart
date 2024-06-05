@@ -16,7 +16,7 @@ abstract class CounterMethod {
   static const increment = "increment";
   static const getValue = "getValue";
   static const get_specialties = "get_specialties";
-  static const get_users = "get_users";
+  static const get_users = "get_all_usernames";
 
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
@@ -24,6 +24,7 @@ abstract class CounterMethod {
     CounterMethod.getValue: IDL.Func([], [IDL.Nat], ['query']),
     CounterMethod.increment: IDL.Func([], [], []),
     CounterMethod.get_specialties: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    CounterMethod.get_users: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   });
 }
 
@@ -57,8 +58,8 @@ class Counter {
     print('newIdentity: $newIdentity');
     print('debug: $debug');
           
-    // try {
-    //   // Your network request code here
+    try {
+      // Your network request code here
 
       _agentFactory ??= await AgentFactory.createAgent(
           canisterId: newCanisterId ?? canisterId,
@@ -67,19 +68,19 @@ class Counter {
           identity: newIdentity,
           debug: debug ?? true);
 
+    print("After createAgent");
 
+    } catch (e) {
+      if (e is SocketException) {
+        print('Cannot connect to the server. Please check your internet connection and server status.');
+        print('Exception: $e');
 
-    // } catch (e) {
-    //   if (e is SocketException) {
-    //     print('Cannot connect to the server. Please check your internet connection and server status.');
-    //     print('Exception: $e');
-
-    //   } else {
-    //     // Re-throw the exception for further handling
-    //     rethrow;
-    //   }
-    //}        
+      } else {
+        // Re-throw the exception for further handling
+        rethrow;
       }
+    }        
+  }    
 
   /// Call canister methods like this signature
   /// ```dart
@@ -157,6 +158,32 @@ class Counter {
 
   }
 
+  Future<List<String>> get_users() async {
+    try {
+      if (actor == null) {
+        throw Exception("Actor is null");
+      }
+
+      ActorMethod? func = actor?.getFunc(CounterMethod.get_users);
+      if (func != null) {
+        var res = await func([]);
+        print("Function call result: $res");
+
+        if (res != null) {
+          return (res as List<String>);
+        } else {
+          print("Function call returned null");
+        }
+      } else {
+        print("getFunc returned null");
+      }
+
+      throw Exception("Cannot get users");
+    } catch (e) {
+      print("Caught error: $e");
+      rethrow;
+    }
+  }
 
   // Save a value
   saveValue() async {
@@ -176,9 +203,9 @@ class Counter {
 }
 
 
-Counter? counter;
 
-Future<void> initCounter({Identity? identity}) async {
+
+Future<Counter> initCounter({Identity? identity}) async {
   // initialize counter, change canister id here 
     //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
 
@@ -217,8 +244,12 @@ if (mode == Mode.playground) {
 }
 
 
-
-  counter = Counter(canisterId: backendCanisterId, url: frontend_url);    // set agent when other paramater comes in like new Identity
-  await counter?.setAgent(newIdentity: identity);
-  await counter?.get_specialties();
+  print("Before counter construction");
+  var counter = Counter(canisterId: backendCanisterId, url: frontend_url);    // set agent when other paramater comes in like new Identity
+  print("After counter construction");
+  await counter.setAgent(newIdentity: identity);
+  print("After counter setAgent");
+  await counter.get_specialties();
+  print("After counter get_specialties");
+  return counter;
 }

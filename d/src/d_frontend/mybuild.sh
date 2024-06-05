@@ -25,6 +25,8 @@ elif [ "$1" == "mainnet" ]
 then
     echo "Deploying to mainnet"
     deploy_param="--network=ic"
+    echo "not supported yet"
+    exit 1
 else
     echo "Invalid mode. Please provide the mode as the first parameter: local, playground or mainnet"
     exit 1
@@ -46,11 +48,15 @@ echo "Running build_runner build --delete-conflicting-outputs"
 dart run build_runner build --delete-conflicting-outputs    # Build the generated files
 
 
+
 echo "Running flutter build web --release"
-flutter build web --release
+# flutter build web --profile --dart-define=Dart2jsOptimization=O0 --source-maps
+
 
 echo "Running dfx deploy with parameter: $deploy_param"
 dfx deploy -v $deploy_param
+
+
 flutter devices
 
 if [ "$1" == "playground" ]
@@ -60,7 +66,9 @@ then
     flutter run --release -d emulator-5554 &
 elif [ "$1" == "local" ]
 then
-    flutter run --release -d chrome &
-    # flutter run --release -d emulator-5554 & # (cd build/web && http-server  -p 8765)
+    # (cd build/web && http-server  -p 8765)
+    flutter run -d chrome
+    # flutter run --release -d emulator-5554 & 
+    # (cd build/web && http-server  -p 8765)
 fi
 

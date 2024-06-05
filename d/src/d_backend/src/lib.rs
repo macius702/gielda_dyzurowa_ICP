@@ -317,6 +317,17 @@ fn get_all_users_internal() -> Vec<User> {
     USER_MAP.with(|p| p.borrow().iter().map(|(_, v)| v.clone()).collect())
 }
 
+// return only user ames
+fn get_all_usernames_internal() -> Vec<String> {
+    USER_MAP.with(|p| p.borrow().iter().map(|(_, v)| v.username.clone()).collect())}
+
+
+// Get all user names
+#[ic_cdk_macros::query]
+fn get_all_usernames() -> Vec<String> {
+    get_all_usernames_internal()
+}
+
 
 
 ic_cdk::export_candid!();

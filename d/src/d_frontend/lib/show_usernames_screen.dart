@@ -1,37 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:provider/provider.dart';
 import 'drawer.dart';
+import 'counter_store.dart';
 
-import 'package:mobx/mobx.dart';
-
-part 'show_usernames_screen.g.dart';
-
-class UsernameStore = _UsernameStore with _$UsernameStore;
-
-abstract class _UsernameStore with Store {
-  @observable
-  ObservableList<String> usernames = ObservableList<String>();
-}
 
 // stateless widget for showing usernames
 class ShowUsernamesScreen extends StatelessWidget {
-  final List<String> usernames;
-
-  ShowUsernamesScreen({required this.usernames});
+  const ShowUsernamesScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final counterStore = Provider.of<CounterStore>(context);
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      counterStore.get_users();
+    });    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Usernames'),
       ),
       drawer: CommonDrawer(), // Add this line
-      body: ListView.builder(
-        itemCount: usernames.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: Text(usernames[index]),
-          );
-        },
+      body: Observer(
+        builder: (_) => ListView.builder(
+          itemCount: counterStore.usernames.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(counterStore.usernames[index]),
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,6 +1,9 @@
 import 'package:agent_dart/agent_dart.dart';
-import 'package:d_frontend/drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:d_frontend/counter_store.dart';
+import 'package:d_frontend/drawer.dart';
 import 'package:d_frontend/login_screen.dart';
 import 'package:d_frontend/register_screen.dart';
 
@@ -9,25 +12,26 @@ import 'counter.dart';
 
 
 
- void main() {
-  runApp(MyApp());
+ void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure flutter binding is initialized if you're going to use async code in main
+
+  final counter = await initCounter(); // Assuming createCounter is your async function that returns a Counter
+  final counterStore = CounterStore(counter);
+
+  runApp(
+    Provider<CounterStore>.value(
+      value: counterStore,
+      child: MyApp(),
+    ),
+  );
+
 }
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final Future<void> _initCounterFuture = initCounter();
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initCounterFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading spinner while waiting
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Show error if something went wrong
-        } else {
           return MaterialApp(
             title: 'Flutter Demo',
             theme: ThemeData(
@@ -37,9 +41,6 @@ class MyApp extends StatelessWidget {
             home: const MyHomePage(title: 'Matiki Flutter Demo Home Page'),
           );
         }
-      },
-    );
-  }
 }
 
 class MyHomePage extends StatelessWidget {

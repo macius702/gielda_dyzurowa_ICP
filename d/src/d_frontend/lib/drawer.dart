@@ -47,7 +47,7 @@ class CommonDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 //with sample usernames
-                MaterialPageRoute(builder: (context) => ShowUsernamesScreen(usernames: ['a', 'b', 'c']  )),
+                MaterialPageRoute(builder: (context) => ShowUsernamesScreen()),
               );
 
             },

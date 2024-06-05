@@ -30,11 +30,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  provider: ^6.0.1
   agent_dart: # ^0.1.24+1
     path: /home/maciej/mydes2/ICP_Dart/agent_dart
   archive: 3.3.7
   shared_preferences: ^2.0.8
   mobx: ^2.0.6
+  flutter_mobx: ^2.0.1  # add this line  
 
 
 

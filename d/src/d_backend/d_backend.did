@@ -34,6 +34,7 @@ type User = record {
 type UserRole = variant { hospital; doctor };
 service : {
   get_all_duty_slots : () -> (vec DutySlot) query;
+  get_all_usernames : () -> (vec text) query;
   get_all_users : () -> (vec User) query;
   get_specialties : () -> (vec text) query;
   http_request : (RawHttpRequest) -> (RawHttpResponse) query;
