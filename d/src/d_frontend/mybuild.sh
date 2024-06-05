@@ -9,7 +9,7 @@ set -e
 
 if [ -z "$1" ]
 then
-    echo "Please provide the mode as the first parameter"
+    echo "Please provide the mode as the first parameter: local, playground or mainnet"
     exit 1
 fi
 
@@ -26,7 +26,7 @@ then
     echo "Deploying to mainnet"
     deploy_param="--network=ic"
 else
-    echo "Invalid mode. Please provide the mode as the first parameter"
+    echo "Invalid mode. Please provide the mode as the first parameter: local, playground or mainnet"
     exit 1
 fi
 
@@ -41,6 +41,10 @@ dfx canister create d_frontend $deploy_param
 
 echo "Running dart generate_config.dart with parameter: $1"
 dart generate_config.dart $1
+
+echo "Running build_runner build --delete-conflicting-outputs"
+dart run build_runner build --delete-conflicting-outputs    # Build the generated files
+
 
 echo "Running flutter build web --release"
 flutter build web --release

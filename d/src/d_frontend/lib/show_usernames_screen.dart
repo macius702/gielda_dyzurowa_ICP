@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import 'drawer.dart';
 
+import 'package:mobx/mobx.dart';
+
+part 'show_usernames_screen.g.dart';
+
+class UsernameStore = _UsernameStore with _$UsernameStore;
+
+abstract class _UsernameStore with Store {
+  @observable
+  ObservableList<String> usernames = ObservableList<String>();
+}
+
 // stateless widget for showing usernames
 class ShowUsernamesScreen extends StatelessWidget {
   final List<String> usernames;

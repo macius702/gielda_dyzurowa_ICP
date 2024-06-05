@@ -24,7 +24,7 @@ class CommonDrawer extends StatelessWidget {
             ListTile(
               title: const Text('Register'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => RegisterScreen()),
                 );
@@ -34,7 +34,7 @@ class CommonDrawer extends StatelessWidget {
           ListTile(
             title: const Text('Login'),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
               );
@@ -44,7 +44,7 @@ class CommonDrawer extends StatelessWidget {
             title: const Text('Show Users'),
             onTap: () {
               // Add logic to show users
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 //with sample usernames
                 MaterialPageRoute(builder: (context) => ShowUsernamesScreen(usernames: ['a', 'b', 'c']  )),

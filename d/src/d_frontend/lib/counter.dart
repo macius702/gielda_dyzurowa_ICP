@@ -131,11 +131,11 @@ class Counter {
       ActorMethod? func = actor?.getFunc(CounterMethod.get_specialties);
       if (func != null) {
         var res = await func([]);
-        print("Function call result: $res");
+        print("Function call result: ${res.first} ... ${res.last}");
 
         if (res != null) {
           // return (res as BigInt).toInt();
-          print("get_spectialties: $res");
+          print("get_spectialties: ${res.first} ... ${res.last}");
           return (res as List<String>);
         } else {
           print("Function call returned null");

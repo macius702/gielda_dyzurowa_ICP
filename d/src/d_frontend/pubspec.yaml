@@ -34,6 +34,8 @@ dependencies:
     path: /home/maciej/mydes2/ICP_Dart/agent_dart
   archive: 3.3.7
   shared_preferences: ^2.0.8
+  mobx: ^2.0.6
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -41,6 +43,8 @@ dependencies:
   cupertino_icons: ^1.0.6
 
 dev_dependencies:
+  build_runner: ^2.1.6
+  mobx_codegen: ^2.0.6
   flutter_test:
     sdk: flutter
 
