@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 
 class SpecialtyDropdownMenu extends StatefulWidget {
   final List<String> specialties;
+  final ValueChanged<String> onSelected;
 
-  SpecialtyDropdownMenu({required this.specialties});
+  SpecialtyDropdownMenu({required this.specialties, required this.onSelected});
 
   @override
   _SpecialtyDropdownMenuState createState() => _SpecialtyDropdownMenuState();
 }
 
 class _SpecialtyDropdownMenuState extends State<SpecialtyDropdownMenu> {
-  String _selectedSpecialty = '';
+  String? _selectedSpecialty;
 
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
-      value: _selectedSpecialty.isEmpty ? null : _selectedSpecialty,
+      isExpanded: true,
+      value: _selectedSpecialty,
       hint: const Text('Enter specialty'),
       items: widget.specialties.map((String value) {
         return DropdownMenuItem<String>(
@@ -25,10 +27,11 @@ class _SpecialtyDropdownMenuState extends State<SpecialtyDropdownMenu> {
       }).toList(),
       onChanged: (String? newValue) {
         setState(() {
-          _selectedSpecialty = newValue!;
+          _selectedSpecialty = newValue;
         });
+        widget.onSelected(newValue ?? '');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected Specialty: $_selectedSpecialty')),
+          SnackBar(content: Text("Selected Specialty: $newValue ?? ''")),
         );
       },
     );

@@ -64,9 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ,
             ),
             if (_registerStore.role == 'doctor')
-              SpecialtyDropdownMenu(specialties: counterStore.specialties
-              // onSelected: _registerStore.setSpecialty)
-              ) , 
+              SpecialtyDropdownMenu(specialties: counterStore.specialties,  onSelected: _registerStore.setSpecialty),
 
             if (_registerStore.role == 'doctor')
               TextField(
