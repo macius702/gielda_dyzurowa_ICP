@@ -67,8 +67,8 @@ then
 elif [ "$1" == "local" ]
 then
     # (cd build/web && http-server  -p 8765)
-    flutter run -d chrome
-    # flutter run --release -d emulator-5554 & 
+    # flutter run -d chrome
+    flutter run --release -d emulator-5554
     # (cd build/web && http-server  -p 8765)
 fi
 

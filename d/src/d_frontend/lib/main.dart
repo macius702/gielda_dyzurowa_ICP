@@ -17,6 +17,8 @@ import 'counter.dart';
 
   final counter = await initCounter(); // Assuming createCounter is your async function that returns a Counter
   final counterStore = CounterStore(counter);
+  counterStore.setup_specialties();
+
 
   runApp(
     Provider<CounterStore>.value(
