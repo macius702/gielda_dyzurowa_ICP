@@ -50,7 +50,7 @@ dart run build_runner build --delete-conflicting-outputs    # Build the generate
 
 
 echo "Running flutter build web --release"
-# flutter build web --profile --dart-define=Dart2jsOptimization=O0 --source-maps
+flutter build web --profile --dart-define=Dart2jsOptimization=O0 --source-maps
 
 
 echo "Running dfx deploy with parameter: $deploy_param"
