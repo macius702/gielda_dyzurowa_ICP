@@ -1,3 +1,4 @@
+import 'package:d_frontend/types.dart';
 import 'package:mobx/mobx.dart';
 import 'counter.dart';
 
@@ -28,6 +29,12 @@ abstract class _CounterStore with Store {
       final value = await counter.get_specialties();
       specialties = ObservableList<String>.of(value);
     }
+  }
+
+  @action
+  Future<void> performRegistration(
+    {required String username, required String password, required UserRole role, required int? specialty, required String? localization}) async {
+      await counter.performRegistration(username, password, role, specialty, localization);
   }
 
 }

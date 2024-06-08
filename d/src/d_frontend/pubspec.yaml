@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: any
   provider: ^6.0.1
   agent_dart: # ^0.1.24+1
     path: /home/maciej/mydes2/ICP_Dart/agent_dart

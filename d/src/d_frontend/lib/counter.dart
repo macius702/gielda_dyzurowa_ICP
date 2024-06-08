@@ -1,6 +1,11 @@
 import 'dart:io';
+import 'package:d_frontend/constants.dart';
+import 'package:d_frontend/types.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'package:agent_dart/agent_dart.dart';
 import 'dart:math';
@@ -159,6 +164,62 @@ class Counter {
 
   }
 
+
+
+    Future<Status> performRegistration(String username, String password, UserRole role, int? specialty, String? localization) async {
+      try {
+        Uri uri = _createUri('/auth/register');
+        Map<String, String> headers = {
+          'Content-Type': 'application/json; charset=UTF-8',
+        };
+        Map<String, dynamic> bodyMap = {
+          'username': username,
+          'password': password,
+          'role': role.toString().split('.').last,
+        };
+
+        if (specialty != null) {
+          bodyMap['specialty'] = specialty;
+        }
+
+        if (localization != null) {
+          bodyMap['localization'] = localization;
+        }
+
+        String body = jsonEncode(bodyMap);
+        mtlk_print('URL: $uri');
+        mtlk_print('Headers: $headers');
+        mtlk_print('Body: $body');
+
+        final response = await http.post(
+          uri,
+          headers: headers,
+          body: body,
+        );
+
+        if (response.statusCode == 200) {
+          // If the server returns a 200 OK response,
+          // then parse the JSON.
+          return Response();
+        } else {
+
+          // print more on response
+          mtlk_print("response: ${response.body}");
+          mtlk_print("response: ${response.statusCode}");
+          mtlk_print("response: ${response.headers}");
+
+
+          // If the server returns an unexpected response,
+          // then throw an exception.
+          throw Exception('Failed to register user');
+        }
+      } catch (e) {
+        mtlk_print("Caught error: $e");
+        return Future.error(e);
+      }
+    }
+
+
   Future<List<String>> get_users() async {
     try {
       if (actor == null) {
@@ -253,4 +314,9 @@ if (mode == Mode.playground) {
   // await counter.get_specialties();
   // mtlk_print("After counter get_specialties");
   return counter;
+}
+
+
+Uri _createUri(String path) {
+  return Uri.parse('$BASE_URL$path?canisterId=$BASE_CANISTER');
 }

@@ -7,21 +7,26 @@
 
 set -e
 
-if [ -z "$1" ]
+
+mode=${1:-local}
+
+echo "mode=$mode"
+
+if [ -z "$mode" ]
 then
     echo "Please provide the mode as the first parameter: local, playground or mainnet"
     exit 1
 fi
 
-if [ "$1" == "playground" ]
+if [ "$mode" == "playground" ]
 then
     echo "Deploying to the playground"
     deploy_param="--playground"
-elif [ "$1" == "local" ]
+elif [ "$mode" == "local" ]
 then
     echo "Deploying to local"
     deploy_param=""
-elif [ "$1" == "mainnet" ]
+elif [ "$mode" == "mainnet" ]
 then
     echo "Deploying to mainnet"
     deploy_param="--network=ic"
@@ -33,7 +38,8 @@ else
 fi
 
 # dfx stop
-# dfx start --clean --background
+# dfx start --clean --background &
+dfx start --background &
 # flutter clean
 # flutter pub get
 
@@ -41,8 +47,8 @@ echo "Running canister create with parameter: $deploy_param"
 dfx canister create d_backend $deploy_param
 dfx canister create d_frontend $deploy_param
 
-echo "Running dart generate_config.dart with parameter: $1"
-dart generate_config.dart $1
+echo "Running dart generate_config.dart with parameter: $mode"
+dart generate_config.dart $mode
 
 echo "Running build_runner build --delete-conflicting-outputs"
 dart run build_runner build --delete-conflicting-outputs    # Build the generated files
@@ -59,16 +65,17 @@ dfx deploy -v $deploy_param
 
 flutter devices
 
-if [ "$1" == "playground" ]
+if [ "$mode" == "playground" ]
 then
     source web_front_end.sh
     xdg-open https://$FRONTEND_CANISTER_ID.ic0.app &
     flutter run --release -d emulator-5554 &
-elif [ "$1" == "local" ]
+elif [ "$mode" == "local" ]
 then
     # (cd build/web && http-server  -p 8765)
     # flutter run -d chrome
-    flutter run --release -d emulator-5554
+    # flutter run --release -d emulator-5554
+    flutter run -d emulator-5554
     # (cd build/web && http-server  -p 8765)
 fi
 

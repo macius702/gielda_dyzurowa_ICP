@@ -1,4 +1,5 @@
 import 'package:d_frontend/counter_store.dart';
+import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
@@ -73,13 +74,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   labelText: 'Localization',
                 ),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_registerStore.username.isEmpty || _registerStore.password.isEmpty || _registerStore.role == null || _registerStore.role!.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Username, password, and role are mandatory")),
+                    );
+                  } else if (_registerStore.role == "doctor" && (_registerStore.specialty == null || _registerStore.specialty!.isEmpty || _registerStore.localization == null || _registerStore.localization!.isEmpty)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Specialty and localization are mandatory for doctors")),
+                    );
+
+                  } 
+                  // role has to be set (not null)
+                  else if (_registerStore.role == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Role has to be set")),
+                    );
+                  }
+                  else {
+
+                    UserRole roleEnum = UserRole.values.firstWhere((e) => e.toString() == 'UserRole.${_registerStore.role}');
+                    int specialtyIndex = counterStore.specialties.indexOf(_registerStore.specialty ?? '');
+                    //use   Future<void> register(String username, String password, String role, String specialty, String localization) async {
+                    // from counter_store.dart
+                    counterStore.performRegistration(
+                      username: _registerStore.username,
+                      password: _registerStore.password,
+                      role: roleEnum,
+                      specialty: specialtyIndex == -1 ? null : specialtyIndex,
+                      localization: _registerStore.localization,
+                    );
+
+                  }
+                },
+                child: const Text('Register'),
+              )
               
-            ElevatedButton(
-              onPressed: () {
-                // Perform registration logic here
-              },
-              child: const Text('Register'),
-            ),
           ],
         ),
       ),
