@@ -69,6 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             if (_registerStore.role == 'doctor')
               TextField(
+                onChanged : _registerStore.setLocalization,
                 controller: _localizationController,
                 decoration: const InputDecoration(
                   labelText: 'Localization',

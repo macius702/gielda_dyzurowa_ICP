@@ -179,7 +179,7 @@ class Counter {
         };
 
         if (specialty != null) {
-          bodyMap['specialty'] = specialty;
+          bodyMap['specialty'] = specialty.toString();        
         }
 
         if (localization != null) {
