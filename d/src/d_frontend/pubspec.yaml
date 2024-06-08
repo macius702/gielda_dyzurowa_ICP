@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  fluttertoast: ^8.0.8
   http: any
   provider: ^6.0.1
   agent_dart: # ^0.1.24+1

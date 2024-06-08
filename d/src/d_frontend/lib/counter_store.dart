@@ -32,9 +32,9 @@ abstract class _CounterStore with Store {
   }
 
   @action
-  Future<void> performRegistration(
+  Future<Status> performRegistration(
     {required String username, required String password, required UserRole role, required int? specialty, required String? localization}) async {
-      await counter.performRegistration(username, password, role, specialty, localization);
+      return await counter.performRegistration(username, password, role, specialty, localization);
   }
 
 }

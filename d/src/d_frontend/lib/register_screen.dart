@@ -1,7 +1,10 @@
 import 'package:d_frontend/counter_store.dart';
+import 'package:d_frontend/main.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:provider/provider.dart';
 import 'register_store.dart';
 
@@ -76,7 +79,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  // Store the BuildContext in a local variable
+                  final localContext = context;
                   if (_registerStore.username.isEmpty || _registerStore.password.isEmpty || _registerStore.role == null || _registerStore.role!.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Username, password, and role are mandatory")),
@@ -92,21 +97,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Role has to be set")),
                     );
-                  }
-                  else {
-
+                  }                  
+                  else
+                  {
                     UserRole roleEnum = UserRole.values.firstWhere((e) => e.toString() == 'UserRole.${_registerStore.role}');
                     int specialtyIndex = counterStore.specialties.indexOf(_registerStore.specialty ?? '');
-                    //use   Future<void> register(String username, String password, String role, String specialty, String localization) async {
-                    // from counter_store.dart
-                    counterStore.performRegistration(
-                      username: _registerStore.username,
-                      password: _registerStore.password,
-                      role: roleEnum,
-                      specialty: specialtyIndex == -1 ? null : specialtyIndex,
-                      localization: _registerStore.localization,
-                    );
 
+                    try {
+                      Status value = await counterStore.performRegistration(
+                        username: _registerStore.username,
+                        password: _registerStore.password,
+                        role: roleEnum,
+                        specialty: specialtyIndex == -1 ? null : specialtyIndex,
+                        localization: _registerStore.localization,
+                      );
+
+
+                      if (value is Response) {
+                        // Show a toast message
+                        Fluttertoast.showToast(
+                          msg: "Registration successful",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 2,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                        );
+
+                        // Wait for the toast to finish, then navigate
+                        Future.delayed(const Duration(seconds: 4), () {
+                          Navigator.pushReplacement(
+                            localContext,
+                            MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Another Matiki Flutter Demo Home Page')),
+                          );
+                        });
+                      }
+                      else
+                      {
+                        // print error
+                        ScaffoldMessenger.of(localContext).showSnackBar(
+                          SnackBar(content: Text(value.toString())),
+                        );
+                      }
+                    } catch (e) {
+                      // Handle any errors here
+
+                      // print error
+                      ScaffoldMessenger.of(localContext).showSnackBar(
+                        SnackBar(content: Text(e.toString())),
+                      );
+                    }
                   }
                 },
                 child: const Text('Register'),
