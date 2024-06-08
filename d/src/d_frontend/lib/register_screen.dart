@@ -40,6 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           children: <Widget>[
             TextField(
+              key: const Key('usernameField'),
               onChanged : _registerStore.setUsername,
               controller: _usernameController,
               decoration: const InputDecoration(
@@ -47,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             TextField(
+              key: const Key('passwordField'),
               onChanged: _registerStore.setPassword,
               controller: _passwordController,
               decoration: const InputDecoration(
@@ -56,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
 
             DropdownButton<String>(
+              key: const Key('roleDropdown'),
               value: _registerStore.role,
               hint: const Text('Select Role'),
               items: _roles.map((String value) {
@@ -79,6 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               ElevatedButton(
+                key: const Key('registerButton'),
                 onPressed: () async {
                   // Store the BuildContext in a local variable
                   final localContext = context;
