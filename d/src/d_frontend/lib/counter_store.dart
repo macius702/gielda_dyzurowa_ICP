@@ -12,6 +12,14 @@ abstract class _CounterStore with Store {
   _CounterStore(this.counter);
 
   @observable
+  String? username;
+
+  @action
+  void setUsername(String? value) {
+    username = value;
+  }
+
+  @observable
   ObservableList<String> usernames = ObservableList<String>();
 
   @observable
@@ -35,6 +43,12 @@ abstract class _CounterStore with Store {
   Future<Status> performRegistration(
     {required String username, required String password, required UserRole role, required int? specialty, required String? localization}) async {
       return await counter.performRegistration(username, password, role, specialty, localization);
+  }
+
+  @action
+  Future<Status> performLogin(
+    {required String username, required String password}) async {
+      return await counter.performLogin(username, password);
   }
 
 }

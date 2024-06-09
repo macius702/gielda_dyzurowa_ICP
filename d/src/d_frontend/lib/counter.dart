@@ -219,6 +219,44 @@ class Counter {
       }
     }
 
+    Future<Status> performLogin(String username, String password) async {
+      try {
+        Uri uri = _createUri('/auth/login');
+        Map<String, String> headers = {
+          'Content-Type': 'application/json; charset=UTF-8',
+        };
+        Map<String, dynamic> bodyMap = {
+          'username': username,
+          'password': password,
+        };
+
+        String body = jsonEncode(bodyMap);
+        mtlk_print('URL: $uri');
+        mtlk_print('Headers: $headers');
+        mtlk_print('Body: $body');
+
+        final response = await http.post(
+          uri,
+          headers: headers,
+          body: body,
+        );
+
+        if (response.statusCode == 200) {
+          // If the server returns a 200 OK response,
+          // then parse the JSON.
+          return Response();
+        } else {
+          // If the server returns an unexpected response,
+          // then throw an exception.
+          throw Exception('Failed to login user');
+        }
+      } catch (e) {
+        mtlk_print("Caught error: $e");
+        return Future.error(e);
+      }
+    }
+
+
 
   Future<List<String>> get_users() async {
     try {
