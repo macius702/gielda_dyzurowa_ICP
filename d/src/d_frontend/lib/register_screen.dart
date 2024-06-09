@@ -98,77 +98,7 @@ class RegisterForm extends StatelessWidget {
           ),
           ElevatedButton(
             key: const Key('registerButton'),
-            onPressed: () async {
-              // Store the BuildContext in a local variable
-              final localContext = context;
-              if (_registerStore.username.isEmpty || _registerStore.password.isEmpty || _registerStore.role == null || _registerStore.role!.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Username, password, and role are mandatory")),
-                );
-              } else if (_registerStore.role == "doctor" && (_registerStore.specialty == null || _registerStore.specialty!.isEmpty || _registerStore.localization == null || _registerStore.localization!.isEmpty)) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Specialty and localization are mandatory for doctors")),
-                );
-
-              } 
-              // role has to be set (not null)
-              else if (_registerStore.role == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Role has to be set")),
-                );
-              }                  
-              else
-              {
-                UserRole roleEnum = UserRole.values.firstWhere((e) => e.toString() == 'UserRole.${_registerStore.role}');
-                int specialtyIndex = counterStore.specialties.indexOf(_registerStore.specialty ?? '');
-
-                try {
-                  Status value = await counterStore.performRegistration(
-                    username: _registerStore.username,
-                    password: _registerStore.password,
-                    role: roleEnum,
-                    specialty: specialtyIndex == -1 ? null : specialtyIndex,
-                    localization: _registerStore.localization,
-                  );
-
-
-                  if (value is Response) {
-                    // Show a toast message
-                    Fluttertoast.showToast(
-                      msg: "Registration successful",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 2,
-                      backgroundColor: Colors.green,
-                      textColor: Colors.white,
-                      fontSize: 16.0
-                    );
-
-                    // Wait for the toast to finish, then navigate
-                    Future.delayed(const Duration(seconds: 4), () {
-                      Navigator.pushReplacement(
-                        localContext,
-                        MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Another Matiki Flutter Demo Home Page')),
-                      );
-                    });
-                  }
-                  else
-                  {
-                    // print error
-                    ScaffoldMessenger.of(localContext).showSnackBar(
-                      SnackBar(content: Text(value.toString())),
-                    );
-                  }
-                } catch (e) {
-                  // Handle any errors here
-
-                  // print error
-                  ScaffoldMessenger.of(localContext).showSnackBar(
-                    SnackBar(content: Text(e.toString())),
-                  );
-                }
-              }
-            },
+            onPressed: () => onPressed(context, counterStore, _registerStore),
             child: const Text('Register'),
           )
           
@@ -177,3 +107,82 @@ class RegisterForm extends StatelessWidget {
     );
   }
 }
+
+void onPressed(BuildContext context, CounterStore counterStore, RegisterStore _registerStore) async{
+
+  // Store the BuildContext in a local variable
+  final localContext = context;
+  if (_registerStore.username.isEmpty || _registerStore.password.isEmpty || _registerStore.role == null || _registerStore.role!.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Username, password, and role are mandatory")),
+    );
+  } else if (_registerStore.role == "doctor" && (_registerStore.specialty == null || _registerStore.specialty!.isEmpty || _registerStore.localization == null || _registerStore.localization!.isEmpty)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Specialty and localization are mandatory for doctors")),
+    );
+
+  } 
+  // role has to be set (not null)
+  else if (_registerStore.role == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Role has to be set")),
+    );
+  }                  
+  else
+  {
+    UserRole roleEnum = UserRole.values.firstWhere((e) => e.toString() == 'UserRole.${_registerStore.role}');
+    int specialtyIndex = counterStore.specialties.indexOf(_registerStore.specialty ?? '');
+
+    try {
+      Status value = await counterStore.performRegistration(
+        username: _registerStore.username,
+        password: _registerStore.password,
+        role: roleEnum,
+        specialty: specialtyIndex == -1 ? null : specialtyIndex,
+        localization: _registerStore.localization,
+      );
+
+
+      if (value is Response) {
+        // Show a toast message
+        Fluttertoast.showToast(
+          msg: "Registration successful",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
+        );
+
+        // Wait for the toast to finish, then navigate
+        Future.delayed(const Duration(seconds: 4), () {
+          Navigator.pushReplacement(
+            localContext,
+            MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Another Matiki Flutter Demo Home Page')),
+          );
+        });
+      }
+      else
+      {
+        // print error
+        ScaffoldMessenger.of(localContext).showSnackBar(
+          SnackBar(content: Text(value.toString())),
+        );
+      }
+    } catch (e) {
+      // Handle any errors here
+
+      // print error
+      ScaffoldMessenger.of(localContext).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+}
+
+
+
+
+
+            
