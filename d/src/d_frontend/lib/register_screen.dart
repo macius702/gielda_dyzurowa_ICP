@@ -43,9 +43,6 @@ class RegisterForm extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _localizationController = TextEditingController();
   final List<String> _roles = ['doctor', 'hospital'];
 
   @override
@@ -57,7 +54,6 @@ class RegisterForm extends StatelessWidget {
         TextField(
           key: const Key('usernameField'),
           onChanged : _registerStore.setUsername,
-          controller: _usernameController,
           decoration: const InputDecoration(
             labelText: 'Username',
           ),
@@ -65,7 +61,6 @@ class RegisterForm extends StatelessWidget {
         TextField(
           key: const Key('passwordField'),
           onChanged: _registerStore.setPassword,
-          controller: _passwordController,
           decoration: const InputDecoration(
             labelText: 'Password',
           ),
@@ -91,7 +86,6 @@ class RegisterForm extends StatelessWidget {
         if (_registerStore.role == 'doctor')
           TextField(
             onChanged : _registerStore.setLocalization,
-            controller: _localizationController,
             decoration: const InputDecoration(
               labelText: 'Localization',
             ),
