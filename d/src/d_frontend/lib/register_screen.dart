@@ -138,12 +138,12 @@ Future<void> performRegistration(BuildContext context, CounterStore counterStore
         fontSize: 16.0
       );
 
-      Future.delayed(const Duration(seconds: 4), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Another Matiki Flutter Demo Home Page')),
-        );
-      });
+      // Future.delayed(const Duration(seconds: 4), () {
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Another Matiki Flutter Demo Home Page')),
+      //   );
+      // });
     } else {
       showSnackBar(context, value.toString()); // mtlk TODO Don't use 'BuildContext's across async gaps.
 
