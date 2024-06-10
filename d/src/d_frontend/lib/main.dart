@@ -1,6 +1,7 @@
 import 'package:agent_dart/agent_dart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
 
 import 'package:d_frontend/counter_store.dart';
@@ -84,7 +85,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Colors.blue,
-          title: Text(widget.title),
+          title: Observer(
+            builder: (_) => Text(counterStore.username == null
+                ? 'Not logged in'
+                : 'Logged in as ${counterStore.username}'),
+          ),
           leading: Builder(builder: (context) {
             return IconButton(
               icon: const Icon(Icons.menu),
