@@ -85,6 +85,7 @@ class RegisterForm extends StatelessWidget {
 
         if (_registerStore.role == 'doctor')
           TextField(
+            key: const Key('localizationField'),
             onChanged : _registerStore.setLocalization,
             decoration: const InputDecoration(
               labelText: 'Localization',

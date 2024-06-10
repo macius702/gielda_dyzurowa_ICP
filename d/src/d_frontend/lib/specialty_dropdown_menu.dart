@@ -16,6 +16,7 @@ class _SpecialtyDropdownMenuState extends State<SpecialtyDropdownMenu> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
+      key: const Key('specialtyDropdown'),
       isExpanded: true,
       value: _selectedSpecialty,
       hint: const Text('Enter specialty'),

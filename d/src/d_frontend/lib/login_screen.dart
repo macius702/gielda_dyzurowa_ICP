@@ -38,12 +38,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: <Widget>[
             TextField(
+              key: const Key('loginUsernameField'),
               onChanged: _loginStore.setUsername,
               decoration: const InputDecoration(
                 labelText: 'Username',
               ),
             ),
             TextField(
+              key: const Key('loginPasswordField'),
               onChanged: _loginStore.setPassword,
               decoration: const InputDecoration(
                 labelText: 'Password',
@@ -51,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
             ),
             ElevatedButton(
+              key: const Key('loginButton'),
               onPressed: () => onPressed(context, counterStore, _loginStore),
               child: const Text('Login'),
             ),

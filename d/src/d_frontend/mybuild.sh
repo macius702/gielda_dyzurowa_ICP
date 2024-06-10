@@ -77,6 +77,7 @@ then
     # flutter run --release -d emulator-5554
     # flutter run -d emulator-5554
     # (cd build/web && http-server  -p 8765)
-    flutter test integration_test/app_test.dart 
+    flutter test integration_test/app_test.dart && flutter test integration_test/app_test2.dart 
+
 fi
 
