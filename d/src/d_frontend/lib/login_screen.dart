@@ -5,72 +5,55 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'drawer.dart';
 
 import 'login_store.dart';
 
-class LoginScreen extends StatefulWidget {
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final LoginStore _loginStore = LoginStore();
-
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  String _errorMessage = '';
-  bool _showError = false;
+class LoginForm extends StatelessWidget {
+  final LoginStore loginStore = LoginStore();
+  String errorMessage = '';
+  bool showError = false;
 
   @override
   Widget build(BuildContext context) {
     final counterStore = Provider.of<CounterStore>(context);
-    return Observer(
-        builder: (_) => Scaffold(
-              appBar: AppBar(
-                title: const Text('Login'),
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: <Widget>[
+          TextField(
+            key: const Key('loginUsernameField'),
+            onChanged: loginStore.setUsername,
+            decoration: const InputDecoration(
+              labelText: 'Username',
+            ),
+          ),
+          TextField(
+            key: const Key('loginPasswordField'),
+            onChanged: loginStore.setPassword,
+            decoration: const InputDecoration(
+              labelText: 'Password',
+            ),
+            obscureText: true,
+          ),
+          ElevatedButton(
+            key: const Key('loginButton'),
+            onPressed: () => onPressed(context, counterStore, loginStore),
+            child: const Text('Login'),
+          ),
+          if (showError)
+            SnackBar(
+              content: Text(errorMessage),
+              action: SnackBarAction(
+                label: 'Dismiss',
+                onPressed: () {
+                  // Handle dismiss
+                },
               ),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    TextField(
-                      key: const Key('loginUsernameField'),
-                      onChanged: _loginStore.setUsername,
-                      decoration: const InputDecoration(
-                        labelText: 'Username',
-                      ),
-                    ),
-                    TextField(
-                      key: const Key('loginPasswordField'),
-                      onChanged: _loginStore.setPassword,
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                      ),
-                      obscureText: true,
-                    ),
-                    ElevatedButton(
-                      key: const Key('loginButton'),
-                      onPressed: () =>
-                          onPressed(context, counterStore, _loginStore),
-                      child: const Text('Login'),
-                    ),
-                    if (_showError)
-                      SnackBar(
-                        content: Text(_errorMessage),
-                        action: SnackBarAction(
-                          label: 'Dismiss',
-                          onPressed: () {
-                            setState(() {
-                              _showError = false;
-                            });
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ));
+            ),
+        ],
+      ),
+    );
   }
 }
 

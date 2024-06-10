@@ -4,7 +4,6 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import 'package:d_frontend/counter_store.dart';
-import 'package:d_frontend/drawer.dart';
 import 'package:d_frontend/login_screen.dart';
 import 'package:d_frontend/register_screen.dart';
 import 'package:d_frontend/show_usernames_screen.dart';
@@ -74,14 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
         key: Key('registerForm'),
         onTap: () => _onItemTapped(2),
       ),
-      InkWell(
-        onTap: () {
-          _onItemTapped(3);
-        },
-        child: Text(
-          'Index 1: Business',
-        ),
-      ),
+      LoginForm(),
       ShowUsernamesBody(),
       Text(
         'NIC',

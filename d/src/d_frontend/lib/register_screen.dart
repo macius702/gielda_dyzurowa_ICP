@@ -9,8 +9,6 @@ import 'register_store.dart';
 
 import 'specialty_dropdown_menu.dart';
 
-import 'drawer.dart';
-
 class RegisterForm extends StatelessWidget {
   final RegisterStore _registerStore = RegisterStore();
   final VoidCallback onTap;

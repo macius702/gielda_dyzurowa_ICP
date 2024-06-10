@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'drawer.dart';
 import 'counter_store.dart';
 
 class ShowUsernamesBody extends StatelessWidget {
