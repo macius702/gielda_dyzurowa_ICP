@@ -53,6 +53,18 @@ command="curl -X POST -H \"Content-Type: application/json\" -d \"{ \\\"hello\\\"
 
 After running this command in the Docker terminal, you can copy the output and paste it into the host's terminal to execute it.
 
-# TODO
+# TODO according to: https://docs.flutter.dev/cookbook/design/drawer
+
+
+
+- [ ] 2 app_tests.dart - > one for register , one for login 
+- [ ] Extract LoginForm
+- [ ] Prepare body: widgets (forms - h0ome, register, login) array 
+- [ ] Integrate into Drawer
+- [ ] Back to one test
+
+# TODO ohers
+
+
 - [ ] is router async - I mean no need to specifically guard the common data operations 
 - [ ] @Query("canisterId") canisterId: String into headers
