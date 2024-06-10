@@ -58,9 +58,9 @@ After running this command in the Docker terminal, you can copy the output and p
 
 
 - [x] 2 app_tests.dart - > one for register hospital, one for doctor
+- [x] Prepare body: widgets (forms - h0ome, register, show users) array 
+- [x] Integrate into Drawer
 - [ ] Extract LoginForm
-- [ ] Prepare body: widgets (forms - h0ome, register, login) array 
-- [ ] Integrate into Drawer
 - [ ] Back to one test
 - [ ] use CommonAppBar and test for Login
 

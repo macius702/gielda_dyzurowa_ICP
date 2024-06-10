@@ -4,10 +4,6 @@ import 'login_screen.dart';
 import 'show_usernames_screen.dart';
 
 class CommonDrawer extends StatelessWidget {
-  final bool showRegisterOption;
-
-  CommonDrawer({this.showRegisterOption = true});
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -20,16 +16,6 @@ class CommonDrawer extends StatelessWidget {
             ),
             child: Text('Drawer Header'),
           ),
-          if (showRegisterOption)
-            ListTile(
-              title: const Text('Register'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
-                );
-              },
-            ),
           // Add more ListTiles here for other options in the drawer
           ListTile(
             title: const Text('Login'),
@@ -38,18 +24,6 @@ class CommonDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
               );
-            },
-          ),
-          ListTile(
-            title: const Text('Show Users'),
-            onTap: () {
-              // Add logic to show users
-              Navigator.pushReplacement(
-                context,
-                //with sample usernames
-                MaterialPageRoute(builder: (context) => ShowUsernamesScreen()),
-              );
-
             },
           ),
         ],
