@@ -64,7 +64,7 @@ After running this command in the Docker terminal, you can copy the output and p
 - [x] use CommonAppBar 
 - [x] cookies
 - [x] Logout
-- [ ] Back to one test
+- [x] Back to one test
 - [ ] and test for Login
 - [ ] // Handle dismiss
 

@@ -10,16 +10,15 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets("E2E test", (WidgetTester tester) async {
+  void runTest(WidgetTester tester, String role, String specialty,
+      String localization) async {
     // 1. Launch the app
-    // Ensure flutter binding is initialized if you're going to use async code in main
     WidgetsFlutterBinding.ensureInitialized();
 
     // Initialize the CounterStore
-    final counter =
-        await initCounter(); // Assuming initCounter is your async function that returns a Counter
+    final counter = await initCounter();
     final counterStore = CounterStore(counter);
-    counterStore.setup_specialties();
+    await counterStore.setup_specialties();
 
     // Launch the app
     await tester.pumpWidget(
@@ -28,34 +27,46 @@ void main() {
         child: MyApp(),
       ),
     );
+
     // 2. Click Register on Drawer
-    await tester.tap(find.byIcon(Icons.menu)); // open the drawer
+    await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Register')); // tap on Register
+    await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
 
     // 3. Fill user (with H# where # is random), password
-    final username = 'H${DateTime.now().millisecondsSinceEpoch}';
+    final username =
+        '${role[0].toUpperCase()}${DateTime.now().millisecondsSinceEpoch}';
     await tester.enterText(find.byKey(Key('usernameField')), username);
     await tester.enterText(find.byKey(Key('passwordField')), 'password');
 
     // 4. Click Select role
     await tester.tap(find.byKey(Key('roleDropdown')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(role).last);
+    await tester.pumpAndSettle();
 
-    // 5. Select hospital
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('hospital').last);
-    await tester.pumpAndSettle();
+    if (role == 'doctor') {
+      // 5a Select specialty
+      await tester.tap(find.byKey(Key('specialtyDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(specialty).last);
+      await tester.pumpAndSettle();
+
+      // 5b fill in localization
+      await tester.enterText(
+          find.byKey(Key('localizationField')), localization);
+      await tester.pumpAndSettle();
+    }
 
     // 6. Click register
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
 
     // 7. Click on Drawer : Show users
-    await tester.tap(find.byIcon(Icons.menu)); // open the drawer
+    await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Show Users')); // tap on Show users
-
+    await tester.tap(find.text('Show Users'));
     await tester.pumpAndSettle();
 
     final finder = find.text(username);
@@ -64,5 +75,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(finder, findsOneWidget);
+  }
+
+  testWidgets("E2E test for hospital role", (WidgetTester tester) async {
+    runTest(tester, 'hospital', '', '');
+  });
+
+  testWidgets("E2E test for doctor role", (WidgetTester tester) async {
+    runTest(tester, 'doctor', 'Angiologia', 'Warsaw');
   });
 }
