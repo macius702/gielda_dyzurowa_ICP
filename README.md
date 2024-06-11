@@ -74,4 +74,5 @@ After running this command in the Docker terminal, you can copy the output and p
 - [ ] is router async - I mean no need to specifically guard the common data operations 
 - [ ] @Query("canisterId") canisterId: String into headers
 - [ ] into SharedPreferences some data - cookie , what else ?
+- [ ] in JWT add nonce
 
