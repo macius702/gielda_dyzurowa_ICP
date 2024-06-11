@@ -1,13 +1,16 @@
 abstract class Status {
   String getString();
+
+  void handleError() {
+    print(getString());
+  }
 }
 
-class Response implements Status {
+class Response extends Status {
   // Response implementation
 
   @override
   String getString() {
-    // Return a string representation of the Response object
     return 'Response';
   }
 }
@@ -27,7 +30,6 @@ class GetUserDataResponse extends Response {
 
   @override
   String getString() {
-    // Return a string representation of the GetUserDataResponse object
     return 'GetUserDataResponse: id=$id, role=$role';
   }
 }
@@ -37,6 +39,11 @@ class ExceptionalFailure implements Status {
   String getString() {
     return 'ExceptionalFailure';
   }
+
+  @override
+  void handleError() {
+    print('Operation failed with an exceptional failure: ${getString()}');
+  }
 }
 
 class Error implements Status {
@@ -44,8 +51,12 @@ class Error implements Status {
   String getString() {
     return 'Error';
   }
-}
 
+  @override
+  void handleError() {
+    print('Operation failed with an error: ${getString()}');
+  }
+}
 enum UserRole {
   doctor,
   hospital,

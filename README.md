@@ -63,7 +63,7 @@ After running this command in the Docker terminal, you can copy the output and p
 - [x] Extract LoginForm
 - [x] use CommonAppBar 
 - [x] cookies
-- [ ] Logout
+- [x] Logout
 - [ ] Back to one test
 - [ ] and test for Login
 - [ ] // Handle dismiss

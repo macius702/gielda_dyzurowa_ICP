@@ -4,34 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LogoutForm extends StatelessWidget {
+  final VoidCallback onTap;
+
+  LogoutForm({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final counterStore = Provider.of<CounterStore>(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          ElevatedButton(
-            key: const Key('logoutButton'),
-            onPressed: () async {
-              Status value = await counterStore.performLogout();
-              // Handle the result of the logout operation
-            },
-            child: const Text('Logout'),
-          ),
-          // if (showError)
-          //   SnackBar(
-          //     content: Text(errorMessage),
-          //     action: SnackBarAction(
-          //       label: 'Dismiss',
-          //       onPressed: () {
-          //         // Handle dismiss
-          //       },
-          //     ),
-          //   ),
-        ],
-      ),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Status value = await counterStore.performLogout();
+      // Handle the result of the logout operation
+      value.handleError();
+
+      onTap();
+    });
+
+    return const Text('Logging out...');
   }
 }

@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Widget> _widgetOptions = <Widget>[
       RegisterForm(
         key: Key('registerForm'),
-        onTap: () => _onItemTapped(2),
+        onTap: () => _onItemTapped(2), // goto show users screen after register
       ),
       LoginForm(),
       ShowUsernamesBody(),
@@ -82,7 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
         'NIC',
         style: optionStyle,
       ),
-      LogoutForm(),
+      LogoutForm(
+        key: Key('logoutForm'),
+        onTap: () => _onItemTapped(1), // goto login screen after logout
+      ),
       UserDataForm(),
     ];
 
