@@ -1,7 +1,8 @@
+use std::cmp::Reverse;
 use std::collections::HashMap;
 
-use crate::UserRole;
-use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, remove_duty_slot_by_id, USED_TOKENS};
+use crate::{TokenData, UserRole};
+use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, remove_duty_slot_by_id, USED_TOKENS_HEAP, USED_TOKENS_MAP};
 use candid;
 use candid::de::IDLDeserialize;
 use candid::ser::IDLBuilder;
@@ -602,15 +603,36 @@ fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), 
 }
 
 fn add_to_used_tokens(req: HttpRequest) {
+    remove_expired_tokens();
     let token_userid_pair = extract_cookies_from_request(&req);
     let token_userid_pair = match token_userid_pair {
         Some(token_userid_pair) => token_userid_pair,
         None => return,
     };
     let (token, _) = token_userid_pair;
-    USED_TOKENS.with(|p| p.borrow_mut().insert(token, ()));
+    let now = ic_cdk::api::time();
+    USED_TOKENS_MAP.with(|p| p.borrow_mut().insert(token.clone(), now));
+    USED_TOKENS_HEAP.with(|p| p.borrow_mut().push(TokenData { create_time: Reverse(now), token }));
+}
+
+fn remove_expired_tokens() {
+    let now = ic_cdk::api::time();
+    let one_hour_ago = now - 3600_000_000_000;
+    USED_TOKENS_HEAP.with(|heap| {
+        let mut heap = heap.borrow_mut();
+        while let Some(token_data) = heap.peek() {
+            if token_data.create_time.0 < one_hour_ago {
+                let token_data = heap.pop().unwrap();
+                USED_TOKENS_MAP.with(|map| {
+                    map.borrow_mut().remove(&token_data.token);
+                });
+            } else {
+                break;
+            }
+        }
+    });
 }
 
 fn is_in_used_tokens(token: &String) -> bool {
-    USED_TOKENS.with(|p| p.borrow().contains_key(&token))
+    USED_TOKENS_MAP.with(|p| p.borrow().contains_key(token))
 }

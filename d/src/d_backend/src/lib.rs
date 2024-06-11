@@ -1,13 +1,10 @@
-
-
-
-
 pub mod types;
 
-use candid::{CandidType, Deserialize, Encode, Decode};
+use candid::{CandidType, Decode, Deserialize, Encode};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
-use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, Storable, 
-    storable::Bound};
+use ic_stable_structures::{storable::Bound, DefaultMemoryImpl, StableBTreeMap, Storable};
+use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashMap};
 use std::str::FromStr;
 use std::{borrow::Cow, cell::RefCell};
 
@@ -23,7 +20,6 @@ use pluto::http::RawHttpRequest;
 use pluto::http::RawHttpResponse;
 
 use controller::convert_from_unix_timestamp;
-
 
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 
@@ -89,8 +85,7 @@ impl Storable for User {
         max_size: MAX_VALUE_SIZE,
         is_fixed_size: false,
     };
-}       
-
+}
 
 #[allow(non_camel_case_types)]
 #[derive(CandidType, Deserialize, Clone, Debug, Serialize)]
@@ -122,6 +117,12 @@ impl fmt::Display for UserRole {
     }
 }
 
+#[derive(Eq, PartialEq, Ord, PartialOrd)]
+struct TokenData {
+    create_time: Reverse<u64>,
+    token: String,
+}
+
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
@@ -145,8 +146,9 @@ thread_local! {
     static NEXT_USER_KEY: RefCell<u32> = RefCell::new(1);
 
 
-
-
+    // Used tokens
+    static USED_TOKENS_MAP: RefCell<HashMap<String, u64>> = RefCell::new(HashMap::new());
+    static USED_TOKENS_HEAP: RefCell<BinaryHeap<TokenData>> = RefCell::new(BinaryHeap::new());
 }
 
 fn get_duty_slot_by_id(id: u32) -> Option<DutySlot> {
@@ -190,21 +192,24 @@ fn get_all_duty_slots_for_display() -> Vec<types::DutyVacancyForDisplay> {
 
 fn get_all_duty_slots_for_display_internal() -> Vec<types::DutyVacancyForDisplay> {
     MAP.with(|p| {
-        p.borrow().iter().map(|(k, v)| {
-            types::DutyVacancyForDisplay {
-                // for _id I need the key of the MAP
-                _id: k.to_string(),
-                startDateTime: convert_from_unix_timestamp(v.start_date_time),
-                endDateTime: convert_from_unix_timestamp(v.end_date_time),
-                status: v.status.clone(),
-                currency: v.currency.clone(),
-                priceFrom: v.price_from,
-                priceTo: v.price_to,
-                hospitalId: get_hospital_by_id(v.hospital_id),
-                assignedDoctorId: get_doctor_by_id(v.assigned_doctor_id),
-                requiredSpecialty: get_specialty_by_id(v.required_specialty),
-            }
-        }).collect()
+        p.borrow()
+            .iter()
+            .map(|(k, v)| {
+                types::DutyVacancyForDisplay {
+                    // for _id I need the key of the MAP
+                    _id: k.to_string(),
+                    startDateTime: convert_from_unix_timestamp(v.start_date_time),
+                    endDateTime: convert_from_unix_timestamp(v.end_date_time),
+                    status: v.status.clone(),
+                    currency: v.currency.clone(),
+                    priceFrom: v.price_from,
+                    priceTo: v.price_to,
+                    hospitalId: get_hospital_by_id(v.hospital_id),
+                    assignedDoctorId: get_doctor_by_id(v.assigned_doctor_id),
+                    requiredSpecialty: get_specialty_by_id(v.required_specialty),
+                }
+            })
+            .collect()
     })
 }
 
@@ -232,11 +237,10 @@ fn get_doctor_by_id(doctor_id: Option<u32>) -> Option<types::Doctor> {
                 localization: user.localization.unwrap(),
                 profileVisible: true,
             })
-        },
+        }
         None => None,
     }
 }
-
 
 fn get_user_by_id(user_id: u32) -> User {
     USER_MAP.with(|p| p.borrow().get(&user_id).unwrap().clone())
@@ -319,15 +323,13 @@ fn get_all_users_internal() -> Vec<User> {
 
 // return only user ames
 fn get_all_usernames_internal() -> Vec<String> {
-    USER_MAP.with(|p| p.borrow().iter().map(|(_, v)| v.username.clone()).collect())}
-
+    USER_MAP.with(|p| p.borrow().iter().map(|(_, v)| v.username.clone()).collect())
+}
 
 // Get all user names
 #[ic_cdk_macros::query]
 fn get_all_usernames() -> Vec<String> {
     get_all_usernames_internal()
 }
-
-
 
 ic_cdk::export_candid!();

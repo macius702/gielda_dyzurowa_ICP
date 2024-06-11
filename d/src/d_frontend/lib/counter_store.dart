@@ -58,6 +58,7 @@ abstract class _CounterStore with Store {
 
   @action
   Future<Status> performLogout() async {
+    setUsername(null);
     return await counter.performLogout();
   }
 

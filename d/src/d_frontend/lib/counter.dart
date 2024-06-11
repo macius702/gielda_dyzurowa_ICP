@@ -292,7 +292,9 @@ class Counter {
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response,
-        // then parse the JSON.
+        //remove froim SharedPreferences cookies
+        await prefs.remove('cookies');
+
         return Response();
       } else {
         // If the server returns an unexpected response,
