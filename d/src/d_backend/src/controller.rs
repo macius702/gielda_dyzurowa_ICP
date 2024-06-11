@@ -1,45 +1,40 @@
 use std::collections::HashMap;
 
-
+use crate::UserRole;
+use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, remove_duty_slot_by_id, USED_TOKENS};
+use candid;
+use candid::de::IDLDeserialize;
+use candid::ser::IDLBuilder;
+use candid::{CandidType, Deserialize};
+use cookie::{Cookie, SameSite};
 use ic_cdk::println;
 use pluto::{
     http::{HttpRequest, HttpResponse, HttpServe},
     router::Router,
 };
 use serde_json::{json, Value};
-use candid::ser::IDLBuilder;
-use candid;
-use candid::de::IDLDeserialize;
-use candid::{CandidType, Deserialize};
-use cookie::{Cookie, SameSite};
-use crate::{get_user_by_id, jwt::JWT, get_duty_slot_by_id, remove_duty_slot_by_id};
-use crate::UserRole;
-use maplit::hashmap;
-use time::{OffsetDateTime, PrimitiveDateTime, UtcOffset};
 use time::macros::format_description;
-
-
-
+use time::{OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 // for display private HeaderField fields
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct MyHeaderField(pub String, pub String);
 
-use crate::{find_user_by_username, get_all_duty_slots_internal, get_all_users_internal, insert_duty_slot_internal, insert_user_internal};
+use crate::specialties::SPECIALTIES_STRINGS;
+use crate::types::PublishDutySlotRequest;
 use crate::DutySlot;
 use crate::DutyStatus;
-use crate::types::PublishDutySlotRequest;
 use crate::User;
-use crate::specialties::SPECIALTIES_STRINGS;
+use crate::{
+    find_user_by_username, get_all_duty_slots_internal, get_all_users_internal,
+    insert_duty_slot_internal, insert_user_internal,
+};
 
-//define  a global u32 constant 
+//define  a global u32 constant
 pub const TODO_SESSION_USER_ID: u32 = 1;
 
-
-
-
-use ring::pbkdf2;
 use ring::digest;
+use ring::pbkdf2;
 
 static PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
@@ -56,12 +51,6 @@ fn hash_password_with_pbkdf2(password: &str, salt: &[u8]) -> Credential {
     );
     credential
 }
-
-
-
-
-
-
 
 pub(crate) fn setup() -> Router {
     let mut router = Router::new();
@@ -101,78 +90,84 @@ pub(crate) fn setup() -> Router {
         println!("Hello World from GET /duty/slots/json");
         println!("Duty slots: {:?}", get_all_duty_slots_internal());
 
-
         //respond with json using duty_slots
         Ok(HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
-            body: json!(
-                crate::get_all_duty_slots_for_display()
-            )
-            .into(),
+            body: json!(crate::get_all_duty_slots_for_display()).into(),
         })
     });
 
     router.post("/duty/publish", true, |req: HttpRequest| async move {
-    let user_info = match get_authorized_user_info(&req) {
-        Ok(user_info) => user_info,
-        Err(response) => return Ok(response),
-    };
-    let (userid, userrole, username) = user_info;
-    if userrole != "hospital" {
-        return Ok(HttpResponse {
-            status_code: 403,
+        let user_info = match get_authorized_user_info(&req) {
+            Ok(user_info) => user_info,
+            Err(response) => return Ok(response),
+        };
+        let (userid, userrole, username) = user_info;
+        if userrole != "hospital" {
+            return Ok(HttpResponse {
+                status_code: 403,
+                headers: HashMap::new(),
+                body: json!({
+                    "statusCode": 403,
+                    "message": "Only hospitals can publish duty slots"
+                })
+                .into(),
+            });
+        }
+        assert_eq!(userrole, "hospital");
+
+        let body_string = String::from_utf8(req.body.clone()).unwrap();
+        println!("Received body: {}", body_string);
+        let publish_duty_slot_request: PublishDutySlotRequest =
+            serde_json::from_str(&body_string).unwrap();
+        println!("Deserialized request: {:?}", publish_duty_slot_request);
+
+        let start_date_time_str = format!(
+            "{} {}",
+            publish_duty_slot_request.startDate, publish_duty_slot_request.startTime
+        );
+        println!("1 Start date time: {}", start_date_time_str);
+        let start_date_time = convert_to_unix_timestamp(&start_date_time_str);
+        println!("2 Start date time: {}", start_date_time);
+
+        let end_date_time = format!(
+            "{} {}",
+            publish_duty_slot_request.endDate, publish_duty_slot_request.endTime
+        );
+        println!("1 End date time: {}", end_date_time);
+        let end_date_time = convert_to_unix_timestamp(&end_date_time);
+        println!("2 End date time: {}", end_date_time);
+
+        let duty_slot = DutySlot {
+            required_specialty: publish_duty_slot_request
+                .requiredSpecialty
+                ._id
+                .parse::<u16>()
+                .unwrap(),
+            hospital_id: userid,
+            start_date_time: start_date_time,
+            end_date_time: end_date_time,
+            price_from: publish_duty_slot_request.priceFrom,
+            price_to: publish_duty_slot_request.priceTo,
+            currency: publish_duty_slot_request.currency,
+            status: DutyStatus::open,
+            assigned_doctor_id: None,
+        };
+
+        let key = insert_duty_slot_internal(duty_slot);
+
+        Ok(HttpResponse {
+            status_code: 200,
             headers: HashMap::new(),
             body: json!({
-                "statusCode": 403,
-                "message": "Only hospitals can publish duty slots"
+                "statusCode": 200,
+                "message": "Duty slot published",
+                "key": key
             })
             .into(),
-        });
-    }
-    assert_eq!(userrole, "hospital");
-
-
-    let body_string = String::from_utf8(req.body.clone()).unwrap();
-    println!("Received body: {}", body_string);
-    let publish_duty_slot_request: PublishDutySlotRequest = serde_json::from_str(&body_string).unwrap();
-    println!("Deserialized request: {:?}", publish_duty_slot_request);
-
-    let start_date_time_str = format!("{} {}", publish_duty_slot_request.startDate, publish_duty_slot_request.startTime);
-    println!("1 Start date time: {}", start_date_time_str);
-    let start_date_time = convert_to_unix_timestamp(&start_date_time_str);
-    println!("2 Start date time: {}", start_date_time);
-
-    let end_date_time = format!("{} {}", publish_duty_slot_request.endDate, publish_duty_slot_request.endTime);
-    println!("1 End date time: {}", end_date_time);
-    let end_date_time = convert_to_unix_timestamp(&end_date_time);
-    println!("2 End date time: {}", end_date_time);
-
-    let duty_slot = DutySlot {
-        required_specialty: publish_duty_slot_request.requiredSpecialty._id.parse::<u16>().unwrap(),
-        hospital_id: userid,
-        start_date_time: start_date_time,
-        end_date_time: end_date_time,
-        price_from: publish_duty_slot_request.priceFrom,
-        price_to: publish_duty_slot_request.priceTo,
-        currency: publish_duty_slot_request.currency,
-        status: DutyStatus::open,
-        assigned_doctor_id: None
-    };
-
-    let key = insert_duty_slot_internal(duty_slot);
-
-    Ok(HttpResponse {
-        status_code: 200,
-        headers: HashMap::new(),
-        body: json!({
-            "statusCode": 200,
-            "message": "Duty slot published",
-            "key": key
         })
-        .into(),
-        })
-    });  
+    });
 
     router.post("/duty/remove", true, |req: HttpRequest| async move {
         let user_info = match get_authorized_user_info(&req) {
@@ -209,10 +204,11 @@ pub(crate) fn setup() -> Router {
                         body: json!({
                             "statusCode": 400,
                             "message": "Cannot parse _id to u32"
-                        }).into(),
+                        })
+                        .into(),
                     };
                     return Ok(response);
-                },
+                }
             },
             None => {
                 let response = HttpResponse {
@@ -221,10 +217,11 @@ pub(crate) fn setup() -> Router {
                     body: json!({
                         "statusCode": 400,
                         "message": "_id does not exist or is not a string"
-                    }).into(),
+                    })
+                    .into(),
                 };
                 return Ok(response);
-            },
+            }
         };
 
         let duty_slot = get_duty_slot_by_id(duty_slot_id);
@@ -264,66 +261,70 @@ pub(crate) fn setup() -> Router {
         Ok(HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
-            body: json!({})
+            body: json!({}).into(),
+        })
+    });
+
+    router.post("/auth/register", true, |req: HttpRequest| async move {
+        // req body has fields : username, password, role, specialty, localization
+        let body_string = String::from_utf8(req.body.clone()).unwrap();
+        println!("Received body: {}", body_string); // Debug print
+        #[derive(serde::Deserialize, Debug)]
+        struct UserDeserialize {
+            username: String,
+            password: String,
+            role: String,
+            specialty: Option<String>,
+            localization: Option<String>,
+            email: Option<String>,
+            phone_number: Option<String>,
+        }
+        let user_deserialize: UserDeserialize = serde_json::from_str(&body_string).unwrap();
+        println!("Deserialized user: {:?}", user_deserialize); // Debug print
+        let mut user = User {
+            username: user_deserialize.username,
+            password: user_deserialize.password,
+            role: user_deserialize.role.parse().unwrap_or(UserRole::doctor),
+            localization: user_deserialize.localization,
+            specialty: user_deserialize
+                .specialty
+                .as_ref()
+                .and_then(|s| s.parse::<u16>().ok()),
+            email: user_deserialize.email,
+            phone_number: user_deserialize.phone_number,
+        };
+
+        // hash the passworf using pbkdf2
+        println!("Before hashing password");
+
+        let salt_string = "your_salt_string";
+        let hashed_password = hex::encode(hash_password_with_pbkdf2(
+            &user.password,
+            salt_string.as_bytes(),
+        ));
+        println!("After hashing password: {}", hashed_password);
+        user.password = hashed_password;
+        println!("Parsed user: {:?}", user); // Debug print
+        let key = insert_user_internal(user);
+        println!("Inserted user with key: {:?}", key); // Debug print
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({
+                "statusCode": 200,
+                "message": "User registered",
+                "key": key
+            })
             .into(),
         })
     });
 
-
-    
-    router.post("/auth/register"
-        , true
-        , |req: HttpRequest| async move {
-            // req body has fields : username, password, role, specialty, localization 
-            let body_string = String::from_utf8(req.body.clone()).unwrap();
-            println!("Received body: {}", body_string); // Debug print
-            #[derive(serde::Deserialize, Debug)]
-            struct UserDeserialize {
-                username: String,
-                password: String,
-                role: String,
-                specialty: Option<String>,
-                localization: Option<String>,
-                email: Option<String>,
-                phone_number: Option<String>,
-            }
-            let user_deserialize: UserDeserialize = serde_json::from_str(&body_string).unwrap();
-            println!("Deserialized user: {:?}", user_deserialize); // Debug print
-            let mut user = User {
-                username: user_deserialize.username,
-                password: user_deserialize.password,
-                role: user_deserialize.role.parse().unwrap_or(UserRole::doctor),
-                localization: user_deserialize.localization,
-                specialty: user_deserialize.specialty.as_ref().and_then(|s| s.parse::<u16>().ok()),
-                email: user_deserialize.email,
-                phone_number: user_deserialize.phone_number
-            };
-            
-            // hash the passworf using pbkdf2
-            println!("Before hashing password");
-
-            let salt_string = "your_salt_string";
-            let hashed_password = hex::encode(hash_password_with_pbkdf2(&user.password, salt_string.as_bytes()));
-            println!("After hashing password: {}", hashed_password); 
-            user.password = hashed_password;
-            println!("Parsed user: {:?}", user); // Debug print
-            let key = insert_user_internal(user);
-            println!("Inserted user with key: {:?}", key); // Debug print
-            Ok(HttpResponse {
-                status_code: 200,
-                headers: HashMap::new(),
-                body: json!({
-                    "statusCode": 200,
-                    "message": "User registered",
-                    "key": key
-                })
-                .into(),
-            })
-        });
-
     router.post("/auth/login", true, move |req: HttpRequest| async move {
         // Log the full incoming request
-        println!("Incoming Request: method = {}, url = {}", req.method, req.url);
+        println!(
+            "Incoming Request: method = {}, url = {}",
+            req.method, req.url
+        );
         // Parse the request body
         let body_string = String::from_utf8(req.body.clone()).unwrap();
 
@@ -355,12 +356,16 @@ pub(crate) fn setup() -> Router {
             }
             Some((id, user)) => {
                 // Check the password
-                let hashed_password = hex::encode(hash_password_with_pbkdf2(password, "your_salt_string".as_bytes()));
+                let hashed_password = hex::encode(hash_password_with_pbkdf2(
+                    password,
+                    "your_salt_string".as_bytes(),
+                ));
 
                 if user.password == hashed_password {
                     println!("User logged in: {}", user.username);
 
-                    let payload = json!({ "userId": id, "role": user.role, "username": user.username });
+                    let payload =
+                        json!({ "userId": id, "role": user.role, "username": user.username });
                     let secret = user.password;
                     let token = JWT::sign(payload, &secret, 3600);
 
@@ -374,7 +379,7 @@ pub(crate) fn setup() -> Router {
 
                     let mut response = HttpResponse {
                         status_code: 200,
-                        headers : HashMap::new(),
+                        headers: HashMap::new(),
                         body: json!({
                             "statusCode": 200,
                             "message": "User logged in",
@@ -385,7 +390,6 @@ pub(crate) fn setup() -> Router {
                     response.add_raw_header("Set-Cookie", cookies);
 
                     Ok(response)
-
                 } else {
                     println!("Login attempt failed for user: {}", username);
                     // Send response with status 400
@@ -403,6 +407,21 @@ pub(crate) fn setup() -> Router {
         }
     });
 
+    router.get("/auth/logout", true, |req: HttpRequest| async move {
+        let user_info = match get_authorized_user_info(&req) {
+            Ok(user_info) => user_info,
+            Err(response) => return Ok(response),
+        };
+        let (userid, userrole, username) = user_info;
+
+        add_to_used_tokens(req);
+
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({}).into(),
+        })
+    });
 
     router.get("/user/data", false, |req: HttpRequest| async move {
         let user_info = match get_authorized_user_info(&req) {
@@ -410,7 +429,6 @@ pub(crate) fn setup() -> Router {
             Err(response) => return Ok(response),
         };
         let (userid, userrole, username) = user_info;
-
 
         Ok(HttpResponse {
             status_code: 200,
@@ -423,7 +441,6 @@ pub(crate) fn setup() -> Router {
             .into(),
         })
     });
-
 
     router.get("/users", false, |_: HttpRequest| async move {
         println!("Hello World from GET /users");
@@ -445,21 +462,24 @@ pub(crate) fn setup() -> Router {
     router.get("/specialties", false, |_: HttpRequest| async move {
         println!("Received a request at GET /specialties");
 
-        let specialties: Vec<_> = SPECIALTIES_STRINGS.iter().enumerate().map(|(i, &name)| {
-            json!({
-                "_id": format!("{:04}", i),
-                "name": name,
-                "__v": 0
+        let specialties: Vec<_> = SPECIALTIES_STRINGS
+            .iter()
+            .enumerate()
+            .map(|(i, &name)| {
+                json!({
+                    "_id": format!("{:04}", i),
+                    "name": name,
+                    "__v": 0
+                })
             })
-        }).collect();            
+            .collect();
 
         println!("Specialties: {:?}", specialties);
 
         let response = HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
-            body: serde_json::to_string(&specialties).unwrap()
-            .into()
+            body: serde_json::to_string(&specialties).unwrap().into(),
         };
 
         println!("Responding with status code: {}", response.status_code);
@@ -489,14 +509,15 @@ fn extract_cookies_from_request(req: &HttpRequest) -> Option<(String, String)> {
                 match cookie.name() {
                     "token" => {
                         token = Some(cookie.value().to_string());
-                    },
+                    }
                     "userid" => {
                         userid = Some(cookie.value().to_string());
-                    },
+                    }
                     _ => {}
                 }
             }
-        }    }
+        }
+    }
     match (token, userid) {
         (Some(t), Some(u)) => Some((t, u)),
         _ => None,
@@ -514,8 +535,6 @@ fn unauthorized_response(message: &str) -> HttpResponse {
         .into(),
     }
 }
-
-
 
 fn convert_to_unix_timestamp(date_time_str: &str) -> i64 {
     let format = format_description!("[year]-[month]-[day] [hour]:[minute]");
@@ -536,13 +555,13 @@ pub fn convert_from_unix_timestamp(unix_timestamp: i64) -> String {
                 Err(e) => {
                     eprintln!("An error occurred: {}", e);
                     String::new() // return an empty string in case of an error
-                },
+                }
             }
-        },
+        }
         Err(e) => {
             eprintln!("An error occurred: {}", e);
             String::new() // return an empty string in case of an error
-        },
+        }
     }
 }
 
@@ -554,7 +573,6 @@ fn extract_user_info(payload: &Value) -> (u32, &str, &str) {
     (user_id, user_role, user_username)
 }
 
-
 fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), HttpResponse> {
     let token_userid_pair = extract_cookies_from_request(req);
 
@@ -564,6 +582,10 @@ fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), 
     };
 
     let (token, userid) = token_userid_pair;
+
+    if is_in_used_tokens(&token) {
+        return Err(unauthorized_response("Token already used"));
+    }
 
     let user = get_user_by_id(userid.parse().unwrap());
     let secret = user.password;
@@ -577,4 +599,18 @@ fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), 
     let (user_id, user_role, user_username) = extract_user_info(&payload);
 
     Ok((user_id, user_role.to_string(), user_username.to_string()))
+}
+
+fn add_to_used_tokens(req: HttpRequest) {
+    let token_userid_pair = extract_cookies_from_request(&req);
+    let token_userid_pair = match token_userid_pair {
+        Some(token_userid_pair) => token_userid_pair,
+        None => return,
+    };
+    let (token, _) = token_userid_pair;
+    USED_TOKENS.with(|p| p.borrow_mut().insert(token, ()));
+}
+
+fn is_in_used_tokens(token: &String) -> bool {
+    USED_TOKENS.with(|p| p.borrow().contains_key(&token))
 }
