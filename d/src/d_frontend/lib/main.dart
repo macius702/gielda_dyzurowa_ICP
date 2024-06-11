@@ -1,4 +1,5 @@
 import 'package:agent_dart/agent_dart.dart';
+import 'package:d_frontend/get_user_data_screen.dart';
 import 'package:d_frontend/logout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -82,6 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
         style: optionStyle,
       ),
       LogoutForm(),
+      UserDataForm(),
     ];
 
     return Scaffold(
@@ -150,6 +152,14 @@ class _MyHomePageState extends State<MyHomePage> {
               selected: _selectedIndex == 4,
               onTap: () {
                 _onItemTapped(4);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Get User Data'),
+              selected: _selectedIndex == 5,
+              onTap: () {
+                _onItemTapped(5);
                 Navigator.pop(context);
               },
             ),

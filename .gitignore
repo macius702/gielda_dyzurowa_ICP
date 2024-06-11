@@ -6,3 +6,4 @@ d/src/d_frontend/lib/counter_store.g.dart
 d/src/d_frontend/lib/register_store.g.dart
 d/src/d_frontend/devtools_options.yaml
 d/src/d_frontend/lib/login_store.g.dart
+d/src/d_frontend/lib/get_user_data_screen.g.dart

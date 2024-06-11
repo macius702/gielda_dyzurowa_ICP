@@ -60,4 +60,9 @@ abstract class _CounterStore with Store {
   Future<Status> performLogout() async {
     return await counter.performLogout();
   }
+
+  @action
+  Future<Status> getUserData() async {
+    return await counter.getUserData();
+  }
 }

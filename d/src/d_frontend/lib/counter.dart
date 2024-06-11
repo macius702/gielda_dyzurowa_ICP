@@ -311,6 +311,55 @@ class Counter {
     }
   }
 
+  Future<Status> getUserData() async {
+    try {
+      Uri uri = _createUri('/user/data');
+
+      // take cookies form SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        throw Exception(
+            'Failed to get user data: no cookies in SharedPreferences');
+      }
+
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'cookie': cookies,
+      };
+
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      mtlk_print('Error response.statusCode: ${response.statusCode}');
+      mtlk_print('Error response.body: ${response.body}');
+      mtlk_print('Error response.headers: ${response.headers}');
+      mtlk_print('Error response.request: ${response.request}');
+      mtlk_print('Error response: $response');
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response,
+        // then parse the JSON.
+
+        GetUserDataResponse userData =
+            GetUserDataResponse.fromJson(jsonDecode(response.body));
+        return userData;
+      } else {
+        // If the server returns an unexpected response,
+        // then throw an exception.
+        throw Exception('Failed to get user data');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
+    }
+  }
+
   Future<List<String>> get_users() async {
     try {
       if (actor == null) {
