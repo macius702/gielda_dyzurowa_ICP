@@ -10,7 +10,8 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  void runTest(WidgetTester tester, String role, String specialty,
+  
+  Future<void> runTest(WidgetTester tester, String role, String specialty,
       String localization) async {
     // 1. Launch the app
     WidgetsFlutterBinding.ensureInitialized();
@@ -77,11 +78,87 @@ void main() {
     expect(finder, findsOneWidget);
   }
 
+    
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
-    runTest(tester, 'hospital', '', '');
+    await runTest(tester, 'hospital', '', '');
   });
 
   testWidgets("E2E test for doctor role", (WidgetTester tester) async {
-    runTest(tester, 'doctor', 'Angiologia', 'Warsaw');
+    await runTest(tester, 'doctor', 'Angiologia', 'Warsaw');
   });
+
+testWidgets('Login and Logout Test', (WidgetTester tester) async {
+    // 1. Launch the app
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize the CounterStore
+    final counter = await initCounter();
+    final counterStore = CounterStore(counter);
+    await counterStore.setup_specialties();
+
+    await tester.pumpAndSettle();
+
+    // Launch the app
+    await tester.pumpWidget(
+      Provider<CounterStore>.value(
+        value: counterStore,
+        child: MyApp(),
+      ),
+    );
+
+    // 2. Register a random hospital user named H...
+    final username = 'H${DateTime.now().millisecondsSinceEpoch}';
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Register'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Key('usernameField')), username);
+    await tester.enterText(find.byKey(Key('passwordField')), 'a');
+    await tester.tap(find.byKey(Key('roleDropdown')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('hospital').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('registerButton')));
+    await tester.pumpAndSettle();
+
+    // wait 
+    await Future.delayed(Duration(seconds: 6));
+
+    // check not logged in
+    expect(find.text('Not logged in'), findsOneWidget);
+    
+
+    // 3. Login the user
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Login'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Key('loginUsernameField')), username);
+    await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
+    await tester.tap(find.byKey(Key('loginButton')));
+    await tester.pumpAndSettle();
+
+    // wait 
+    await Future.delayed(Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    await Future.delayed(Duration(seconds: 6));
+
+    // 4. Check if the appbar text changed from Not logged in to logged as H...
+    expect(find.text('Logged in as $username'), findsOneWidget);
+
+    // 5. Logout
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Logout'));
+    await tester.pumpAndSettle();
+
+    // wait 
+    await Future.delayed(Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    await Future.delayed(Duration(seconds: 6));
+
+    // 6. Check that appbar text is not logged in
+    expect(find.text('Not logged in'), findsOneWidget);
+  });
+
 }
