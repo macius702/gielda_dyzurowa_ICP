@@ -41,14 +41,23 @@ abstract class _CounterStore with Store {
 
   @action
   Future<Status> performRegistration(
-    {required String username, required String password, required UserRole role, required int? specialty, required String? localization}) async {
-      return await counter.performRegistration(username, password, role, specialty, localization);
+      {required String username,
+      required String password,
+      required UserRole role,
+      required int? specialty,
+      required String? localization}) async {
+    return await counter.performRegistration(
+        username, password, role, specialty, localization);
   }
 
   @action
   Future<Status> performLogin(
-    {required String username, required String password}) async {
-      return await counter.performLogin(username, password);
+      {required String username, required String password}) async {
+    return await counter.performLogin(username, password);
   }
 
+  @action
+  Future<Status> performLogout() async {
+    return await counter.performLogout();
+  }
 }

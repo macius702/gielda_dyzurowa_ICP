@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:d_frontend/constants.dart';
 import 'package:d_frontend/types.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
@@ -13,8 +16,6 @@ import 'dart:math';
 import 'config.dart' show backendCanisterId, Mode, mode;
 import 'print.dart';
 
-
-
 /// motoko/rust function of the Counter canister
 /// see ./dfx/local/counter.did
 abstract class CounterMethod {
@@ -23,7 +24,6 @@ abstract class CounterMethod {
   static const getValue = "getValue";
   static const get_specialties = "get_specialties";
   static const get_users = "get_all_usernames";
-
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
@@ -57,13 +57,12 @@ class Counter {
       String? newUrl,
       Identity? newIdentity,
       bool? debug}) async {
-
     mtlk_print('newCanisterId: $newCanisterId');
     mtlk_print('newIdl: $newIdl');
     mtlk_print('newUrl: $newUrl');
     mtlk_print('newIdentity: $newIdentity');
     mtlk_print('debug: $debug');
-          
+
     try {
       // Your network request code here
 
@@ -74,19 +73,18 @@ class Counter {
           identity: newIdentity,
           debug: debug ?? true);
 
-    mtlk_print("After createAgent");
-
+      mtlk_print("After createAgent");
     } catch (e) {
       if (e is SocketException) {
-        mtlk_print('Cannot connect to the server. Please check your internet connection and server status.');
+        mtlk_print(
+            'Cannot connect to the server. Please check your internet connection and server status.');
         mtlk_print('Exception: $e');
-
       } else {
         // Re-throw the exception for further handling
         rethrow;
       }
-    }        
-  }    
+    }
+  }
 
   /// Call canister methods like this signature
   /// ```dart
@@ -132,7 +130,6 @@ class Counter {
 
   Future<List<String>> get_specialties() async {
     try {
-
       await saveValue();
       await retrieveValue();
       ActorMethod? func = actor?.getFunc(CounterMethod.get_specialties);
@@ -150,113 +147,169 @@ class Counter {
       } else {
         mtlk_print("getFunc returned null");
       }
-
-
-      
-   } catch (e) {
+    } catch (e) {
       mtlk_print("Caught error: $e");
       rethrow;
-    }  
-  
+    }
+
     return <String>[];
-
-
-
   }
 
+  Future<Status> performRegistration(String username, String password,
+      UserRole role, int? specialty, String? localization) async {
+    try {
+      Uri uri = _createUri('/auth/register');
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
+      Map<String, dynamic> bodyMap = {
+        'username': username,
+        'password': password,
+        'role': role.toString().split('.').last,
+      };
 
-
-    Future<Status> performRegistration(String username, String password, UserRole role, int? specialty, String? localization) async {
-      try {
-        Uri uri = _createUri('/auth/register');
-        Map<String, String> headers = {
-          'Content-Type': 'application/json; charset=UTF-8',
-        };
-        Map<String, dynamic> bodyMap = {
-          'username': username,
-          'password': password,
-          'role': role.toString().split('.').last,
-        };
-
-        if (specialty != null) {
-          bodyMap['specialty'] = specialty.toString();        
-        }
-
-        if (localization != null) {
-          bodyMap['localization'] = localization;
-        }
-
-        String body = jsonEncode(bodyMap);
-        mtlk_print('URL: $uri');
-        mtlk_print('Headers: $headers');
-        mtlk_print('Body: $body');
-
-        final response = await http.post(
-          uri,
-          headers: headers,
-          body: body,
-        );
-
-        if (response.statusCode == 200) {
-          // If the server returns a 200 OK response,
-          // then parse the JSON.
-          return Response();
-        } else {
-
-          // print more on response
-          mtlk_print("response: ${response.body}");
-          mtlk_print("response: ${response.statusCode}");
-          mtlk_print("response: ${response.headers}");
-
-
-          // If the server returns an unexpected response,
-          // then throw an exception.
-          throw Exception('Failed to register user');
-        }
-      } catch (e) {
-        mtlk_print("Caught error: $e");
-        return Future.error(e);
+      if (specialty != null) {
+        bodyMap['specialty'] = specialty.toString();
       }
-    }
 
-    Future<Status> performLogin(String username, String password) async {
-      try {
-        Uri uri = _createUri('/auth/login');
-        Map<String, String> headers = {
-          'Content-Type': 'application/json; charset=UTF-8',
-        };
-        Map<String, dynamic> bodyMap = {
-          'username': username,
-          'password': password,
-        };
-
-        String body = jsonEncode(bodyMap);
-        mtlk_print('URL: $uri');
-        mtlk_print('Headers: $headers');
-        mtlk_print('Body: $body');
-
-        final response = await http.post(
-          uri,
-          headers: headers,
-          body: body,
-        );
-
-        if (response.statusCode == 200) {
-          // If the server returns a 200 OK response,
-          // then parse the JSON.
-          return Response();
-        } else {
-          // If the server returns an unexpected response,
-          // then throw an exception.
-          throw Exception('Failed to login user');
-        }
-      } catch (e) {
-        mtlk_print("Caught error: $e");
-        return Future.error(e);
+      if (localization != null) {
+        bodyMap['localization'] = localization;
       }
+
+      String body = jsonEncode(bodyMap);
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+      mtlk_print('Body: $body');
+
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response,
+        // then parse the JSON.
+        return Response();
+      } else {
+        // print more on response
+        mtlk_print("response: ${response.body}");
+        mtlk_print("response: ${response.statusCode}");
+        mtlk_print("response: ${response.headers}");
+
+        // If the server returns an unexpected response,
+        // then throw an exception.
+        throw Exception('Failed to register user');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
     }
+  }
 
+  Future<Status> performLogin(String username, String password) async {
+    try {
+      Uri uri = _createUri('/auth/login');
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
+      Map<String, dynamic> bodyMap = {
+        'username': username,
+        'password': password,
+      };
 
+      String body = jsonEncode(bodyMap);
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+      mtlk_print('Body: $body');
+
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: body,
+      );
+
+      mtlk_print('response.statusCode: ${response.statusCode}');
+      mtlk_print('response.body: ${response.body}');
+      mtlk_print('response.headers: ${response.headers}');
+      mtlk_print('response.request: ${response.request}');
+      mtlk_print('response: $response');
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response,
+
+        //handle cookies
+        String? rawCookie = response.headers['set-cookie'];
+        if (rawCookie == null) {
+          throw Exception('Failed to login user: no cookie in response');
+        }
+
+        // Save the cookies into SharedPreferences
+        try {
+          // Save the cookies into SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('cookies', rawCookie);
+        } catch (e) {
+          throw Exception('Failed to login user: cannot save cookies');
+        }
+
+        return Response();
+      } else {
+        // If the server returns an unexpected response,
+        // then throw an exception.
+        throw Exception('Failed to login user');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
+    }
+  }
+
+  Future<Status> performLogout() async {
+    try {
+      Uri uri = _createUri('/auth/logout');
+
+      // take cookies form SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        throw Exception(
+            'Failed to logout user: no cookies in SharedPreferences');
+      }
+
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'cookie': cookies,
+      };
+
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response,
+        // then parse the JSON.
+        return Response();
+      } else {
+        // If the server returns an unexpected response,
+        // then throw an exception.
+        mtlk_print('Error response.statusCode: ${response.statusCode}');
+        mtlk_print('Error response.body: ${response.body}');
+        mtlk_print('Error response.headers: ${response.headers}');
+        mtlk_print('Error response.request: ${response.request}');
+        mtlk_print('Error response: $response');
+
+        throw Exception('Failed to logout user');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
+    }
+  }
 
   Future<List<String>> get_users() async {
     try {
@@ -288,33 +341,31 @@ class Counter {
   // Save a value
   saveValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int randomNumber = Random().nextInt(100) + 1; // Generates a random integer from 1 to 100
+    int randomNumber =
+        Random().nextInt(100) + 1; // Generates a random integer from 1 to 100
 
     await prefs.setInt('myNumber', randomNumber);
     mtlk_print('Saved number: $randomNumber');
   }
+
   // Retrieve a value
   retrieveValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? myNumber = prefs.getInt('myNumber');
     mtlk_print('Retrieved number: $myNumber');
     return myNumber;
-  }  
+  }
 }
 
-
-
-
 Future<Counter> initCounter({Identity? identity}) async {
-  // initialize counter, change canister id here 
-    //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
+  // initialize counter, change canister id here
+  //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
 
   // String url;
   // var backendCanisterId;
   // if (kIsWeb) {
   //   mtlk_print("kIsWeb");
-  //   url = 'http://localhost:4944'; 
-
+  //   url = 'http://localhost:4944';
 
   // } else {
   //     mtlk_print("not kIsWeb");
@@ -325,27 +376,27 @@ Future<Counter> initCounter({Identity? identity}) async {
 
   // }
 
-
   // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
   // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
 
+  var frontend_url;
 
-var frontend_url;
-
-if (mode == Mode.playground) {
-  frontend_url = 'https://icp-api.io';
-} else if (mode == Mode.local) {
-  if (kIsWeb  ) {
-    frontend_url = 'http://localhost:4944';
-  } else {  // for android emulator
-    frontend_url = 'http://10.0.2.2:4944';  
-  }
-} else if (mode == Mode.network) {
-}
-
+  if (mode == Mode.playground) {
+    frontend_url = 'https://icp-api.io';
+  } else if (mode == Mode.local) {
+    if (kIsWeb) {
+      frontend_url = 'http://localhost:4944';
+    } else {
+      // for android emulator
+      frontend_url = 'http://10.0.2.2:4944';
+    }
+  } else if (mode == Mode.network) {}
 
   mtlk_print("Before counter construction");
-  var counter = Counter(canisterId: backendCanisterId, url: frontend_url);    // set agent when other paramater comes in like new Identity
+  var counter = Counter(
+      canisterId: backendCanisterId,
+      url:
+          frontend_url); // set agent when other paramater comes in like new Identity
   mtlk_print("After counter construction");
   await counter.setAgent(newIdentity: identity);
   mtlk_print("After counter setAgent");
@@ -353,7 +404,6 @@ if (mode == Mode.playground) {
   // mtlk_print("After counter get_specialties");
   return counter;
 }
-
 
 Uri _createUri(String path) {
   return Uri.parse('$BASE_URL$path?canisterId=$BASE_CANISTER');

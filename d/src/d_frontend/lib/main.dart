@@ -1,4 +1,5 @@
 import 'package:agent_dart/agent_dart.dart';
+import 'package:d_frontend/logout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -80,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
         'NIC',
         style: optionStyle,
       ),
+      LogoutForm(),
     ];
 
     return Scaffold(
@@ -140,6 +142,14 @@ class _MyHomePageState extends State<MyHomePage> {
               selected: _selectedIndex == 3,
               onTap: () {
                 _onItemTapped(3);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Logout'),
+              selected: _selectedIndex == 4,
+              onTap: () {
+                _onItemTapped(4);
                 Navigator.pop(context);
               },
             ),
