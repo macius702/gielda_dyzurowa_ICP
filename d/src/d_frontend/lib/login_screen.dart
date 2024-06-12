@@ -41,16 +41,6 @@ class LoginForm extends StatelessWidget {
             onPressed: () => onPressed(context, counterStore, loginStore),
             child: const Text('Login'),
           ),
-          if (showError)
-            SnackBar(
-              content: Text(errorMessage),
-              action: SnackBarAction(
-                label: 'Dismiss',
-                onPressed: () {
-                  // Handle dismiss
-                },
-              ),
-            ),
         ],
       ),
     );
