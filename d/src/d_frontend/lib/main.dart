@@ -84,6 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       Text('Logout'), // This is a placeholder for the logout screen
       UserDataForm(),
+      Text('Delete Me'), // This is a placeholder for the delete me screen
     ];
 
     return Scaffold(
@@ -176,6 +177,35 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 _onItemTapped(5);
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Delete Me'),
+              selected: _selectedIndex == 6,
+              onTap: () async {
+                final counterStore = Provider.of<CounterStore>(context, listen: false);
+                // Show a SnackBar with the 'Logging out...' message
+                final username = counterStore.username;
+
+                final snackBar = SnackBar(content: Text('Deleting user $username'));
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                Navigator.pop(context);
+
+                Status value = await counterStore.deleteMe();
+                // Handle the result of the logout operation
+                value.handleError();
+
+
+                // Hide the SnackBar when the logout operation is done
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                // pop out message (lasting 1 second) ScaffoldMessenger that user deleted
+
+                final snackBarDeleted = SnackBar(content: Text('User $username deleted'));
+                ScaffoldMessenger.of(context).showSnackBar(snackBarDeleted);
+
+                _onItemTapped(1);
               },
             ),
           ],

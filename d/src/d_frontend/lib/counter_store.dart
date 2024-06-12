@@ -66,4 +66,10 @@ abstract class _CounterStore with Store {
   Future<Status> getUserData() async {
     return await counter.getUserData();
   }
+
+  @action
+  Future<Status> deleteMe() async {
+    setUsername(null);
+    return await counter.deleteMe();
+  }
 }

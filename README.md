@@ -67,6 +67,7 @@ After running this command in the Docker terminal, you can copy the output and p
 - [x] Back to one test
 - [ ] test for Login - eliminate sleeps
 - [x] // Handle dismiss
+- [ ] In delete user - remove dependant data : duty slots issued if hospital, duty slots acceptances if doctor
 
 # TODO others
 

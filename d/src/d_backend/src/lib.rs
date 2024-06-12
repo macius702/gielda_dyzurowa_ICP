@@ -311,6 +311,12 @@ fn insert_user_internal(value: User) -> u32 {
     key
 }
 
+fn delete_user_internal(key: u32) {
+    USER_MAP.with(|p| {
+        p.borrow_mut().remove(&key);
+    });
+}
+
 // Get all users
 #[ic_cdk_macros::query]
 fn get_all_users() -> Vec<User> {

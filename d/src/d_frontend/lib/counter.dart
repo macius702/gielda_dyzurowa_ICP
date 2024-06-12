@@ -313,6 +313,42 @@ class Counter {
     }
   }
 
+  Future<Status> deleteMe() async {
+    try {
+      Uri uri = _createUri('/auth/delete_user');
+
+      // take cookies form SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        throw Exception(
+            'Failed to delete user: no cookies in SharedPreferences');
+      }
+
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'cookie': cookies,
+      };
+
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+
+      final response = await http.post(
+        uri,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        return Response();
+      } else {
+        throw Exception('Failed to delete user');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
+    }
+  }
+
   Future<Status> getUserData() async {
     try {
       Uri uri = _createUri('/user/data');

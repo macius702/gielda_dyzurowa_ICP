@@ -1,7 +1,7 @@
 use std::cmp::Reverse;
 use std::collections::HashMap;
 
-use crate::{TokenData, UserRole};
+use crate::{delete_user_internal, TokenData, UserRole};
 use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, remove_duty_slot_by_id, USED_TOKENS_HEAP, USED_TOKENS_MAP};
 use candid;
 use candid::de::IDLDeserialize;
@@ -319,6 +319,23 @@ pub(crate) fn setup() -> Router {
             .into(),
         })
     });
+
+    router.post("/auth/delete_user", true, |req: HttpRequest| async move {
+        let user_info = match get_authorized_user_info(&req) {
+            Ok(user_info) => user_info,
+            Err(response) => return Ok(response),
+        };
+        let (userid, _, _) = user_info;
+
+        delete_user_internal(userid);
+
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({}).into(),
+        })
+    });
+    
 
     router.post("/auth/login", true, move |req: HttpRequest| async move {
         // Log the full incoming request
