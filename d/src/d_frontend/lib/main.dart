@@ -1,6 +1,6 @@
 import 'package:agent_dart/agent_dart.dart';
 import 'package:d_frontend/get_user_data_screen.dart';
-import 'package:d_frontend/logout_screen.dart';
+import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -82,10 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
         'NIC',
         style: optionStyle,
       ),
-      LogoutForm(
-        key: Key('logoutForm'),
-        onTap: () => _onItemTapped(1), // goto login screen after logout
-      ),
+      Text('Logout'), // This is a placeholder for the logout screen
       UserDataForm(),
     ];
 
@@ -153,9 +150,24 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Logout'),
               selected: _selectedIndex == 4,
-              onTap: () {
-                _onItemTapped(4);
+              onTap: () async {
+                final counterStore = Provider.of<CounterStore>(context, listen: false);
+
+                // Show a SnackBar with the 'Logging out...' message
+                final snackBar = SnackBar(content: Text('Logging out...'));
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
                 Navigator.pop(context);
+
+                Status value = await counterStore.performLogout();
+
+                // Hide the SnackBar when the logout operation is done
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                // Handle the result of the logout operation
+                value.handleError();
+
+                _onItemTapped(1);
               },
             ),
             ListTile(
