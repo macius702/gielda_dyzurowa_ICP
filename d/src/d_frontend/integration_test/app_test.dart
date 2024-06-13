@@ -35,9 +35,8 @@ void main() {
     await tester.tap(find.text('Register'));
     await tester.pumpAndSettle();
 
-    // 3. Fill user (with H# where # is random), password
-    final username =
-        '${role[0].toUpperCase()}${DateTime.now().millisecondsSinceEpoch}';
+    // 3. Fill user
+    final username = role == 'doctor' ? 'D1' : 'H1';
     await tester.enterText(find.byKey(Key('usernameField')), username);
     await tester.enterText(find.byKey(Key('passwordField')), 'password');
 
@@ -76,6 +75,40 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(finder, findsOneWidget);
+
+
+    //  Login the user
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Login'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Key('loginUsernameField')), username);
+    await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
+    await tester.tap(find.byKey(Key('loginButton')));
+    await tester.pumpAndSettle();
+
+
+   // wait TODO
+    await Future.delayed(Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    await Future.delayed(Duration(seconds: 6));
+
+
+
+    // 8. Delete user
+    // Click Delete Me on Drawer
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete Me'));
+    await tester.pumpAndSettle();
+
+    // 9. Check if user is deleted
+    expect(find.text(username), findsNothing);
+    
+
+
+
+
   }
 
     
