@@ -162,18 +162,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 Navigator.pop(context);
 
-                Status value = await counterStore.performLogout();
-                if(mounted) // TODO mounted ?
-                {
-                  value.handleError();
+                counterStore.performLogout().then((Status value) {
+                    value.handleError();
 
-                  // Hide the SnackBar when the logout operation is done
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    // Hide the SnackBar when the logout operation is done
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                  // Handle the result of the logout operation
-
-                  _onItemTapped(1);
-                }
+                    // Handle the result of the logout operation
+                    _onItemTapped(1);
+                });
               },
             ),
             ListTile(
