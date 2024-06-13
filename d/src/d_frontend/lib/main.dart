@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   void _onItemTapped(int index) {
-    if (mounted) {
+    if (mounted) { // TODO mounted ?
       setState(() {
         _selectedIndex = index;
       });
@@ -127,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
+              key:  Key('drawerLogin'),
               title: const Text('Login'),
               selected: _selectedIndex == 1,
               onTap: () {
@@ -164,14 +165,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pop(context);
 
                 Status value = await counterStore.performLogout();
-                value.handleError();
+                if(mounted) // TODO mounted ?
+                {
+                  value.handleError();
 
-                // // Hide the SnackBar when the logout operation is done
-                // ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  // Hide the SnackBar when the logout operation is done
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                // Handle the result of the logout operation
+                  // Handle the result of the logout operation
 
-                _onItemTapped(1);
+                  _onItemTapped(1);
+                }
               },
             ),
             ListTile(
@@ -197,19 +201,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pop(context);
 
                 Status value = await counterStore.deleteMe();
-                // Handle the result of the logout operation
-                value.handleError();
+                if(mounted) // TODO mounted ?
+                {
+                  // Handle the result of the logout operation
+                  value.handleError();
 
 
-                // // Hide the SnackBar when the logout operation is done
-                // ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  // Hide the SnackBar when the logout operation is done
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-                // // pop out message (lasting 1 second) ScaffoldMessenger that user deleted
+                  // pop out message (lasting 1 second) ScaffoldMessenger that user deleted
 
-                // final snackBarDeleted = SnackBar(content: Text('User $username deleted'));
-                // ScaffoldMessenger.of(context).showSnackBar(snackBarDeleted);
+                  final snackBarDeleted = SnackBar(content: Text('User $username deleted'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBarDeleted);
 
-                _onItemTapped(1);
+                  _onItemTapped(1);
+                }
               },
             ),
           ],
