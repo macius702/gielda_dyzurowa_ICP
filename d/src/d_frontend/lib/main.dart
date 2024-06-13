@@ -62,11 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   void _onItemTapped(int index) {
-    if (mounted) { // TODO mounted ?
       setState(() {
         _selectedIndex = index;
       });
-    }
   }
 
   @override
