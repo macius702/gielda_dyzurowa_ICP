@@ -33,6 +33,7 @@ type User = record {
 };
 type UserRole = variant { hospital; doctor };
 service : {
+  delete_all_users : () -> ();
   get_all_duty_slots : () -> (vec DutySlot) query;
   get_all_usernames : () -> (vec text) query;
   get_all_users : () -> (vec User) query;

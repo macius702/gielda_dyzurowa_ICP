@@ -317,6 +317,23 @@ fn delete_user_internal(key: u32) {
     });
 }
 
+
+#[ic_cdk_macros::update]
+fn delete_all_users () {
+    delete_all_users_internal();
+}
+
+
+fn delete_all_users_internal() {
+    //remove items one by one
+    USER_MAP.with(|p| {
+        let keys = p.borrow().iter().map(|(key, _)| key).collect::<Vec<u32>>();
+        for key in keys {
+            p.borrow_mut().remove(&key);
+        }
+    });
+}
+
 // Get all users
 #[ic_cdk_macros::query]
 fn get_all_users() -> Vec<User> {
