@@ -55,15 +55,25 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+enum Page {
+  register,
+  login,
+  showUsers,
+  nic,
+  logout,
+  getUserData,
+  deleteMe,
+}
+
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 3;
+  Page _selectedPage = Page.nic;
 
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(Page page) {
       setState(() {
-        _selectedIndex = index;
+      _selectedPage = page;
       });
   }
 
@@ -71,21 +81,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final counterStore = Provider.of<CounterStore>(context);
 
-    final List<Widget> _widgetOptions = <Widget>[
-      RegisterForm(
-        key: Key('registerForm'),
-        onTap: () => _onItemTapped(2), // goto show users screen after register
-      ),
-      LoginForm(),
-      ShowUsernamesBody(),
-      Text(
-        'NIC',
-        style: optionStyle,
-      ),
-      Text('Logout'), // This is a placeholder for the logout screen
-      UserDataForm(),
-      Text('Delete Me'), // This is a placeholder for the delete me screen
-    ];
+    final Map<Page, Widget> _widgetOptions = {
+      Page.register: RegisterForm(key: const Key('registerForm'), onTap: () => _onItemTapped(Page.showUsers)),
+      Page.login: LoginForm(),
+      Page.showUsers: ShowUsernamesBody(),
+      Page.nic: const Text('NIC', style: optionStyle),
+      Page.logout: const Text('Logout'), // This is a placeholder for the logout screen
+      Page.getUserData: UserDataForm(),
+      Page.deleteMe: const Text('Delete Me'), // This is a placeholder for the delete me screen
+    };
 
     return Scaffold(
       appBar: AppBar(
@@ -123,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           })),
       body: Center(
-        child: _widgetOptions[_selectedIndex],
+        child: _widgetOptions[_selectedPage],
       ),
       drawer: Drawer(
         child: ListView(
@@ -136,62 +140,62 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('Drawer Header'),
             ),
             ListTile(
-              title: const Text('Register'),
-              selected: _selectedIndex == 0,
+              title: Text('Register'),
+              selected: _selectedPage == Page.register,
               onTap: () {
-                _onItemTapped(0);
+                _onItemTapped(Page.register);
                 Navigator.pop(context);
               },
             ),
             ListTile(
               key:  Key('drawerLogin'),
               title: const Text('Login'),
-              selected: _selectedIndex == 1,
+              selected: _selectedPage == Page.login,
               onTap: () {
-                _onItemTapped(1);
+                _onItemTapped(Page.login);
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text('Show Users'),
-              selected: _selectedIndex == 2,
+              selected: _selectedPage == Page.showUsers,
               onTap: () {
-                _onItemTapped(2);
+                _onItemTapped(Page.showUsers);
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text('Nic'),
-              selected: _selectedIndex == 3,
+              selected: _selectedPage == Page.nic,
               onTap: () {
-                _onItemTapped(3);
+                _onItemTapped(Page.nic);
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text('Logout'),
-              selected: _selectedIndex == 4,
+              selected: _selectedPage == Page.logout,
               onTap: () async {
                 final counterStore = Provider.of<CounterStore>(context, listen: false);
 
                 
                 Navigator.pop(context);
-                _onItemTapped(3);
+                _onItemTapped(Page.logout);
 
                 await counterStore.performLogout();
               },
             ),
             ListTile(
               title: const Text('Get User Data'),
-              selected: _selectedIndex == 5,
+              selected: _selectedPage == Page.getUserData,
               onTap: () {
-                _onItemTapped(5);
+                _onItemTapped(Page.getUserData);
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text('Delete Me'),
-              selected: _selectedIndex == 6,
+              selected: _selectedPage == Page.deleteMe,
               onTap: () async {
                 final counterStore = Provider.of<CounterStore>(context, listen: false);
                 // Show a SnackBar with the 'Logging out...' message
@@ -199,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
                 Navigator.pop(context);
-                _onItemTapped(3);
+                _onItemTapped(Page.deleteMe);
 
                 Status value = await counterStore.deleteMe();
 
