@@ -20,6 +20,9 @@ abstract class _CounterStore with Store {
   }
 
   @observable
+  bool async_action_in_progress = false;
+
+  @observable
   ObservableList<String> usernames = ObservableList<String>();
 
   @observable
@@ -46,20 +49,30 @@ abstract class _CounterStore with Store {
       required UserRole role,
       required int? specialty,
       required String? localization}) async {
-    return await counter.performRegistration(
+    async_action_in_progress = true;
+    Status s = await counter.performRegistration(
         username, password, role, specialty, localization);
+    async_action_in_progress = false;
+    return s;
   }
 
   @action
   Future<Status> performLogin(
       {required String username, required String password}) async {
-    return await counter.performLogin(username, password);
+    async_action_in_progress = true;
+    Status s =  await counter.performLogin(username, password);
+    setUsername(username);
+    async_action_in_progress = false;
+    return s;
   }
 
   @action
   Future<Status> performLogout() async {
     setUsername(null);
-    return await counter.performLogout();
+    async_action_in_progress = true;
+    Status s = await counter.performLogout();
+    async_action_in_progress = false;
+    return s;
   }
 
   @action
@@ -70,6 +83,9 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> deleteMe() async {
     setUsername(null);
-    return await counter.deleteMe();
+    async_action_in_progress = true;
+    Status s = await counter.deleteMe();
+    async_action_in_progress = false;
+    return s;
   }
 }

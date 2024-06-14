@@ -10,6 +10,35 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  Future<void> waitForSnackBarToAppearAndDisappear(WidgetTester tester, String label) async {
+    bool isSnackBarDisplayed = false;
+
+    // Wait for the SnackBar to appear
+    while (!isSnackBarDisplayed) {
+      final snackBarFinder = find.text('Async action in progress...');
+      if (tester.widgetList(snackBarFinder).isNotEmpty) {
+        isSnackBarDisplayed = true;
+        print('$label Wait for the SnackBar to appear: The SnackBar is currently being displayed');
+      } else {
+        print('$label Wait for the SnackBar to appear: The SnackBar is not currently being displayed');
+        await tester.pump(Duration(seconds: 1));
+      }
+    }
+
+    // Wait for the SnackBar to disappear
+    while (isSnackBarDisplayed) {
+      final snackBarFinder = find.text('Async action in progress...');
+      if (tester.widgetList(snackBarFinder).isEmpty) {
+        isSnackBarDisplayed = false;
+        print('$label Wait for the SnackBar to disappear: The SnackBar is not currently being displayed');
+      } else {
+        print('$label Wait for the SnackBar to disappear: The SnackBar is currently being displayed');
+        await tester.pump(Duration(seconds: 1));
+      }
+    }
+  }
+
+
   Future<void> runTest(WidgetTester tester, String role, String specialty,
       String localization) async {
     // 1. Launch the app
@@ -62,6 +91,9 @@ void main() {
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
 
+
+    await waitForSnackBarToAppearAndDisappear(tester, '1');
+
     // 7. Click on Drawer : Show users
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
@@ -84,18 +116,16 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
+    await waitForSnackBarToAppearAndDisappear(tester, '2');
 
-    // wait TODO
-    await Future.delayed(Duration(seconds: 6));
-    await tester.pumpAndSettle();
-    await Future.delayed(Duration(seconds: 6));
-
+    expect(find.text(username), findsOneWidget);
     // 8. Delete user
     // Click Delete Me on Drawer
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete Me'));
     await tester.pumpAndSettle();
+    await waitForSnackBarToAppearAndDisappear(tester,'3');
 
     // 9. Check if user is deleted
     expect(find.text(username), findsNothing);
@@ -142,9 +172,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
+    print('Waiting for snackbar 1');
+    await waitForSnackBarToAppearAndDisappear(tester,'4');
 
-    // wait
-    await Future.delayed(Duration(seconds: 6));
 
     // check not logged in
     expect(find.text('Not logged in'), findsOneWidget);
@@ -152,17 +182,13 @@ void main() {
     // 3. Login the user
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Login'));
+    await tester.tap(find.byKey(Key('drawerLogin')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(Key('loginUsernameField')), username);
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-
-    // wait
-    await Future.delayed(Duration(seconds: 6));
-    await tester.pumpAndSettle();
-    await Future.delayed(Duration(seconds: 6));
+    await waitForSnackBarToAppearAndDisappear(tester,'5');
 
     // 4. Check if the appbar text changed from Not logged in to logged as H...
     expect(find.text('Logged in as $username'), findsOneWidget);
@@ -172,11 +198,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
+    //print('Waiting for snackbar 2');
+    //await waitForSnackBarToAppearAndDisappear(tester, '6');
 
-    // wait
-    await Future.delayed(Duration(seconds: 6));
-    await tester.pumpAndSettle();
-    await Future.delayed(Duration(seconds: 6));
 
     // 6. Check that appbar text is not logged in
     expect(find.text('Not logged in'), findsOneWidget);
@@ -184,19 +208,18 @@ void main() {
     //  Login the user
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
-    final loginTextFinder = find.byKey(Key('drawerLogin'));
-    await tester.tap(loginTextFinder);
-
+    await tester.tap(find.byKey(Key('drawerLogin')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(Key('loginUsernameField')), username);
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
+    await waitForSnackBarToAppearAndDisappear(tester, '8');
 
-    // wait TODO
-    await Future.delayed(Duration(seconds: 6));
-    await tester.pumpAndSettle();
-    await Future.delayed(Duration(seconds: 6));
+    // print('Waiting for snackbar 3');
+    // await waitForSnackBarToAppearAndDisappear(tester, '7');
+    expect(find.text(username), findsOneWidget);
+
 
     // 8. Delete user
     // Click Delete Me on Drawer
@@ -206,3 +229,5 @@ void main() {
     await tester.pumpAndSettle();
   });
 }
+
+

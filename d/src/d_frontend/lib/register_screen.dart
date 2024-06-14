@@ -108,7 +108,7 @@ Future<void> performRegistration(
   int specialtyIndex =
       counterStore.specialties.indexOf(registerStore.specialty ?? '');
 
-  try {
+      onTap();
     Status value = await counterStore.performRegistration(
       username: registerStore.username,
       password: registerStore.password,
@@ -117,35 +117,6 @@ Future<void> performRegistration(
       localization: registerStore.localization,
     );
 
-    if (value is Response) {
-      Fluttertoast.showToast(
-          msg: "Registration successful",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 2,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
-
-      //registerStore.reset();
-      onTap();
-
-      // Future.delayed(const Duration(seconds: 4), () {
-      //   Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Another Matiki Flutter Demo Home Page')),
-      //   );
-      // });
-    } else {
-      showSnackBar(
-          context,
-          value
-              .toString()); // mtlk TODO Don't use 'BuildContext's across async gaps.
-    }
-  } catch (e) {
-    showSnackBar(context,
-        e.toString()); // mtlk TODO Don't use 'BuildContext's across async gaps.
-  }
 }
 
 void showSnackBar(BuildContext context, String message) {

@@ -91,10 +91,29 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
           backgroundColor: Colors.blue,
           title: Observer(
-            builder: (_) => Text(counterStore.username == null
-                ? 'Not logged in'
-                : 'Logged in as ${counterStore.username}'),
+            builder: (_) {
+
+              print('AppBar counterStore.username: ${counterStore.username}');
+              if (counterStore.async_action_in_progress) {
+                // If async_action_in_progress is true, show a SnackBar
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Async action in progress...')),
+                  );
+                });
+              } else {
+                // If async_action_in_progress is false, hide the SnackBar
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                });
+              }
+
+              return Text(counterStore.username == null
+                  ? 'Not logged in'
+                  : 'Logged in as ${counterStore.username}');
+            },
           ),
+
           leading: Builder(builder: (context) {
             return IconButton(
               icon: const Icon(Icons.menu),
@@ -155,22 +174,11 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () async {
                 final counterStore = Provider.of<CounterStore>(context, listen: false);
 
-                // Show a SnackBar with the 'Logging out...' message
-                final snackBar = const SnackBar(content: Text('Logging out...'));
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-
+                
                 Navigator.pop(context);
+                _onItemTapped(3);
 
-                counterStore.performLogout().then((Status value) {
-                    value.handleError();
-
-                    // Hide the SnackBar when the logout operation is done
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-                    // Handle the result of the logout operation
-                    _onItemTapped(1);
-                });
+                await counterStore.performLogout();
               },
             ),
             ListTile(
@@ -189,29 +197,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 // Show a SnackBar with the 'Logging out...' message
                 final username = counterStore.username;
 
-                final snackBar = SnackBar(content: Text('Deleting user $username'));
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
 
                 Navigator.pop(context);
+                _onItemTapped(3);
 
                 Status value = await counterStore.deleteMe();
-                if(mounted) // TODO mounted ?
-                {
-                  // Handle the result of the logout operation
-                  value.handleError();
 
-
-                  // Hide the SnackBar when the logout operation is done
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-                  // pop out message (lasting 1 second) ScaffoldMessenger that user deleted
-
-                  final snackBarDeleted = SnackBar(content: Text('User $username deleted'));
-                  ScaffoldMessenger.of(context).showSnackBar(snackBarDeleted);
-
-                  _onItemTapped(1);
-                }
               },
             ),
           ],
