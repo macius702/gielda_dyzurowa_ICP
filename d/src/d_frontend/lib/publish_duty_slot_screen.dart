@@ -3,7 +3,9 @@ import 'package:d_frontend/publish_duty_slot_store.dart';
 import 'package:d_frontend/specialty_dropdown_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 
 class PublishDutySlotScreen extends StatefulWidget {
@@ -12,93 +14,108 @@ class PublishDutySlotScreen extends StatefulWidget {
 }
 
 class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
-  void _updateTimes() {}
 
-  // void _updateTimes() {
-  //   final dayOfWeek = _startDate.weekday;
-  //   if (dayOfWeek == DateTime.saturday || dayOfWeek == DateTime.sunday) {
-  //     _startTime = TimeOfDay(hour: 8, minute: 0);
-  //   } else {
-  //     _startTime = TimeOfDay(hour: 16, minute: 0);
-  //   }
-  //   _endTime = TimeOfDay(hour: 8, minute: 0);
-  // }
   final publishDutySlotStore = PublishDutySlotStore();
+
+  @override
+  void initState() {
+    print('_PublishDutySlotScreenState initState');
+    super.initState();
+
+    reaction((_) => publishDutySlotStore.startDate, (DateTime date) {
+      print('Entering reaction');
+      final f = DateFormat('yyyy-MM-dd');
+      final dayOfWeek = date.weekday; // 1 (Monday) to 7 (Sunday)
+
+      if (dayOfWeek == DateTime.saturday || dayOfWeek == DateTime.sunday) {
+        publishDutySlotStore.setStartTime(TimeOfDay(hour: 8, minute: 0));
+      } else {
+        publishDutySlotStore.setStartTime(TimeOfDay(hour: 16, minute: 0));
+      }
+
+      final nextDay = date.add(Duration(days: 1));
+      publishDutySlotStore.setEndDate(nextDay);
+      publishDutySlotStore.setEndTime(TimeOfDay(hour: 8, minute: 0));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final counterStore = Provider.of<CounterStore>(context);
     return Form(
-      child: Column(
-        children: <Widget>[
-          // Replace this with your SpecialtyDropdownMenu
-          SpecialtyDropdownMenu(
-              specialties: counterStore.specialties,
-              onSelected: publishDutySlotStore.setSelectedSpecialty),
-          TextFormField(
-            initialValue: publishDutySlotStore.priceFrom,
-            decoration: const InputDecoration(
-              labelText: 'Price From',
-            ),
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            onChanged: (value) {
-              publishDutySlotStore.setPriceFrom(value);
-            },
+      child: Observer(
+          builder: (_) => Column(
+                children: <Widget>[
+                  // Replace this with your SpecialtyDropdownMenu
+                  SpecialtyDropdownMenu(
+                      specialties: counterStore.specialties,
+                      onSelected: publishDutySlotStore.setSelectedSpecialty),
+                  TextFormField(
+                    initialValue: publishDutySlotStore.priceFrom,
+                    decoration: const InputDecoration(
+                      labelText: 'Price From',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    onChanged: (value) {
+                      publishDutySlotStore.setPriceFrom(value);
+                    },
+                  ),
+                  TextFormField(
+                    initialValue: publishDutySlotStore.priceTo,
+                    decoration: const InputDecoration(
+                      labelText: 'Price To',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    onChanged: (value) {
+                      publishDutySlotStore.setPriceTo(value);
+                    },
+                  ),
+                  // Replace this with your ExposedDropdownMenuBox for currency
+                  DropdownButtonFormField(
+                    value: publishDutySlotStore.currency,
+                    items: ['USD', 'EUR', 'PLN']
+                        .map((label) => DropdownMenuItem(
+                              value: label,
+                              child: Text(label.toString()),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        publishDutySlotStore.setCurrency(value ?? 'PLN');
+                      });
+                    },
+                  ),
+                  DateTimeInputField(
+                      'Start',
+                      publishDutySlotStore.startDate,
+                      publishDutySlotStore.startDate,
+                      publishDutySlotStore.setStartDate,
+                      publishDutySlotStore.setStartTime),
+                  DateTimeInputField(
+                      'End',
+                      publishDutySlotStore.endDate,
+                      publishDutySlotStore.endDate,
+                      publishDutySlotStore.setEndDate,
+                      publishDutySlotStore.setEndTime),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (publishDutySlotStore.isFormValid) {
+                        _submitForm();
+                      } else {
+                        print(publishDutySlotStore);
+                      }
+                    },
+                    child: const Text('Publish Duty Slot'),
+                  ),
+                ],
+              )
           ),
-          TextFormField(
-            initialValue: publishDutySlotStore.priceTo,
-            decoration: const InputDecoration(
-              labelText: 'Price To',
-            ),
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            onChanged: (value) {
-              publishDutySlotStore.setPriceTo(value);
-            },
-          ),
-          // Replace this with your ExposedDropdownMenuBox for currency
-          DropdownButtonFormField(
-            value: publishDutySlotStore.currency,
-            items: ['USD', 'EUR', 'PLN']
-                .map((label) => DropdownMenuItem(
-                      value: label,
-                      child: Text(label.toString()),
-                    ))
-                .toList(),
-            onChanged: (value) {
-              setState(() {
-                publishDutySlotStore.setCurrency(value ?? 'PLN');
-              });
-            },
-          ),
-          DateTimeInputField(
-              'Start',
-              publishDutySlotStore.startDate,
-              publishDutySlotStore.startDate,
-              publishDutySlotStore.setStartDate,
-              publishDutySlotStore.setStartTime),
-          DateTimeInputField('End',
-              publishDutySlotStore.endDate,
-              publishDutySlotStore.endDate,
-              publishDutySlotStore.setEndDate,
-              publishDutySlotStore.setEndTime),
-          ElevatedButton(
-            onPressed: () {
-              if (publishDutySlotStore.isFormValid) {
-                _submitForm();
-              } else {
-                print(publishDutySlotStore);
-              }
-            },
-            child: const Text('Publish Duty Slot'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -115,9 +132,8 @@ class DateTimeInputField extends StatefulWidget {
   final ValueChanged<DateTime> onDateChanged;
   final ValueChanged<TimeOfDay> onTimeChanged;
 
-
-  DateTimeInputField(
-      this.label, this.initialDate, this.initialTime, this.onDateChanged, this.onTimeChanged);
+  DateTimeInputField(this.label, this.initialDate, this.initialTime,
+      this.onDateChanged, this.onTimeChanged);
 
   @override
   _DateTimeInputFieldState createState() => _DateTimeInputFieldState();
@@ -145,6 +161,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
       children: [
         Row(
@@ -225,6 +242,17 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
     );
   }
 
+  @override
+  void didUpdateWidget(DateTimeInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialDate != oldWidget.initialDate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        dateController.text =
+            DateFormat('yyyy-MM-dd').format(widget.initialDate);
+      });
+    }
+  }
+
   String formatTimeOfDay(TimeOfDay timeOfDay) {
     final now = DateTime.now();
     final dt = DateTime(
@@ -239,4 +267,4 @@ TimeOfDay parseTimeOfDay(String time) {
 
   final tod = TimeOfDay.fromDateTime(dt);
   return tod;
-} 
+}
