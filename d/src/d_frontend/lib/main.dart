@@ -1,5 +1,6 @@
 import 'package:agent_dart/agent_dart.dart';
 import 'package:d_frontend/get_user_data_screen.dart';
+import 'package:d_frontend/publish_duty_slot_screen.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -63,6 +64,7 @@ enum Page {
   logout,
   getUserData,
   deleteMe,
+  publishDutySlot,
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -89,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Page.logout: const Text('Logout'), // This is a placeholder for the logout screen
       Page.getUserData: UserDataForm(),
       Page.deleteMe: const Text('Delete Me'), // This is a placeholder for the delete me screen
+      Page.publishDutySlot: PublishDutySlotScreen(),
     };
 
     return Scaffold(
@@ -207,6 +210,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 Status value = await counterStore.deleteMe();
 
+              },
+            ),
+            ListTile(
+              title: const Text('Publish Duty Slot'),
+              key: const Key('drawerPublishDutySlot'),
+              selected: _selectedPage == Page.publishDutySlot,
+              onTap: () {
+                _onItemTapped(Page.publishDutySlot);
+                Navigator.pop(context);
               },
             ),
           ],

@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.17.0
   fluttertoast: ^8.0.8
   http: any
   provider: ^6.0.1
