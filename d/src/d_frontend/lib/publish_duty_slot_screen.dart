@@ -94,13 +94,13 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                   DateTimeInputField(
                       'Start',
                       publishDutySlotStore.startDate,
-                      publishDutySlotStore.startDate,
+                      convertTimeOfDayToDateTime(publishDutySlotStore.startTime),
                       publishDutySlotStore.setStartDate,
                       publishDutySlotStore.setStartTime),
                   DateTimeInputField(
                       'End',
                       publishDutySlotStore.endDate,
-                      publishDutySlotStore.endDate,
+                      convertTimeOfDayToDateTime(publishDutySlotStore.endTime),
                       publishDutySlotStore.setEndDate,
                       publishDutySlotStore.setEndTime),
                   ElevatedButton(
@@ -251,6 +251,13 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
             DateFormat('yyyy-MM-dd').format(widget.initialDate);
       });
     }
+    if(widget.initialTime != oldWidget.initialTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('Changing timeController.text from ${timeController.text} to ${formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime))}');
+        print('Which is actually ${widget.initialTime}');
+        timeController.text = formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime));
+      });
+    }
   }
 
   String formatTimeOfDay(TimeOfDay timeOfDay) {
@@ -267,4 +274,9 @@ TimeOfDay parseTimeOfDay(String time) {
 
   final tod = TimeOfDay.fromDateTime(dt);
   return tod;
+}
+
+DateTime convertTimeOfDayToDateTime(TimeOfDay time) {
+  DateTime now = DateTime.now();
+  return DateTime(now.year, now.month, now.day, time.hour, time.minute);
 }
