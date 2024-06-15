@@ -80,11 +80,13 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
               'Start',
               publishDutySlotStore.startDate,
               publishDutySlotStore.startDate,
-              publishDutySlotStore.setStartDate),
+              publishDutySlotStore.setStartDate,
+              publishDutySlotStore.setStartTime),
           DateTimeInputField('End',
               publishDutySlotStore.endDate,
               publishDutySlotStore.endDate,
-              publishDutySlotStore.setEndDate),
+              publishDutySlotStore.setEndDate,
+              publishDutySlotStore.setEndTime),
           ElevatedButton(
             onPressed: () {
               if (publishDutySlotStore.isFormValid) {
@@ -111,9 +113,11 @@ class DateTimeInputField extends StatefulWidget {
   final DateTime initialDate;
   final DateTime initialTime;
   final ValueChanged<DateTime> onDateChanged;
+  final ValueChanged<TimeOfDay> onTimeChanged;
+
 
   DateTimeInputField(
-      this.label, this.initialDate, this.initialTime, this.onDateChanged);
+      this.label, this.initialDate, this.initialTime, this.onDateChanged, this.onTimeChanged);
 
   @override
   _DateTimeInputFieldState createState() => _DateTimeInputFieldState();
@@ -197,6 +201,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
                   );
                   if (time != null) {
                     timeController.text = formatTimeOfDay(time);
+                    widget.onTimeChanged(time);
                   }
                 },
               ),
@@ -209,6 +214,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
                 );
                 if (time != null) {
                   timeController.text = formatTimeOfDay(time);
+                  widget.onTimeChanged(time);
                 }
               },
               child: Text('Select ${widget.label} Time'),
