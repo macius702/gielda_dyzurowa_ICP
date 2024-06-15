@@ -1,9 +1,8 @@
-import 'package:agent_dart/agent_dart.dart';
 import 'package:d_frontend/get_user_data_screen.dart';
 import 'package:d_frontend/publish_duty_slot_screen.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +11,8 @@ import 'package:d_frontend/login_screen.dart';
 import 'package:d_frontend/register_screen.dart';
 import 'package:d_frontend/show_usernames_screen.dart';
 
-import 'counter.dart';
+import 'package:d_frontend/counter.dart';
+
 
 void main() async {
   WidgetsFlutterBinding
@@ -65,6 +65,7 @@ enum Page {
   getUserData,
   deleteMe,
   publishDutySlot,
+  quitApp,
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -74,9 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   void _onItemTapped(Page page) {
-      setState(() {
+    setState(() {
       _selectedPage = page;
-      });
+    });
   }
 
   @override
@@ -84,14 +85,19 @@ class _MyHomePageState extends State<MyHomePage> {
     final counterStore = Provider.of<CounterStore>(context);
 
     final Map<Page, Widget> _widgetOptions = {
-      Page.register: RegisterForm(key: const Key('registerForm'), onTap: () => _onItemTapped(Page.showUsers)),
+      Page.register: RegisterForm(
+          key: const Key('registerForm'),
+          onTap: () => _onItemTapped(Page.showUsers)),
       Page.login: LoginForm(),
       Page.showUsers: ShowUsernamesBody(),
       Page.nic: const Text('NIC', style: optionStyle),
-      Page.logout: const Text('Logout'), // This is a placeholder for the logout screen
+      Page.logout:
+          const Text('Logout'), // This is a placeholder for the logout screen
       Page.getUserData: UserDataForm(),
-      Page.deleteMe: const Text('Delete Me'), // This is a placeholder for the delete me screen
+      Page.deleteMe: const Text(
+          'Delete Me'), // This is a placeholder for the delete me screen
       Page.publishDutySlot: PublishDutySlotScreen(),
+      Page.quitApp: const Text('Quit App'), // This is a placeholder
     };
 
     return Scaffold(
@@ -99,13 +105,13 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.blue,
           title: Observer(
             builder: (_) {
-
               print('AppBar counterStore.username: ${counterStore.username}');
               if (counterStore.async_action_in_progress) {
                 // If async_action_in_progress is true, show a SnackBar
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Async action in progress...')),
+                    const SnackBar(
+                        content: Text('Async action in progress...')),
                   );
                 });
               } else {
@@ -120,7 +126,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   : 'Logged in as ${counterStore.username}');
             },
           ),
-
           leading: Builder(builder: (context) {
             return IconButton(
               icon: const Icon(Icons.menu),
@@ -151,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-              key:  Key('drawerLogin'),
+              key: Key('drawerLogin'),
               title: const Text('Login'),
               selected: _selectedPage == Page.login,
               onTap: () {
@@ -179,9 +184,9 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('Logout'),
               selected: _selectedPage == Page.logout,
               onTap: () async {
-                final counterStore = Provider.of<CounterStore>(context, listen: false);
+                final counterStore =
+                    Provider.of<CounterStore>(context, listen: false);
 
-                
                 Navigator.pop(context);
                 _onItemTapped(Page.logout);
 
@@ -200,16 +205,15 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('Delete Me'),
               selected: _selectedPage == Page.deleteMe,
               onTap: () async {
-                final counterStore = Provider.of<CounterStore>(context, listen: false);
+                final counterStore =
+                    Provider.of<CounterStore>(context, listen: false);
                 // Show a SnackBar with the 'Logging out...' message
                 final username = counterStore.username;
-
 
                 Navigator.pop(context);
                 _onItemTapped(Page.deleteMe);
 
                 Status value = await counterStore.deleteMe();
-
               },
             ),
             ListTile(
@@ -219,6 +223,17 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 _onItemTapped(Page.publishDutySlot);
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Quit'),
+              selected: _selectedPage == Page.quitApp,
+              onTap: () {
+                _onItemTapped(Page.quitApp);
+                Navigator.pop(context);
+                // perform quit app
+
+                SystemNavigator.pop();
               },
             ),
           ],
