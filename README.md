@@ -57,6 +57,7 @@ After running this command in the Docker terminal, you can copy the output and p
 
 
 
+- [ ] Publis duty slot
 - [x] 2 app_tests.dart - > one for register hospital, one for doctor
 - [x] Prepare body: widgets (forms - h0ome, register, show users) array 
 - [x] Integrate into Drawer
@@ -65,9 +66,8 @@ After running this command in the Docker terminal, you can copy the output and p
 - [x] cookies
 - [x] Logout
 - [x] Back to one test
-- [ ] test for Login - eliminate sleeps
+- [x] test for Login - eliminate sleeps
 - [x] // Handle dismiss
-- [ ] In delete user - remove dependant data : duty slots issued if hospital, duty slots acceptances if doctor
 
 # TODO others
 
@@ -76,4 +76,5 @@ After running this command in the Docker terminal, you can copy the output and p
 - [ ] @Query("canisterId") canisterId: String into headers
 - [ ] into SharedPreferences some data - cookie , what else ?
 - [ ] in JWT add nonce
+- [ ] In delete user - remove dependant data : duty slots issued if hospital, duty slots acceptances if doctor
 
