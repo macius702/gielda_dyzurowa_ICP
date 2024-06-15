@@ -98,6 +98,22 @@ abstract class _PublishDutySlotStore with Store {
     }
     return null;
   }
+
+  @override
+    String toString() {
+      return '''PublishDutySlotStore:{
+selectedSpecialty: ${selectedSpecialty},
+priceFrom: ${priceFrom},
+priceTo: ${priceTo},
+currency: ${currency},
+startDate: ${startDate},
+endDate: ${endDate},
+startTime: ${startTime},
+endTime: ${endTime},
+isFormValid: ${isFormValid}
+      }''';
+
+  }
 }
 
 
