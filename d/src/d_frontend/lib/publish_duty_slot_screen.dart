@@ -158,7 +158,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
-                    initialDate: widget.initialDate,
+                    initialDate: DateTime.parse(dateController.text),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                   );
@@ -173,7 +173,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
               onPressed: () async {
                 final date = await showDatePicker(
                   context: context,
-                  initialDate: widget.initialDate,
+                  initialDate: DateTime.parse(dateController.text),
                   firstDate: DateTime.now(),
                   lastDate: DateTime.now().add(Duration(days: 365)),
                 );
@@ -197,7 +197,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
                 onTap: () async {
                   final time = await showTimePicker(
                     context: context,
-                    initialTime: TimeOfDay.fromDateTime(widget.initialTime),
+                    initialTime: parseTimeOfDay(timeController.text),
                   );
                   if (time != null) {
                     timeController.text = formatTimeOfDay(time);
@@ -210,7 +210,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
               onPressed: () async {
                 final time = await showTimePicker(
                   context: context,
-                  initialTime: TimeOfDay.fromDateTime(widget.initialTime),
+                  initialTime: parseTimeOfDay(timeController.text),
                 );
                 if (time != null) {
                   timeController.text = formatTimeOfDay(time);
@@ -232,3 +232,11 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
     return DateFormat('HH:mm').format(dt);
   }
 }
+
+TimeOfDay parseTimeOfDay(String time) {
+  final format = DateFormat('HH:mm'); // Use 24-hour format
+  final dt = format.parse(time);
+
+  final tod = TimeOfDay.fromDateTime(dt);
+  return tod;
+} 
