@@ -76,10 +76,15 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
               });
             },
           ),
-          DateTimeInputField('Start', publishDutySlotStore.startDate,
-              publishDutySlotStore.startDate),
-          DateTimeInputField('End', publishDutySlotStore.endDate,
-              publishDutySlotStore.endDate),
+          DateTimeInputField(
+              'Start',
+              publishDutySlotStore.startDate,
+              publishDutySlotStore.startDate,
+              publishDutySlotStore.setStartDate),
+          DateTimeInputField('End',
+              publishDutySlotStore.endDate,
+              publishDutySlotStore.endDate,
+              publishDutySlotStore.setEndDate),
           ElevatedButton(
             onPressed: () {
               if (publishDutySlotStore.isFormValid) {
@@ -97,16 +102,42 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
 
   void _submitForm() {
     // Implement your form submission logic here
-    print(publishDutySlotStore);    
+    print(publishDutySlotStore);
   }
 }
 
-class DateTimeInputField extends StatelessWidget {
+class DateTimeInputField extends StatefulWidget {
   final String label;
   final DateTime initialDate;
   final DateTime initialTime;
+  final ValueChanged<DateTime> onDateChanged;
 
-  DateTimeInputField(this.label, this.initialDate, this.initialTime);
+  DateTimeInputField(
+      this.label, this.initialDate, this.initialTime, this.onDateChanged);
+
+  @override
+  _DateTimeInputFieldState createState() => _DateTimeInputFieldState();
+}
+
+class _DateTimeInputFieldState extends State<DateTimeInputField> {
+  late TextEditingController dateController;
+  late TextEditingController timeController;
+
+  @override
+  void initState() {
+    super.initState();
+    dateController = TextEditingController(
+        text: DateFormat('yyyy-MM-dd').format(widget.initialDate));
+    timeController = TextEditingController(
+        text: formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime)));
+  }
+
+  @override
+  void dispose() {
+    dateController.dispose();
+    timeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,18 +148,19 @@ class DateTimeInputField extends StatelessWidget {
           children: [
             Expanded(
               child: TextFormField(
-                initialValue: DateFormat('yyyy-MM-dd').format(initialDate),
-                decoration: InputDecoration(labelText: '$label Date'),
+                controller: dateController,
+                decoration: InputDecoration(labelText: '${widget.label} Date'),
                 readOnly: true,
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
-                    initialDate: initialDate,
+                    initialDate: widget.initialDate,
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                   );
                   if (date != null) {
-                    // Call your function to handle date change here
+                    dateController.text = DateFormat('yyyy-MM-dd').format(date);
+                    widget.onDateChanged(date);
                   }
                 },
               ),
@@ -137,15 +169,16 @@ class DateTimeInputField extends StatelessWidget {
               onPressed: () async {
                 final date = await showDatePicker(
                   context: context,
-                  initialDate: initialDate,
+                  initialDate: widget.initialDate,
                   firstDate: DateTime.now(),
                   lastDate: DateTime.now().add(Duration(days: 365)),
                 );
                 if (date != null) {
-                  // Call your function to handle date change here
+                  dateController.text = DateFormat('yyyy-MM-dd').format(date);
+                  widget.onDateChanged(date);
                 }
               },
-              child: Text('Select $label Date'),
+              child: Text('Select ${widget.label} Date'),
             ),
           ],
         ),
@@ -154,17 +187,16 @@ class DateTimeInputField extends StatelessWidget {
           children: [
             Expanded(
               child: TextFormField(
-                initialValue:
-                    formatTimeOfDay(TimeOfDay.fromDateTime(initialTime)),
-                decoration: InputDecoration(labelText: '$label Time'),
+                controller: timeController,
+                decoration: InputDecoration(labelText: '${widget.label} Time'),
                 readOnly: true,
                 onTap: () async {
                   final time = await showTimePicker(
                     context: context,
-                    initialTime: TimeOfDay.fromDateTime(initialTime),
+                    initialTime: TimeOfDay.fromDateTime(widget.initialTime),
                   );
                   if (time != null) {
-                    // Call your function to handle time change here
+                    timeController.text = formatTimeOfDay(time);
                   }
                 },
               ),
@@ -173,13 +205,13 @@ class DateTimeInputField extends StatelessWidget {
               onPressed: () async {
                 final time = await showTimePicker(
                   context: context,
-                  initialTime: TimeOfDay.fromDateTime(initialTime),
+                  initialTime: TimeOfDay.fromDateTime(widget.initialTime),
                 );
                 if (time != null) {
-                  // Call your function to handle time change here
+                  timeController.text = formatTimeOfDay(time);
                 }
               },
-              child: Text('Select $label Time'),
+              child: Text('Select ${widget.label} Time'),
             ),
           ],
         ),
