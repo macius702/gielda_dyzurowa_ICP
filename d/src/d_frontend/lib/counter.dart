@@ -418,6 +418,58 @@ class Counter {
     }
   }
 
+  Future<List<DutySlotForDisplay>> getDutySlots() async {
+    try {
+      Uri uri = _createUri('/duty/slots/json');
+
+      // take cookies form SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        throw Exception(
+            'Failed to get duty slots: no cookies in SharedPreferences');
+      }
+
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'cookie': cookies,
+      };
+
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      mtlk_print('getDutySlots: response.statusCode: ${response.statusCode}');
+      mtlk_print('getDutySlots: response.body: ${response.body}');
+      mtlk_print('getDutySlots: response.headers: ${response.headers}');
+      mtlk_print('getDutySlots: response.request: ${response.request}');
+      mtlk_print('getDutySlots: response: $response');
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response,
+        // then parse the JSON.
+        //decode json into List<DutySlotForDisplay
+        List<dynamic> jsonList = jsonDecode(response.body);
+        List<DutySlotForDisplay> dutySlots = [];
+        for (var e in jsonList) {
+          dutySlots.add(DutySlotForDisplay.fromJson(e));
+        }
+        return dutySlots;
+      } else {
+        // If the server returns an unexpected response,
+        // then throw an exception.
+        throw Exception('Failed to get duty slots');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
+    }
+  }
+
   Future<Status> getUserData() async {
     try {
       Uri uri = _createUri('/user/data');

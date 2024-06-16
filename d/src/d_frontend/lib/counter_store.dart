@@ -1,7 +1,7 @@
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'counter.dart';
+import 'package:d_frontend/counter.dart';
 
 part 'counter_store.g.dart';
 
@@ -28,6 +28,16 @@ abstract class _CounterStore with Store {
 
   @observable
   ObservableList<String> specialties = ObservableList<String>();
+
+  @observable
+  ObservableList<DutySlotForDisplay> duty_slots =
+      ObservableList<DutySlotForDisplay>();
+
+  @action
+  Future<void> setup_duty_slots() async {
+    final value = await counter.getDutySlots();
+    duty_slots = ObservableList<DutySlotForDisplay>.of(value);
+  }
 
   @action
   Future<void> get_users() async {

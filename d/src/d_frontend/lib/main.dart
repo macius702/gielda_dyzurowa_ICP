@@ -1,3 +1,4 @@
+import 'package:d_frontend/duty_slots_screen.dart';
 import 'package:d_frontend/get_user_data_screen.dart';
 import 'package:d_frontend/publish_duty_slot_screen.dart';
 import 'package:d_frontend/types.dart';
@@ -64,6 +65,7 @@ enum Page {
   getUserData,
   deleteMe,
   publishDutySlot,
+  dutySlots,
   quitApp,
 }
 
@@ -96,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Page.deleteMe: const Text(
           'Delete Me'), // This is a placeholder for the delete me screen
       Page.publishDutySlot: PublishDutySlotScreen(),
+      Page.dutySlots: DutySlotsBody(),
       Page.quitApp: const Text('Quit App'), // This is a placeholder
     };
 
@@ -220,6 +223,14 @@ class _MyHomePageState extends State<MyHomePage> {
               selected: _selectedPage == Page.publishDutySlot,
               onTap: () {
                 _onItemTapped(Page.publishDutySlot);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Duty Slots'),
+              selected: _selectedPage == Page.dutySlots,
+              onTap: () {
+                _onItemTapped(Page.dutySlots);
                 Navigator.pop(context);
               },
             ),
