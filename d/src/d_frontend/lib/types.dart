@@ -62,3 +62,17 @@ enum UserRole {
   doctor,
   hospital,
 }
+
+// for publish duty slot only because register uses only id as string
+class Specialty {
+  final String id;
+  final String name;
+
+  Specialty({required this.id, required this.name});
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+    };
+  }
+}

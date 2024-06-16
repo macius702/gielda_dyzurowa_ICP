@@ -349,6 +349,75 @@ class Counter {
     }
   }
 
+  Future<Status> publishDutySlot(
+      {required Specialty specialty,
+      required int priceFrom,
+      required int priceTo,
+      required String currency,
+      required DateTime startDate,
+      required TimeOfDay startTime,
+      required DateTime endDate,
+      required TimeOfDay endTime}) async {
+    try {
+      Uri uri = _createUri('/duty/publish');
+
+      // take cookies form SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        throw Exception(
+            'Failed to delete user: no cookies in SharedPreferences');
+      }
+
+      Map<String, String> headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'cookie': cookies,
+      };
+      Map<String, dynamic> bodyMap = {
+        'requiredSpecialty': specialty,
+        'priceFrom': priceFrom,
+        'priceTo': priceTo,
+        'currency': currency,
+        'startDate': startDate.toIso8601String().split('T')[0],
+        'startTime':
+            '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
+        'endDate': endDate.toIso8601String().split('T')[0],
+        'endTime':
+            '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
+      };
+
+      String body = jsonEncode(bodyMap);
+      mtlk_print('URL: $uri');
+      mtlk_print('Headers: $headers');
+      mtlk_print('Body: $body');
+
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response,
+        // then parse the JSON.
+        return Response();
+      } else {
+        // If the server returns an unexpected response,
+        // then throw an exception.
+        mtlk_print('Error response.statusCode: ${response.statusCode}');
+        mtlk_print('Error response.body: ${response.body}');
+        mtlk_print('Error response.headers: ${response.headers}');
+        mtlk_print('Error response.request: ${response.request}');
+        mtlk_print('Error response: $response');
+
+        throw Exception('Failed to publish duty slot');
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return Future.error(e);
+    }
+  }
+
   Future<Status> getUserData() async {
     try {
       Uri uri = _createUri('/user/data');

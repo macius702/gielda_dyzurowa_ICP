@@ -1,4 +1,5 @@
 import 'package:d_frontend/types.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'counter.dart';
 
@@ -85,6 +86,32 @@ abstract class _CounterStore with Store {
     setUsername(null);
     async_action_in_progress = true;
     Status s = await counter.deleteMe();
+    async_action_in_progress = false;
+    return s;
+  }
+
+  @action
+  Future<Status> publishDutySlot(
+      {required String specialty,
+      required int priceFrom,
+      required int priceTo,
+      required String currency,
+      required DateTime startDate,
+      required TimeOfDay startTime,
+      required DateTime endDate,
+      required TimeOfDay endTime}) async {
+    async_action_in_progress = true;
+    Status s = await counter.publishDutySlot(
+      specialty: Specialty(
+          id: specialties.indexOf(specialty).toString(), name: specialty),
+      priceFrom: priceFrom,
+      priceTo: priceTo,
+      currency: currency,
+      startDate: startDate,
+      startTime: startTime,
+      endDate: endDate,
+      endTime: endTime,
+    );
     async_action_in_progress = false;
     return s;
   }

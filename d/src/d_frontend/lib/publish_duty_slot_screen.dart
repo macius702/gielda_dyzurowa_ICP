@@ -2,8 +2,10 @@ import 'package:d_frontend/counter_store.dart';
 import 'package:d_frontend/date_time_input_field.dart';
 import 'package:d_frontend/publish_duty_slot_store.dart';
 import 'package:d_frontend/specialty_dropdown_menu.dart';
+import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -109,17 +111,14 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                           publishDutySlotStore.setEndDate,
                           publishDutySlotStore.setEndTime),
                       ElevatedButton(
-                        onPressed: () {
-                          if (publishDutySlotStore.isFormValid) {
-                            _submitForm();
-                          } else {
-                            print(publishDutySlotStore);
-                          }
-                        },
+                        key: const Key('publishDutySlotButton'),
+                        onPressed: () => onPressed(context, counterStore,
+                            publishDutySlotStore), //onTap), mtlk todo
                         child: const Text('Publish Duty Slot'),
                         style: ButtonStyle(
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>( //mtlk todo
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  //mtlk todo
                                   RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10.0),
                                       side: BorderSide(color: Colors.red))),
@@ -134,4 +133,49 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
     // Implement your form submission logic here
     print(publishDutySlotStore);
   }
+}
+
+void onPressed(BuildContext context, CounterStore counterStore,
+    PublishDutySlotStore publishDutySlotStore) {
+  if (publishDutySlotStore.selectedSpecialty == null ||
+      publishDutySlotStore.selectedSpecialty!.isEmpty) {
+    showSnackBar(context, "Specialty is mandatory");
+  } else if (publishDutySlotStore.priceFrom.isEmpty ||
+      publishDutySlotStore.priceTo.isEmpty) {
+    showSnackBar(context, "Price range is mandatory");
+  } else if (publishDutySlotStore.currency == null) {
+    showSnackBar(context, "Currency has to be set");
+  } else {
+    performPublishDutySlot(context, counterStore, publishDutySlotStore);
+  }
+}
+
+Future<void> performPublishDutySlot(
+  BuildContext context,
+  CounterStore counterStore,
+  PublishDutySlotStore publishDutySlotStore,
+) async {
+  try {
+    Status value = await counterStore.publishDutySlot(
+      specialty: publishDutySlotStore.selectedSpecialty!,
+      priceFrom: int.parse(publishDutySlotStore.priceFrom),
+      priceTo: int.parse(publishDutySlotStore.priceTo),
+      currency: publishDutySlotStore.currency,
+      startDate: publishDutySlotStore.startDate,
+      startTime: publishDutySlotStore.startTime,
+      endDate: publishDutySlotStore.endDate,
+      endTime: publishDutySlotStore.endTime,
+    );
+
+    showSnackBar(context, "Duty slot published successfully");
+    // onTap(); mtlk todo
+  } catch (e) {
+    showSnackBar(context, "Failed to publish duty slot");
+  }
+}
+
+void showSnackBar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message)),
+  );
 }
