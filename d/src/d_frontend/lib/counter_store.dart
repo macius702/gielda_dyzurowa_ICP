@@ -60,7 +60,7 @@ abstract class _CounterStore with Store {
   Future<Status> performLogin(
       {required String username, required String password}) async {
     async_action_in_progress = true;
-    Status s =  await counter.performLogin(username, password);
+    Status s = await counter.performLogin(username, password);
     setUsername(username);
     async_action_in_progress = false;
     return s;

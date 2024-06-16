@@ -58,8 +58,8 @@ void onPressed(
 
 Future<void> performLogin(BuildContext context, CounterStore counterStore,
     LoginStore loginStore) async {
-    Status value = await counterStore.performLogin(
-        username: loginStore.username, password: loginStore.password);
+  Status value = await counterStore.performLogin(
+      username: loginStore.username, password: loginStore.password);
 }
 
 void showSnackBar(BuildContext context, String message) {

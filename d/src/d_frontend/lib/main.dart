@@ -13,7 +13,6 @@ import 'package:d_frontend/show_usernames_screen.dart';
 
 import 'package:d_frontend/counter.dart';
 
-
 void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure flutter binding is initialized if you're going to use async code in main

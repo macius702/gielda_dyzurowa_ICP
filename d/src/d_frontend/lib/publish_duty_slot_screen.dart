@@ -14,7 +14,6 @@ class PublishDutySlotScreen extends StatefulWidget {
 }
 
 class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
-
   final publishDutySlotStore = PublishDutySlotStore();
 
   @override
@@ -94,7 +93,8 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                   DateTimeInputField(
                       'Start',
                       publishDutySlotStore.startDate,
-                      convertTimeOfDayToDateTime(publishDutySlotStore.startTime),
+                      convertTimeOfDayToDateTime(
+                          publishDutySlotStore.startTime),
                       publishDutySlotStore.setStartDate,
                       publishDutySlotStore.setStartTime),
                   DateTimeInputField(
@@ -114,8 +114,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                     child: const Text('Publish Duty Slot'),
                   ),
                 ],
-              )
-          ),
+              )),
     );
   }
 
@@ -161,7 +160,6 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
         Row(
@@ -251,11 +249,13 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
             DateFormat('yyyy-MM-dd').format(widget.initialDate);
       });
     }
-    if(widget.initialTime != oldWidget.initialTime) {
+    if (widget.initialTime != oldWidget.initialTime) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        print('Changing timeController.text from ${timeController.text} to ${formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime))}');
+        print(
+            'Changing timeController.text from ${timeController.text} to ${formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime))}');
         print('Which is actually ${widget.initialTime}');
-        timeController.text = formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime));
+        timeController.text =
+            formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime));
       });
     }
   }

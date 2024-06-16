@@ -5,5 +5,3 @@ import 'print_helper.dart' show print_helper;
 void mtlk_print(dynamic message) {
   print_helper(message);
 }
-
-

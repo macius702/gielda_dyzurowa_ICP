@@ -37,6 +37,8 @@ else
     exit 1
 fi
 
+dart format *.dart integration_test/*.dart lib/*.dart
+
 # dfx stop
 # dfx start --clean --background &
 dfx start --background &

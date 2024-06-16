@@ -22,4 +22,3 @@ abstract class _LoginStore with Store {
     print('Login performed');
   }
 }
-

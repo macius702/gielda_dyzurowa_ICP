@@ -31,7 +31,7 @@ abstract class _RegisterStore with Store {
   void setRole(String? value) => role = value;
 
   @action
-  void setSpecialty(String value) =>  specialty = value;
+  void setSpecialty(String value) => specialty = value;
 
   @action
   void setLocalization(String value) => localization = value;

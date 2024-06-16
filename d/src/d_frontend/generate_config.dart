@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 
 void main(List<String> args) async {
-
   if (args.length != 1) {
     print('You must pass exactly one argument.');
     return;
@@ -31,10 +30,6 @@ void main(List<String> args) async {
     await outputFile.writeAsString('''
 export FRONTEND_CANISTER_ID=$frontend_canister_id
     ''');
-
-
-
-
 
     outputFile = File('lib/config.dart');
     await outputFile.writeAsString('''

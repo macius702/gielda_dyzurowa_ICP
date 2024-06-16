@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -74,8 +73,8 @@ abstract class _PublishDutySlotStore with Store {
   @computed
   bool get isFormValid {
     return validateSpecialty() == null &&
-           validatePriceFrom() == null &&
-           validatePriceTo() == null;
+        validatePriceFrom() == null &&
+        validatePriceTo() == null;
   }
 
   String? validateSpecialty() {
@@ -100,8 +99,8 @@ abstract class _PublishDutySlotStore with Store {
   }
 
   @override
-    String toString() {
-      return '''PublishDutySlotStore:{
+  String toString() {
+    return '''PublishDutySlotStore:{
 selectedSpecialty: ${selectedSpecialty},
 priceFrom: ${priceFrom},
 priceTo: ${priceTo},
@@ -112,9 +111,5 @@ startTime: ${startTime},
 endTime: ${endTime},
 isFormValid: ${isFormValid}
       }''';
-
   }
 }
-
-
-

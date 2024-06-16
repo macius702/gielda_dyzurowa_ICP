@@ -57,6 +57,7 @@ class Error implements Status {
     print('Operation failed with an error: ${getString()}');
   }
 }
+
 enum UserRole {
   doctor,
   hospital,

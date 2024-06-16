@@ -4,5 +4,3 @@
 void print_helper(dynamic message) {
   print(message);
 }
-
-
