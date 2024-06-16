@@ -133,7 +133,8 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             );
           })),
-      body: Align(alignment: Alignment.topCenter, child: _widgetOptions[_selectedPage]),
+      body: Align(
+          alignment: Alignment.topCenter, child: _widgetOptions[_selectedPage]),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
