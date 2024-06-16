@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -39,47 +38,48 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
   @override
   Widget build(BuildContext context) {
     return Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Expanded(
-      child: TextFormField(
-        controller: dateController,
-        decoration: InputDecoration(labelText: '${widget.label} Date'),
-        readOnly: true,
-        onTap: () async {
-          final date = await showDatePicker(
-            context: context,
-            initialDate: DateTime.parse(dateController.text),
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(Duration(days: 365)),
-          );
-          if (date != null) {
-            dateController.text = DateFormat('yyyy-MM-dd').format(date);
-            widget.onDateChanged(date);
-          }
-        },
-      ),
-    ),
-    SizedBox(width: 10), // You can adjust this value as needed
-    Expanded(
-      child: TextFormField(
-        controller: timeController,
-        decoration: InputDecoration(labelText: '${widget.label} Time'),
-        readOnly: true,
-        onTap: () async {
-          final time = await showTimePicker(
-            context: context,
-            initialTime: parseTimeOfDay(timeController.text),
-          );
-          if (time != null) {
-            timeController.text = formatTimeOfDay(time);
-            widget.onTimeChanged(time);
-          }
-        },
-      ),
-    ),
-  ],
-);  }
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: TextFormField(
+            controller: dateController,
+            decoration: InputDecoration(labelText: '${widget.label} Date'),
+            readOnly: true,
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: DateTime.parse(dateController.text),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(Duration(days: 365)),
+              );
+              if (date != null) {
+                dateController.text = DateFormat('yyyy-MM-dd').format(date);
+                widget.onDateChanged(date);
+              }
+            },
+          ),
+        ),
+        SizedBox(width: 10), // You can adjust this value as needed
+        Expanded(
+          child: TextFormField(
+            controller: timeController,
+            decoration: InputDecoration(labelText: '${widget.label} Time'),
+            readOnly: true,
+            onTap: () async {
+              final time = await showTimePicker(
+                context: context,
+                initialTime: parseTimeOfDay(timeController.text),
+              );
+              if (time != null) {
+                timeController.text = formatTimeOfDay(time);
+                widget.onTimeChanged(time);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   void didUpdateWidget(DateTimeInputField oldWidget) {
