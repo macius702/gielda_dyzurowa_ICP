@@ -41,86 +41,92 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
   @override
   Widget build(BuildContext context) {
     final counterStore = Provider.of<CounterStore>(context);
-    return Form(
-      child: Observer(
-          builder: (_) => Column(
-                children: <Widget>[
-                  // Replace this with your SpecialtyDropdownMenu
-                  SpecialtyDropdownMenu(
-                      specialties: counterStore.specialties,
-                      onSelected: publishDutySlotStore.setSelectedSpecialty),
-                  TextFormField(
-                    initialValue: publishDutySlotStore.priceFrom,
-                    decoration: const InputDecoration(
-                      labelText: 'Price From',
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
+    return SingleChildScrollView(
+        padding: EdgeInsets.zero,
+        child: Form(
+          child: Observer(
+              builder: (_) => Column(
+                    children: <Widget>[
+                      // Replace this with your SpecialtyDropdownMenu
+                      SpecialtyDropdownMenu(
+                          specialties: counterStore.specialties,
+                          onSelected:
+                              publishDutySlotStore.setSelectedSpecialty),
+                      TextFormField(
+                        initialValue: publishDutySlotStore.priceFrom,
+                        decoration: const InputDecoration(
+                          labelText: 'Price From',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        onChanged: (value) {
+                          publishDutySlotStore.setPriceFrom(value);
+                        },
+                      ),
+                      TextFormField(
+                        initialValue: publishDutySlotStore.priceTo,
+                        decoration: const InputDecoration(
+                          labelText: 'Price To',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        onChanged: (value) {
+                          publishDutySlotStore.setPriceTo(value);
+                        },
+                      ),
+                      // Replace this with your ExposedDropdownMenuBox for currency
+                      DropdownButtonFormField(
+                        value: publishDutySlotStore.currency,
+                        items: ['USD', 'EUR', 'PLN']
+                            .map((label) => DropdownMenuItem(
+                                  value: label,
+                                  child: Text(label.toString()),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            publishDutySlotStore.setCurrency(value ?? 'PLN');
+                          });
+                        },
+                      ),
+                      DateTimeInputField(
+                          'Start',
+                          publishDutySlotStore.startDate,
+                          convertTimeOfDayToDateTime(
+                              publishDutySlotStore.startTime),
+                          publishDutySlotStore.setStartDate,
+                          publishDutySlotStore.setStartTime),
+                      DateTimeInputField(
+                          'End',
+                          publishDutySlotStore.endDate,
+                          convertTimeOfDayToDateTime(
+                              publishDutySlotStore.endTime),
+                          publishDutySlotStore.setEndDate,
+                          publishDutySlotStore.setEndTime),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (publishDutySlotStore.isFormValid) {
+                            _submitForm();
+                          } else {
+                            print(publishDutySlotStore);
+                          }
+                        },
+                        child: const Text('Publish Duty Slot'),
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      side: BorderSide(color: Colors.red))),
+                        ),
+                      )
                     ],
-                    onChanged: (value) {
-                      publishDutySlotStore.setPriceFrom(value);
-                    },
-                  ),
-                  TextFormField(
-                    initialValue: publishDutySlotStore.priceTo,
-                    decoration: const InputDecoration(
-                      labelText: 'Price To',
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
-                    onChanged: (value) {
-                      publishDutySlotStore.setPriceTo(value);
-                    },
-                  ),
-                  // Replace this with your ExposedDropdownMenuBox for currency
-                  DropdownButtonFormField(
-                    value: publishDutySlotStore.currency,
-                    items: ['USD', 'EUR', 'PLN']
-                        .map((label) => DropdownMenuItem(
-                              value: label,
-                              child: Text(label.toString()),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        publishDutySlotStore.setCurrency(value ?? 'PLN');
-                      });
-                    },
-                  ),
-                  DateTimeInputField(
-                      'Start',
-                      publishDutySlotStore.startDate,
-                      convertTimeOfDayToDateTime(
-                          publishDutySlotStore.startTime),
-                      publishDutySlotStore.setStartDate,
-                      publishDutySlotStore.setStartTime),
-                  DateTimeInputField(
-                      'End',
-                      publishDutySlotStore.endDate,
-                      convertTimeOfDayToDateTime(publishDutySlotStore.endTime),
-                      publishDutySlotStore.setEndDate,
-                      publishDutySlotStore.setEndTime),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (publishDutySlotStore.isFormValid) {
-                        _submitForm();
-                      } else {
-                        print(publishDutySlotStore);
-                      }
-                    },
-                    child: const Text('Publish Duty Slot'),
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              side: BorderSide(color: Colors.red))),
-                  ),
-          )],
-              )),
-    );
+                  )),
+        ));
   }
 
   void _submitForm() {
