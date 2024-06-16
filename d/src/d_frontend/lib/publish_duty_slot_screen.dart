@@ -112,8 +112,13 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                       }
                     },
                     child: const Text('Publish Duty Slot'),
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              side: BorderSide(color: Colors.red))),
                   ),
-                ],
+          )],
               )),
     );
   }
