@@ -77,6 +77,13 @@ class Specialty {
       'name': name,
     };
   }
+
+  
+  @override
+  String  toString() {
+    return 'Specialty: id=$id, name=$name';
+  }
+
 }
 
 class Hospital {
@@ -108,6 +115,7 @@ class Hospital {
   String toString() {
     return 'Hospital: id=$id, username=$username, password=$password, role=$role, profileVisible=$profileVisible';
   }
+  
 }
 
 class DutySlotForDisplay {
