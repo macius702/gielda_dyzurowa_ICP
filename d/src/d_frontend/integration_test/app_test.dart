@@ -96,7 +96,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await waitForSnackBarToAppearAndDisappear(
-        'Async action in progress...', tester, '1');
+        'Registration in progress...', tester, '1');
 
     // 7. Click on Drawer : Show users
     await tester.tap(find.byIcon(Icons.menu));
@@ -180,7 +180,7 @@ void main() {
     await tester.pumpAndSettle();
     print('Waiting for snackbar 1');
     await waitForSnackBarToAppearAndDisappear(
-        'Async action in progress...', tester, '4');
+        'Registration in progress...', tester, '4');
 
     // check not logged in
     expect(find.text('Not logged in'), findsOneWidget);

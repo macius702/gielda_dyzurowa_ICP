@@ -65,7 +65,7 @@ abstract class _CounterStore with Store {
       required UserRole role,
       required int? specialty,
       required String? localization}) async {
-    setDisplayedMessage('Async action in progress...');
+    setDisplayedMessage('Registration in progress...');
     Status s = await counter.performRegistration(
         username, password, role, specialty, localization);
     setDisplayedMessage(null);
