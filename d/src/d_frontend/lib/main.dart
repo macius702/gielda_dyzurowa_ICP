@@ -108,12 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Observer(
             builder: (_) {
               print('AppBar counterStore.username: ${counterStore.username}');
-              if (counterStore.async_action_in_progress) {
+              if (counterStore.displayed_message != null) {
                 // If async_action_in_progress is true, show a SnackBar
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Async action in progress...')),
+                    SnackBar(content: Text(counterStore.displayed_message!)),
                   );
                 });
               } else {

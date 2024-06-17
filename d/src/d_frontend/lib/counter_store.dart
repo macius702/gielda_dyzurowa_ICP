@@ -21,7 +21,12 @@ abstract class _CounterStore with Store {
   }
 
   @observable
-  bool async_action_in_progress = false;
+  String? displayed_message = null;
+
+  @action
+  void setDisplayedMessage(String? value) {
+    displayed_message = value;
+  }
 
   @observable
   ObservableList<String> usernames = ObservableList<String>();
@@ -60,29 +65,29 @@ abstract class _CounterStore with Store {
       required UserRole role,
       required int? specialty,
       required String? localization}) async {
-    async_action_in_progress = true;
+    setDisplayedMessage('Async action in progress...');
     Status s = await counter.performRegistration(
         username, password, role, specialty, localization);
-    async_action_in_progress = false;
+    setDisplayedMessage(null);
     return s;
   }
 
   @action
   Future<Status> performLogin(
       {required String username, required String password}) async {
-    async_action_in_progress = true;
+    setDisplayedMessage('Async action in progress...');
     Status s = await counter.performLogin(username, password);
     setUsername(username);
-    async_action_in_progress = false;
+    setDisplayedMessage(null);
     return s;
   }
 
   @action
   Future<Status> performLogout() async {
     setUsername(null);
-    async_action_in_progress = true;
+    setDisplayedMessage('Async action in progress...');
     Status s = await counter.performLogout();
-    async_action_in_progress = false;
+    setDisplayedMessage(null);
     return s;
   }
 
@@ -94,9 +99,9 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> deleteMe() async {
     setUsername(null);
-    async_action_in_progress = true;
+    setDisplayedMessage('Async action in progress...');
     Status s = await counter.deleteMe();
-    async_action_in_progress = false;
+    setDisplayedMessage(null);
     return s;
   }
 
@@ -110,7 +115,7 @@ abstract class _CounterStore with Store {
       required TimeOfDay startTime,
       required DateTime endDate,
       required TimeOfDay endTime}) async {
-    async_action_in_progress = true;
+    setDisplayedMessage('Async action in progress...');
     Status s = await counter.publishDutySlot(
       specialty: Specialty(
           id: specialties.indexOf(specialty).toString(), name: specialty),
@@ -122,15 +127,15 @@ abstract class _CounterStore with Store {
       endDate: endDate,
       endTime: endTime,
     );
-    async_action_in_progress = false;
+    setDisplayedMessage(null);
     return s;
   }
 
   @action
   Future<Status> remove_duty_slot(String id) async {
-    async_action_in_progress = true;
+    setDisplayedMessage('Async action in progress...');
     Status s = await counter.remove_duty_slot(id);
-    async_action_in_progress = false;
+    setDisplayedMessage(null);
     return s;
   }
 }
