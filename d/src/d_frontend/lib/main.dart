@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final Map<Page, Widget> _widgetOptions = {
       Page.register: RegisterForm(
           key: const Key('registerForm'),
-          onTap: () => _onItemTapped(Page.showUsers)),
+          onTap: () => _onItemTapped(Page.login)),
       Page.login: LoginForm(),
       Page.showUsers: ShowUsernamesBody(),
       Page.nic: const Text('NIC', style: optionStyle),
