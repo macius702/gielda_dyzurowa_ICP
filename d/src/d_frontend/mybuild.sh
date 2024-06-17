@@ -38,6 +38,7 @@ else
 fi
 
 dart format *.dart integration_test/*.dart lib/*.dart
+# dart format dart format --line-length 80 *.dart integration_test/*.dart lib/*.dart
 
 # dfx stop
 # dfx start --clean --background &
