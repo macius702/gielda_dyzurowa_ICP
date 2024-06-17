@@ -11,12 +11,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   Future<void> waitForSnackBarToAppearAndDisappear(
-      WidgetTester tester, String label) async {
+      String message, WidgetTester tester, String label) async {
     bool isSnackBarDisplayed = false;
 
     // Wait for the SnackBar to appear
     while (!isSnackBarDisplayed) {
-      final snackBarFinder = find.text('Async action in progress...');
+      final snackBarFinder = find.text(message);
       if (tester.widgetList(snackBarFinder).isNotEmpty) {
         isSnackBarDisplayed = true;
         print(
@@ -30,7 +30,7 @@ void main() {
 
     // Wait for the SnackBar to disappear
     while (isSnackBarDisplayed) {
-      final snackBarFinder = find.text('Async action in progress...');
+      final snackBarFinder = find.text(message);
       if (tester.widgetList(snackBarFinder).isEmpty) {
         isSnackBarDisplayed = false;
         print(
@@ -95,7 +95,8 @@ void main() {
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
 
-    await waitForSnackBarToAppearAndDisappear(tester, '1');
+    await waitForSnackBarToAppearAndDisappear(
+        'Async action in progress...', tester, '1');
 
     // 7. Click on Drawer : Show users
     await tester.tap(find.byIcon(Icons.menu));
@@ -119,7 +120,8 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(tester, '2');
+    await waitForSnackBarToAppearAndDisappear(
+        'Async action in progress...', tester, '2');
 
     expect(find.text(username), findsOneWidget);
     // 8. Delete user
@@ -128,7 +130,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete Me'));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(tester, '3');
+    await waitForSnackBarToAppearAndDisappear(
+        'Async action in progress...', tester, '3');
 
     // 9. Check if user is deleted
     expect(find.text(username), findsNothing);
@@ -176,7 +179,8 @@ void main() {
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
     print('Waiting for snackbar 1');
-    await waitForSnackBarToAppearAndDisappear(tester, '4');
+    await waitForSnackBarToAppearAndDisappear(
+        'Async action in progress...', tester, '4');
 
     // check not logged in
     expect(find.text('Not logged in'), findsOneWidget);
@@ -190,7 +194,8 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(tester, '5');
+    await waitForSnackBarToAppearAndDisappear(
+        'Async action in progress...', tester, '5');
 
     // 4. Check if the appbar text changed from Not logged in to logged as H...
     expect(find.text('Logged in as $username'), findsOneWidget);
@@ -201,7 +206,7 @@ void main() {
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
     //print('Waiting for snackbar 2');
-    //await waitForSnackBarToAppearAndDisappear(tester, '6');
+    //await waitForSnackBarToAppearAndDisappear('Async action in progress...', tester, '6');
 
     // 6. Check that appbar text is not logged in
     expect(find.text('Not logged in'), findsOneWidget);
@@ -215,10 +220,11 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(tester, '8');
+    await waitForSnackBarToAppearAndDisappear(
+        'Async action in progress...', tester, '8');
 
     // print('Waiting for snackbar 3');
-    // await waitForSnackBarToAppearAndDisappear(tester, '7');
+    // await waitForSnackBarToAppearAndDisappear('Async action in progress...', tester, '7');
     expect(find.text(username), findsOneWidget);
 
     // 8. Delete user
