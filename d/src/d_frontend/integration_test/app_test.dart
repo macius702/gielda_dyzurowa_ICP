@@ -18,56 +18,10 @@ void main() {
     // Launch the app
     await initializeApp(tester);
 
-    // 2. Click Register on Drawer
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Register'));
-    await tester.pumpAndSettle();
-
-    // 3. Fill user
     final username = role == 'doctor' ? 'D1' : 'H1';
-    await tester.enterText(find.byKey(Key('usernameField')), username);
-    await tester.enterText(find.byKey(Key('passwordField')), 'password');
+    await register(tester, username, role, specialty: specialty, localization: localization);
 
-    // 4. Click Select role
-    await tester.tap(find.byKey(Key('roleDropdown')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(role).last);
-    await tester.pumpAndSettle();
-
-    if (role == 'doctor') {
-      // 5a Select specialty
-      await tester.tap(find.byKey(Key('specialtyDropdown')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(specialty).last);
-      await tester.pumpAndSettle();
-
-      // 5b fill in localization
-      await tester.enterText(
-          find.byKey(Key('localizationField')), localization);
-      await tester.pumpAndSettle();
-    }
-
-    // 6. Click register
-    await tester.tap(find.byKey(Key('registerButton')));
-    await tester.pumpAndSettle();
-
-    await waitForText(
-        'Login', tester, '1');
-
-    // 7. Click on Drawer : Show users
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Show Users'));
-    await tester.pumpAndSettle();
-
-    final finder = find.text(username);
-
-    await tester.scrollUntilVisible(finder, 300.0);
-    await tester.pumpAndSettle();
-
-    expect(finder, findsOneWidget);
-
+ 
     //  Login the user
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
@@ -219,4 +173,55 @@ Future<CounterStore> initializeApp(WidgetTester tester) async {
   );
 
   return counterStore;
+}
+
+Future<void> register(WidgetTester tester, String username, String role, {String? specialty, String? localization}) async {
+  // 2. Click Register on Drawer
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Register'));
+  await tester.pumpAndSettle();
+
+  // 3. Fill user
+  await tester.enterText(find.byKey(Key('usernameField')), username);
+  await tester.enterText(find.byKey(Key('passwordField')), 'password');
+
+  // 4. Click Select role
+  await tester.tap(find.byKey(Key('roleDropdown')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(role).last);
+  await tester.pumpAndSettle();
+
+  if (role == 'doctor') {
+    // 5a Select specialty
+    await tester.tap(find.byKey(Key('specialtyDropdown')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(specialty!).last);
+    await tester.pumpAndSettle();
+
+    // 5b fill in localization
+    await tester.enterText(find.byKey(Key('localizationField')), localization!);
+    await tester.pumpAndSettle();
+  }
+
+  // 6. Click register
+  await tester.tap(find.byKey(Key('registerButton')));
+  await tester.pumpAndSettle();
+
+  await waitForText('Login', tester, '1');
+
+
+  // 7. Click on Drawer : Show users
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Show Users'));
+  await tester.pumpAndSettle();
+
+  final finder = find.text(username);
+
+  await tester.scrollUntilVisible(finder, 300.0);
+  await tester.pumpAndSettle();
+
+  expect(finder, findsOneWidget);
+
 }
