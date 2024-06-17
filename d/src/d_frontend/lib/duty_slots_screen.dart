@@ -100,10 +100,14 @@ class DutySlotsBody extends StatelessWidget {
                       onSelected: (String value) {
                         switch (value) {
                           case 'Accept':
-                            // Accept action
+                            print(
+                                'Accept action on value: ${counterStore.duty_slots[index]}');
                             break;
                           case 'Remove':
-                            // Remove action
+                            print(
+                                'Remove action on value: ${counterStore.duty_slots[index].id}');
+                            counterStore.remove_duty_slot(
+                                counterStore.duty_slots[index].id);
                             break;
                         }
                       },

@@ -125,4 +125,12 @@ abstract class _CounterStore with Store {
     async_action_in_progress = false;
     return s;
   }
+
+  @action
+  Future<Status> remove_duty_slot(String id) async {
+    async_action_in_progress = true;
+    Status s = await counter.remove_duty_slot(id);
+    async_action_in_progress = false;
+    return s;
+  }
 }
