@@ -95,8 +95,8 @@ void main() {
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
 
-    await waitForSnackBarToAppearAndDisappear(
-        'Registration in progress...', tester, '1');
+    await waitForText(
+        'Login', tester, '1');
 
     // 7. Click on Drawer : Show users
     await tester.tap(find.byIcon(Icons.menu));
@@ -120,18 +120,19 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(
-        'Login in progress...', tester, '2');
 
-    expect(find.text(username), findsOneWidget);
+    //wait untill the NIC page is loaded
+    await waitForText('NIC', tester, '11');
+
+    expect(find.text('Logged in as $username'), findsOneWidget);
     // 8. Delete user
     // Click Delete Me on Drawer
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete Me'));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(
-        'Async action in progress...', tester, '3');
+    await waitForText(
+        'Delete Me', tester, '3');
 
     // 9. Check if user is deleted
     expect(find.text(username), findsNothing);
@@ -164,7 +165,7 @@ void main() {
       ),
     );
 
-    // 2. Register a hoiptal user
+    // 2. Register a hospital user
     final username = 'H2';
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
@@ -179,8 +180,8 @@ void main() {
     await tester.tap(find.byKey(Key('registerButton')));
     await tester.pumpAndSettle();
     print('Waiting for snackbar 1');
-    await waitForSnackBarToAppearAndDisappear(
-        'Registration in progress...', tester, '4');
+    await waitForText(
+        'Login', tester, '4');
 
     // check not logged in
     expect(find.text('Not logged in'), findsOneWidget);
@@ -194,8 +195,8 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(
-        'Login in progress...', tester, '5');
+
+    await waitForText('NIC', tester, '12');
 
     // 4. Check if the appbar text changed from Not logged in to logged as H...
     expect(find.text('Logged in as $username'), findsOneWidget);
@@ -220,12 +221,10 @@ void main() {
     await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
-    await waitForSnackBarToAppearAndDisappear(
-        'Login in progress...', tester, '8');
 
-    // print('Waiting for snackbar 3');
-    // await waitForSnackBarToAppearAndDisappear('Async action in progress...', tester, '7');
-    expect(find.text(username), findsOneWidget);
+    await waitForText('NIC', tester, '13');
+
+    expect(find.text('Logged in as $username'), findsOneWidget);
 
     // 8. Delete user
     // Click Delete Me on Drawer
@@ -235,3 +234,29 @@ void main() {
     await tester.pumpAndSettle();
   });
 }
+
+// from https://github.com/flutter/flutter/issues/88765#issuecomment-1253639461
+Future<void> waitFor(
+  WidgetTester tester,
+  Finder finder, {
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final end = tester.binding.clock.now().add(timeout);
+
+  do {
+    if (tester.binding.clock.now().isAfter(end)) {
+      throw Exception('Timed out waiting for $finder');
+    }
+
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(milliseconds: 100));
+  } while (finder.evaluate().isEmpty);
+}
+
+  Future<void> waitForText(
+      String message, WidgetTester tester, String label) async {
+    print('$label Waiting for text: $message');
+    final snackBarFinder = find.text(message);
+    await waitFor(tester, snackBarFinder);
+    print('$label Found text: $message');
+  }

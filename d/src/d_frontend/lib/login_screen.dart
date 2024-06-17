@@ -12,6 +12,13 @@ class LoginForm extends StatelessWidget {
   final LoginStore loginStore = LoginStore();
   String errorMessage = '';
   bool showError = false;
+  final VoidCallback onTap;
+
+  // ignore: use_super_parameters
+  LoginForm({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,8 @@ class LoginForm extends StatelessWidget {
           ),
           ElevatedButton(
             key: const Key('loginButton'),
-            onPressed: () => onPressed(context, counterStore, loginStore),
+            onPressed: () =>
+                onPressed(context, counterStore, loginStore, onTap),
             child: const Text('Login'),
           ),
         ],
@@ -47,19 +55,22 @@ class LoginForm extends StatelessWidget {
   }
 }
 
-void onPressed(
-    BuildContext context, CounterStore counterStore, LoginStore loginStore) {
+void onPressed(BuildContext context, CounterStore counterStore,
+    LoginStore loginStore, VoidCallback onTap) {
   if (loginStore.username.isEmpty || loginStore.password.isEmpty) {
     showSnackBar(context, "Username and  password are mandatory");
   } else {
-    performLogin(context, counterStore, loginStore);
+    performLogin(context, counterStore, loginStore, onTap);
   }
 }
 
 Future<void> performLogin(BuildContext context, CounterStore counterStore,
-    LoginStore loginStore) async {
-  Status value = await counterStore.performLogin(
+    LoginStore loginStore, VoidCallback onTap) async {
+  Status status = await counterStore.performLogin(
       username: loginStore.username, password: loginStore.password);
+  if (status.is_success()) {
+    onTap();
+  }
 }
 
 void showSnackBar(BuildContext context, String message) {

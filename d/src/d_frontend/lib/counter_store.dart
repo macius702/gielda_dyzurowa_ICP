@@ -25,6 +25,7 @@ abstract class _CounterStore with Store {
 
   @action
   void setDisplayedMessage(String? value) {
+    print('Setting displayed message to: $value');
     displayed_message = value;
   }
 

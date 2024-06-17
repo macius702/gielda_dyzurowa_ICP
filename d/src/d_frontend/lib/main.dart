@@ -89,7 +89,8 @@ class _MyHomePageState extends State<MyHomePage> {
       Page.register: RegisterForm(
           key: const Key('registerForm'),
           onTap: () => _onItemTapped(Page.login)),
-      Page.login: LoginForm(),
+      Page.login: LoginForm(
+          key: const Key('loginForm'), onTap: () => _onItemTapped(Page.nic)),
       Page.showUsers: ShowUsernamesBody(),
       Page.nic: const Text('NIC', style: optionStyle),
       Page.logout:
@@ -111,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (counterStore.displayed_message != null) {
                 // If async_action_in_progress is true, show a SnackBar
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  print('Showing SnackBar: ${counterStore.displayed_message}');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(counterStore.displayed_message!)),
                   );
@@ -118,6 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
               } else {
                 // If async_action_in_progress is false, hide the SnackBar
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  print('Hiding current SnackBar');
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 });
               }
