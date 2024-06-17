@@ -76,7 +76,7 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> performLogin(
       {required String username, required String password}) async {
-    setDisplayedMessage('Async action in progress...');
+    setDisplayedMessage('Login in progress...');
     Status s = await counter.performLogin(username, password);
     setUsername(username);
     setDisplayedMessage(null);

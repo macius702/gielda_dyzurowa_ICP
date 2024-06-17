@@ -121,7 +121,7 @@ void main() {
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
     await waitForSnackBarToAppearAndDisappear(
-        'Async action in progress...', tester, '2');
+        'Login in progress...', tester, '2');
 
     expect(find.text(username), findsOneWidget);
     // 8. Delete user
@@ -195,7 +195,7 @@ void main() {
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
     await waitForSnackBarToAppearAndDisappear(
-        'Async action in progress...', tester, '5');
+        'Login in progress...', tester, '5');
 
     // 4. Check if the appbar text changed from Not logged in to logged as H...
     expect(find.text('Logged in as $username'), findsOneWidget);
@@ -221,7 +221,7 @@ void main() {
     await tester.tap(find.byKey(Key('loginButton')));
     await tester.pumpAndSettle();
     await waitForSnackBarToAppearAndDisappear(
-        'Async action in progress...', tester, '8');
+        'Login in progress...', tester, '8');
 
     // print('Waiting for snackbar 3');
     // await waitForSnackBarToAppearAndDisappear('Async action in progress...', tester, '7');
