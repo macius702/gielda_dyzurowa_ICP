@@ -294,6 +294,23 @@ fn insert_user_internal(value: User) -> u32 {
     println!("Entering function insert_user");
     println!("Inserting user: {:?}", value);
 
+    let mut user_exists = false;
+
+    USER_MAP.with(|p| {
+        let map = p.borrow();
+        for (_, v) in map.iter() {
+            if v.username.eq_ignore_ascii_case(&value.username) {
+                println!("User already exists, not inserting");
+                user_exists = true;
+                break;
+            }
+        }
+    });
+
+    if user_exists {
+        return 0;
+    }
+
     let key = NEXT_USER_KEY.with(|k| {
         let key = *k.borrow();
         println!("Current key: {}", key);

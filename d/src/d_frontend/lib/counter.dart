@@ -197,10 +197,11 @@ class Counter {
         mtlk_print("response: ${response.statusCode}");
         mtlk_print("response: ${response.headers}");
 
-        // If the server returns an unexpected response,
-        // then throw an exception.
+        // Assuming response is of type http.Response
+        var responseBody = jsonDecode(response.body);
+        var message = responseBody['message'];
         return Error(
-            'Failed to register user with status code ${response.statusCode}');
+            'Failed to register user with status code ${response.statusCode} and message: $message ');
       }
     } catch (e) {
       mtlk_print("Caught error: $e");

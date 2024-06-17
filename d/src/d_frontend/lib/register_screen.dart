@@ -108,14 +108,16 @@ Future<void> performRegistration(
   int specialtyIndex =
       counterStore.specialties.indexOf(registerStore.specialty ?? '');
 
-  onTap();
-  Status value = await counterStore.performRegistration(
+  Status status = await counterStore.performRegistration(
     username: registerStore.username,
     password: registerStore.password,
     role: roleEnum,
     specialty: specialtyIndex == -1 ? null : specialtyIndex,
     localization: registerStore.localization,
   );
+  if (status.is_success()) {
+    onTap();
+  }
 }
 
 void showSnackBar(BuildContext context, String message) {

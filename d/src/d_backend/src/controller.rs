@@ -308,6 +308,19 @@ pub(crate) fn setup() -> Router {
         println!("Parsed user: {:?}", user); // Debug print
         let key = insert_user_internal(user);
         println!("Inserted user with key: {:?}", key); // Debug print
+        
+        if key == 0 {
+            return Ok(HttpResponse {
+                status_code: 400,
+                headers: HashMap::new(),
+                body: json!({
+                    "statusCode": 400,
+                    "message": "Cannot register a new user, the user already exists"
+                })
+                .into(),
+            });
+        }
+
         Ok(HttpResponse {
             status_code: 200,
             headers: HashMap::new(),

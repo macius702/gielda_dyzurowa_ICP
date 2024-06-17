@@ -1,6 +1,10 @@
 import 'package:decimal/decimal.dart';
 
 abstract class Status {
+  bool is_success() {
+    return true;
+  }
+
   String getString();
   String getMessage() {
     return getString();
@@ -44,6 +48,11 @@ class GetUserDataResponse extends Response {
 }
 
 class ExceptionalFailure extends Status {
+  @override
+  bool is_success() {
+    return false;
+  }
+
   String message;
 
   // Response constructor with optional positional argument : message
@@ -61,6 +70,11 @@ class ExceptionalFailure extends Status {
 }
 
 class Error extends Status {
+  @override
+  bool is_success() {
+    return false;
+  }
+
   String message;
 
   Error([this.message = 'Error']);
