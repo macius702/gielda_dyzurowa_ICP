@@ -15,21 +15,104 @@ class DutySlotsBody extends StatelessWidget {
 
     return Observer(
       builder: (_) {
-        return ListView.builder(
-          itemCount: counterStore.duty_slots.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Hospital: ${counterStore.duty_slots[index].hospitalId.username}'),
-                  Text('Specialty: ${counterStore.duty_slots[index].requiredSpecialty.name}'),
-                  Text('Start Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(counterStore.duty_slots[index].startDateTime))}'),
-                  Text('Price From: ${counterStore.duty_slots[index].priceFrom}'),
-                  Text('Price To: ${counterStore.duty_slots[index].priceTo}'),
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const <DataColumn>[
+              DataColumn(
+                label: Text(
+                  'Hospital',
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Specialty',
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Start Date',
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Price From',
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Price To',
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Actions',
+                ),
+              ),
+            ],
+            rows: List<DataRow>.generate(
+              counterStore.duty_slots.length,
+              (int index) => DataRow(
+                cells: <DataCell>[
+                  DataCell(
+                    Text(
+                      '${counterStore.duty_slots[index].hospitalId.username}',
+                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      '${counterStore.duty_slots[index].requiredSpecialty.name}',
+                      style: TextStyle(color: Colors.green, fontSize: 16),
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      '${DateFormat('yyyy-MM-dd').format(DateTime.parse(counterStore.duty_slots[index].startDateTime))}',
+                      style: TextStyle(color: Colors.red, fontSize: 16),
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      '${counterStore.duty_slots[index].priceFrom}',
+                      style: TextStyle(color: Colors.purple, fontSize: 16),
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      '${counterStore.duty_slots[index].priceTo}',
+                      style: TextStyle(color: Colors.orange, fontSize: 16),
+                    ),
+                  ),
+                  DataCell(
+                    PopupMenuButton<String>(
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'Accept',
+                          child: Text('Accept'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Remove',
+                          child: Text('Remove'),
+                        ),
+                      ],
+                      onSelected: (String value) {
+                        switch (value) {
+                          case 'Accept':
+                            // Accept action
+                            break;
+                          case 'Remove':
+                            // Remove action
+                            break;
+                        }
+                      },
+                    ),
+                  ),
                 ],
-              ),            );
-          },
+              ),
+            ),
+          ),
         );
       },
     );
