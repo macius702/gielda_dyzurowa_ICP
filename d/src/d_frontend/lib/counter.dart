@@ -190,7 +190,7 @@ class Counter {
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response,
         // then parse the JSON.
-        return Response();
+        return Response('Registration successful.');
       } else {
         // print more on response
         mtlk_print("response: ${response.body}");
@@ -199,11 +199,13 @@ class Counter {
 
         // If the server returns an unexpected response,
         // then throw an exception.
-        throw Exception('Failed to register user');
+        return Error(
+            'Failed to register user with status code ${response.statusCode}');
       }
     } catch (e) {
       mtlk_print("Caught error: $e");
-      return Future.error(e);
+      return ExceptionalFailure(
+          'Exceptional failure occurred during registration. with error: $e');
     }
   }
 

@@ -2,6 +2,9 @@ import 'package:decimal/decimal.dart';
 
 abstract class Status {
   String getString();
+  String getMessage() {
+    return getString();
+  }
 
   void handleError() {
     print(getString());
@@ -10,10 +13,14 @@ abstract class Status {
 
 class Response extends Status {
   // Response implementation
+  String message;
+
+  // Response constructor with optional positional argument : message
+  Response([this.message = 'Response']);
 
   @override
   String getString() {
-    return 'Response';
+    return message;
   }
 }
 
@@ -36,10 +43,15 @@ class GetUserDataResponse extends Response {
   }
 }
 
-class ExceptionalFailure implements Status {
+class ExceptionalFailure extends Status {
+  String message;
+
+  // Response constructor with optional positional argument : message
+  ExceptionalFailure([this.message = 'ExceptionalFailure']);
+
   @override
   String getString() {
-    return 'ExceptionalFailure';
+    return message;
   }
 
   @override
@@ -48,10 +60,14 @@ class ExceptionalFailure implements Status {
   }
 }
 
-class Error implements Status {
+class Error extends Status {
+  String message;
+
+  Error([this.message = 'Error']);
+
   @override
   String getString() {
-    return 'Error';
+    return message;
   }
 
   @override
