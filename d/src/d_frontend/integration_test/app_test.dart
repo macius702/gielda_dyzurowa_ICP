@@ -21,32 +21,11 @@ void main() {
     final username = role == 'doctor' ? 'D1' : 'H1';
     await register(tester, username, role, specialty: specialty, localization: localization);
 
- 
-    //  Login the user
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Login'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(Key('loginUsernameField')), username);
-    await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
-    await tester.tap(find.byKey(Key('loginButton')));
-    await tester.pumpAndSettle();
+    await login(tester, username);
 
-    //wait untill the NIC page is loaded
-    await waitForText('NIC', tester, '11');
+    await deleteUser(tester, username);
 
-    expect(find.text('Logged in as $username'), findsOneWidget);
-    // 8. Delete user
-    // Click Delete Me on Drawer
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Delete Me'));
-    await tester.pumpAndSettle();
-    await waitForText(
-        'Delete Me', tester, '3');
 
-    // 9. Check if user is deleted
-    expect(find.text(username), findsNothing);
   }
 
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
@@ -224,4 +203,33 @@ Future<void> register(WidgetTester tester, String username, String role, {String
 
   expect(finder, findsOneWidget);
 
+}
+
+Future<void> login(WidgetTester tester, String username) async {
+  // Login the user
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Login'));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byKey(Key('loginUsernameField')), username);
+  await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
+  await tester.tap(find.byKey(Key('loginButton')));
+  await tester.pumpAndSettle();
+
+  // Wait until the NIC page is loaded
+  await waitForText('NIC', tester, '11');
+
+  expect(find.text('Logged in as $username'), findsOneWidget);
+}
+
+Future<void> deleteUser(WidgetTester tester, String username) async {
+  // Delete the user
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Delete Me'));
+  await tester.pumpAndSettle();
+  await waitForText('Delete Me', tester, '3');
+
+  // Check if user is deleted
+  expect(find.text(username), findsNothing);
 }
