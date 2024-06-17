@@ -10,56 +10,13 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<void> waitForSnackBarToAppearAndDisappear(
-      String message, WidgetTester tester, String label) async {
-    bool isSnackBarDisplayed = false;
-
-    // Wait for the SnackBar to appear
-    while (!isSnackBarDisplayed) {
-      final snackBarFinder = find.text(message);
-      if (tester.widgetList(snackBarFinder).isNotEmpty) {
-        isSnackBarDisplayed = true;
-        print(
-            '$label Wait for the SnackBar to appear: The SnackBar is currently being displayed');
-      } else {
-        print(
-            '$label Wait for the SnackBar to appear: The SnackBar is not currently being displayed');
-        await tester.pump(Duration(seconds: 1));
-      }
-    }
-
-    // Wait for the SnackBar to disappear
-    while (isSnackBarDisplayed) {
-      final snackBarFinder = find.text(message);
-      if (tester.widgetList(snackBarFinder).isEmpty) {
-        isSnackBarDisplayed = false;
-        print(
-            '$label Wait for the SnackBar to disappear: The SnackBar is not currently being displayed');
-      } else {
-        print(
-            '$label Wait for the SnackBar to disappear: The SnackBar is currently being displayed');
-        await tester.pump(Duration(seconds: 1));
-      }
-    }
-  }
-
+  
   Future<void> runTest(WidgetTester tester, String role, String specialty,
       String localization) async {
-    // 1. Launch the app
-    WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize the CounterStore
-    final counter = await initCounter();
-    final counterStore = CounterStore(counter);
-    await counterStore.setup_specialties();
 
     // Launch the app
-    await tester.pumpWidget(
-      Provider<CounterStore>.value(
-        value: counterStore,
-        child: MyApp(),
-      ),
-    );
+    await initializeApp(tester);
 
     // 2. Click Register on Drawer
     await tester.tap(find.byIcon(Icons.menu));
@@ -147,23 +104,9 @@ void main() {
   });
 
   testWidgets('Login and Logout Test', (WidgetTester tester) async {
-    // 1. Launch the app
-    WidgetsFlutterBinding.ensureInitialized();
-
-    // Initialize the CounterStore
-    final counter = await initCounter();
-    final counterStore = CounterStore(counter);
-    await counterStore.setup_specialties();
-
-    await tester.pumpAndSettle();
 
     // Launch the app
-    await tester.pumpWidget(
-      Provider<CounterStore>.value(
-        value: counterStore,
-        child: MyApp(),
-      ),
-    );
+    await initializeApp(tester);
 
     // 2. Register a hospital user
     final username = 'H2';
@@ -206,8 +149,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
-    //print('Waiting for snackbar 2');
-    //await waitForSnackBarToAppearAndDisappear('Async action in progress...', tester, '6');
 
     // 6. Check that appbar text is not logged in
     expect(find.text('Not logged in'), findsOneWidget);
@@ -253,10 +194,29 @@ Future<void> waitFor(
   } while (finder.evaluate().isEmpty);
 }
 
-  Future<void> waitForText(
-      String message, WidgetTester tester, String label) async {
-    print('$label Waiting for text: $message');
-    final snackBarFinder = find.text(message);
-    await waitFor(tester, snackBarFinder);
-    print('$label Found text: $message');
-  }
+Future<void> waitForText(
+    String message, WidgetTester tester, String label) async {
+  print('$label Waiting for text: $message');
+  final snackBarFinder = find.text(message);
+  await waitFor(tester, snackBarFinder);
+  print('$label Found text: $message');
+}
+
+Future<CounterStore> initializeApp(WidgetTester tester) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the CounterStore
+  final counter = await initCounter();
+  final counterStore = CounterStore(counter);
+  await counterStore.setup_specialties();
+
+  // Launch the app
+  await tester.pumpWidget(
+    Provider<CounterStore>.value(
+      value: counterStore,
+      child: MyApp(),
+    ),
+  );
+
+  return counterStore;
+}
