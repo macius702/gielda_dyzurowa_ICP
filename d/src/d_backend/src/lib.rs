@@ -343,17 +343,37 @@ fn insert_user_internal(value: User) -> u32 {
 }
 
 fn delete_user_internal(key: u32) {
+    // handle warning on deleting  dependant duty slots - mtlk todo
+    //handling assigned_doctor_id - mtlk todo
+
+    //first delete dependent data from MAP, which is when DutySlot hospitalId is equal to key
+    MAP.with(|p| {
+        let keys = p
+            .borrow()
+            .iter()
+            .filter_map(|(k, v)| {
+                if v.hospital_id == key {
+                    Some(k.clone())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<u32>>();
+        for key in keys {
+            p.borrow_mut().remove(&key);
+        }
+    });
+
+
     USER_MAP.with(|p| {
         p.borrow_mut().remove(&key);
     });
 }
 
-
 #[ic_cdk_macros::update]
-fn delete_all_users () {
+fn delete_all_users() {
     delete_all_users_internal();
 }
-
 
 fn delete_all_users_internal() {
     //remove items one by one
