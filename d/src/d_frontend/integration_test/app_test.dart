@@ -43,47 +43,58 @@ void main() {
   testWidgets('Publish duty slots', (WidgetTester tester) async {
     await initializeApp(tester);
 
-    const username = 'H3';
-    // await login(tester, username);
-    // await deleteUser(tester, username);
+    // H1 user adds his entry
+    const hospital1 = 'H1';
+    await register(tester, hospital1, 'hospital');
+    await login(tester, hospital1);
+    await publishDutySlot(
+        tester, hospital1, 'Chirurgia naczyniowa', '100', '200');
+    await logout(tester);
 
-    await register(tester, username, 'hospital');
-    await login(tester, username);
+    // H2 user adds his entry
+    const hospital2 = 'H2';
+    await register(tester, hospital2, 'hospital');
+    await login(tester, hospital2);
+    await publishDutySlot(tester, hospital2, 'Angiologia', '150', '250');
 
+    // check both entries are present
+    expect(find.text(hospital1), findsOneWidget);
+    expect(find.text('Angiologia'), findsOneWidget);
+    expect(find.text(hospital2), findsOneWidget);
+    expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
+
+    // Delete user H2 and his entries
+    await deleteUser(tester, hospital2);
+
+    // open Duty Slots Page
+    await login(tester, hospital1);
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Publish Duty Slot'));
+    await tester.tap(find.text('Duty Slots'));
     await tester.pumpAndSettle();
+    await waitForText('Hospital', tester, '44');
 
-    await waitForTextAndType('Publish Duty Slot', ElevatedButton, tester, '1');
+    // Check that only H1 entries remain
+    expect(find.text(hospital1), findsOneWidget);
+    expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
+    expect(find.text(hospital2), findsNothing);
+    expect(find.text('Angiologia'), findsNothing);
 
-    final dropdownFinder =
-        find.byKey(const Key('specialtyDropdownInPublishDutySlot'));
-    await tester.tap(dropdownFinder);
-    await tester.pumpAndSettle();
-    final chirurgiaNaczyniowaFinder = find.text('Chirurgia naczyniowa');
-    await tester.tap(chirurgiaNaczyniowaFinder);
-    await tester.pumpAndSettle();
+    // Delete user H1 as well along with his entries
+    await deleteUser(tester, hospital1);
 
-// mtlk todo Verify that the dropdown button now displays 'Chirurgia naczyniowa'
-    // expect(find.widgetWithText(DropdownButton, 'Chirurgia naczyniowa'),
-    //     findsOneWidget);
+    // We have to be logged in as someone
+    const hospital3 = 'H3';
+    await register(tester, hospital3, 'hospital');
+    await login(tester, hospital3);
 
-    final priceFromFieldFinder =
-        find.widgetWithText(TextFormField, 'Price From');
-    await tester.enterText(priceFromFieldFinder, '100');
+    // to check that no previous entries remain
+    expect(find.text(hospital1), findsNothing);
+    expect(find.text('Angiologia'), findsNothing);
+    expect(find.text(hospital2), findsNothing);
+    expect(find.text('Chirurgia naczyniowa'), findsNothing);
 
-    final priceToFieldFinder = find.widgetWithText(TextFormField, 'Price To');
-    await tester.enterText(priceToFieldFinder, '200');
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(Key('publishDutySlotButton')));
-
-    // Wait for page Duty slots that happens to contai text 'Hospital'
-    await waitForText('Hospital', tester, '4');
-
-    await deleteUser(tester, 'H1');
+    await deleteUser(tester, hospital3);
   });
 }
 
@@ -213,6 +224,7 @@ Future<void> login(WidgetTester tester, String username) async {
 }
 
 Future<void> deleteUser(WidgetTester tester, String username) async {
+  expect(find.text('Logged in as $username'), findsOneWidget);
   // Delete the user
   await tester.tap(find.byIcon(Icons.menu));
   await tester.pumpAndSettle();
@@ -221,7 +233,7 @@ Future<void> deleteUser(WidgetTester tester, String username) async {
   await waitForText('Delete Me', tester, '3');
 
   // Check if user is deleted
-  expect(find.text(username), findsNothing);
+  expect(find.text('Not logged in'), findsOneWidget);
 }
 
 Future<void> logout(WidgetTester tester) async {
@@ -233,4 +245,37 @@ Future<void> logout(WidgetTester tester) async {
 
   // Check if user is logged out
   expect(find.text('Not logged in'), findsOneWidget);
+}
+
+Future<void> publishDutySlot(WidgetTester tester, String username,
+    String specialty, String priceFrom, String priceTo) async {
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Publish Duty Slot'));
+  await tester.pumpAndSettle();
+
+  await waitForTextAndType('Publish Duty Slot', ElevatedButton, tester, '1');
+
+  final dropdownFinder =
+      find.byKey(const Key('specialtyDropdownInPublishDutySlot'));
+  await tester.tap(dropdownFinder);
+  await tester.pumpAndSettle();
+  final specialtyFinder = find.text(specialty);
+  await tester.tap(specialtyFinder);
+  await tester.pumpAndSettle();
+
+  final priceFromFieldFinder = find.widgetWithText(TextFormField, 'Price From');
+  await tester.enterText(priceFromFieldFinder, priceFrom);
+
+  final priceToFieldFinder = find.widgetWithText(TextFormField, 'Price To');
+  await tester.enterText(priceToFieldFinder, priceTo);
+
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byKey(Key('publishDutySlotButton')));
+
+  await waitForText('Hospital', tester, '4');
+
+  expect(find.text(username), findsOneWidget);
+  expect(find.text(specialty), findsOneWidget);
 }
