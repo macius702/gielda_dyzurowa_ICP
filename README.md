@@ -53,6 +53,10 @@ command="curl -X POST -H \"Content-Type: application/json\" -d \"{ \\\"hello\\\"
 
 After running this command in the Docker terminal, you can copy the output and paste it into the host's terminal to execute it.
 
+# Insights
+
+- A discussion of the future of integration_test package vs. flutter driver: https://github.com/flutter/flutter/issues/148028
+
 # TODO according to: https://docs.flutter.dev/cookbook/design/drawer
 
 
