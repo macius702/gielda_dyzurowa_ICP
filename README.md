@@ -60,7 +60,7 @@ After running this command in the Docker terminal, you can copy the output and p
 # TODO according to: https://docs.flutter.dev/cookbook/design/drawer
 
 
-
+- [ ] delete dependant data when delete user
 - [ ] Publish duty slot
 - [x] 2 app_tests.dart - > one for register hospital, one for doctor
 - [x] Prepare body: widgets (forms - h0ome, register, show users) array 

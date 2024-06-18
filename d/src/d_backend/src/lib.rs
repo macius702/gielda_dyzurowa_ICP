@@ -258,6 +258,20 @@ fn get_specialty_by_id(specialty_id: u16) -> types::Specialty {
 }
 
 #[ic_cdk_macros::update]
+fn delete_all_duty_slots() {
+    delete_all_duty_slots_internal();
+}
+
+fn delete_all_duty_slots_internal() {
+    MAP.with(|p| {
+        let keys = p.borrow().iter().map(|(key, _)| key).collect::<Vec<u32>>();
+        for key in keys {
+            p.borrow_mut().remove(&key);
+        }
+    });
+}
+
+#[ic_cdk_macros::update]
 fn insert_duty_slot(value: DutySlot) -> u32 {
     insert_duty_slot_internal(value)
 }
