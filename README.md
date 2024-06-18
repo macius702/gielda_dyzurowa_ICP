@@ -60,8 +60,7 @@ After running this command in the Docker terminal, you can copy the output and p
 # TODO according to: https://docs.flutter.dev/cookbook/design/drawer
 
 
-- [ ] delete dependant data when delete user
-- [ ] Publish duty slot
+- [x] Publish duty slot
 - [x] 2 app_tests.dart - > one for register hospital, one for doctor
 - [x] Prepare body: widgets (forms - h0ome, register, show users) array 
 - [x] Integrate into Drawer
@@ -83,7 +82,9 @@ After running this command in the Docker terminal, you can copy the output and p
 - [ ] In delete user - remove dependant data : duty slots issued if hospital, duty slots acceptances if doctor
 - [ ] flutter integration test - try scrolling to 'Urologia z elementami urologii dziecięcej' instead of Angiologia
 - [ ] Try widget test - it's fast ? according to patrol  https://pub.dev/packages/patrol
+- [ ] delete dependant data when delete user:
 - [ ] in delete_user_internal Rust // handle warning on deleting  dependant duty slots - mtlk todo
 - [ ] in delete_user_internal Rust //handling assigned_doctor_id - mtlk todo
-
+- [ ] Alert Dialog on error - login, etc
+- [ ] green diode in connection, blue in login
 
