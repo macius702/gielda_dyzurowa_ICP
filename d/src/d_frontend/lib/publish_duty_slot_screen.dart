@@ -12,6 +12,14 @@ import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 
 class PublishDutySlotScreen extends StatefulWidget {
+  final VoidCallback onTap;
+
+  // ignore: use_super_parameters
+  PublishDutySlotScreen({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+
   @override
   _PublishDutySlotScreenState createState() => _PublishDutySlotScreenState();
 }
@@ -113,7 +121,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                       ElevatedButton(
                         key: const Key('publishDutySlotButton'),
                         onPressed: () => onPressed(context, counterStore,
-                            publishDutySlotStore), //onTap), mtlk todo
+                            publishDutySlotStore, widget.onTap),
                         child: const Text('Publish Duty Slot'),
                         style: ButtonStyle(
                           shape:
@@ -128,15 +136,10 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                   )),
         ));
   }
-
-  void _submitForm() {
-    // Implement your form submission logic here
-    print(publishDutySlotStore);
-  }
 }
 
 void onPressed(BuildContext context, CounterStore counterStore,
-    PublishDutySlotStore publishDutySlotStore) {
+    PublishDutySlotStore publishDutySlotStore, VoidCallback onTap) {
   if (publishDutySlotStore.selectedSpecialty == null ||
       publishDutySlotStore.selectedSpecialty!.isEmpty) {
     showSnackBar(context, "Specialty is mandatory");
@@ -146,7 +149,7 @@ void onPressed(BuildContext context, CounterStore counterStore,
   } else if (publishDutySlotStore.currency == null) {
     showSnackBar(context, "Currency has to be set");
   } else {
-    performPublishDutySlot(context, counterStore, publishDutySlotStore);
+    performPublishDutySlot(context, counterStore, publishDutySlotStore, onTap);
   }
 }
 
@@ -154,23 +157,20 @@ Future<void> performPublishDutySlot(
   BuildContext context,
   CounterStore counterStore,
   PublishDutySlotStore publishDutySlotStore,
+  VoidCallback onTap,
 ) async {
-  try {
-    Status value = await counterStore.publishDutySlot(
-      specialty: publishDutySlotStore.selectedSpecialty!,
-      priceFrom: int.parse(publishDutySlotStore.priceFrom),
-      priceTo: int.parse(publishDutySlotStore.priceTo),
-      currency: publishDutySlotStore.currency,
-      startDate: publishDutySlotStore.startDate,
-      startTime: publishDutySlotStore.startTime,
-      endDate: publishDutySlotStore.endDate,
-      endTime: publishDutySlotStore.endTime,
-    );
-
-    showSnackBar(context, "Duty slot published successfully");
-    // onTap(); mtlk todo
-  } catch (e) {
-    showSnackBar(context, "Failed to publish duty slot");
+  Status status = await counterStore.publishDutySlot(
+    specialty: publishDutySlotStore.selectedSpecialty!,
+    priceFrom: int.parse(publishDutySlotStore.priceFrom),
+    priceTo: int.parse(publishDutySlotStore.priceTo),
+    currency: publishDutySlotStore.currency,
+    startDate: publishDutySlotStore.startDate,
+    startTime: publishDutySlotStore.startTime,
+    endDate: publishDutySlotStore.endDate,
+    endTime: publishDutySlotStore.endTime,
+  );
+  if (status.is_success()) {
+    onTap();
   }
 }
 

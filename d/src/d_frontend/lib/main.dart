@@ -98,7 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
       Page.getUserData: UserDataForm(),
       Page.deleteMe: const Text(
           'Delete Me'), // This is a placeholder for the delete me screen
-      Page.publishDutySlot: PublishDutySlotScreen(),
+      Page.publishDutySlot: PublishDutySlotScreen(
+          key: const Key('publishDutySlotScreen'),
+          onTap: () => _onItemTapped(Page.dutySlots)),
       Page.dutySlots: DutySlotsBody(),
       Page.quitApp: const Text('Quit App'), // This is a placeholder
     };
