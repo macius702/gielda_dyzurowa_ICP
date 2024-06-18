@@ -60,6 +60,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                     children: <Widget>[
                       // Replace this with your SpecialtyDropdownMenu
                       SpecialtyDropdownMenu(
+                          key: const Key('specialtyDropdownInPublishDutySlot'),
                           specialties: counterStore.specialties,
                           onSelected:
                               publishDutySlotStore.setSelectedSpecialty),

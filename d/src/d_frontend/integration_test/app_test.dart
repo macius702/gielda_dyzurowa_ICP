@@ -39,6 +39,52 @@ void main() {
     await login(tester, username);
     await deleteUser(tester, username);
   });
+
+  testWidgets('Publish duty slots', (WidgetTester tester) async {
+    await initializeApp(tester);
+
+    const username = 'H3';
+    // await login(tester, username);
+    // await deleteUser(tester, username);
+
+    await register(tester, username, 'hospital');
+    await login(tester, username);
+
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Publish Duty Slot'));
+    await tester.pumpAndSettle();
+
+    await waitForTextAndType('Publish Duty Slot', ElevatedButton, tester, '1');
+
+    final dropdownFinder =
+        find.byKey(const Key('specialtyDropdownInPublishDutySlot'));
+    await tester.tap(dropdownFinder);
+    await tester.pumpAndSettle();
+    final chirurgiaNaczyniowaFinder = find.text('Chirurgia naczyniowa');
+    await tester.tap(chirurgiaNaczyniowaFinder);
+    await tester.pumpAndSettle();
+
+// mtlk todo Verify that the dropdown button now displays 'Chirurgia naczyniowa'
+    // expect(find.widgetWithText(DropdownButton, 'Chirurgia naczyniowa'),
+    //     findsOneWidget);
+
+    final priceFromFieldFinder =
+        find.widgetWithText(TextFormField, 'Price From');
+    await tester.enterText(priceFromFieldFinder, '100');
+
+    final priceToFieldFinder = find.widgetWithText(TextFormField, 'Price To');
+    await tester.enterText(priceToFieldFinder, '200');
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('publishDutySlotButton')));
+
+    // Wait for page Duty slots that happens to contai text 'Hospital'
+    await waitForText('Hospital', tester, '4');
+
+    await deleteUser(tester, 'H1');
+  });
 }
 
 // from https://github.com/flutter/flutter/issues/88765#issuecomment-1253639461
@@ -65,6 +111,19 @@ Future<void> waitForText(
   final snackBarFinder = find.text(message);
   await waitFor(tester, snackBarFinder);
   print('$label Found text: $message');
+}
+
+Future<void> waitForTextAndType(
+    String message, Type type, WidgetTester tester, String label) async {
+  print('$label Waiting for text: $message and type: $type');
+
+  final finder = find.ancestor(
+    of: find.text(message),
+    matching: find.byType(type),
+  );
+
+  await waitFor(tester, finder);
+  print('$label Found widget with text: $message and type: $type');
 }
 
 Future<CounterStore> initializeApp(WidgetTester tester) async {

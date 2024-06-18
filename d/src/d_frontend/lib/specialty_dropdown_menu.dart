@@ -4,7 +4,11 @@ class SpecialtyDropdownMenu extends StatefulWidget {
   final List<String> specialties;
   final ValueChanged<String> onSelected;
 
-  SpecialtyDropdownMenu({required this.specialties, required this.onSelected});
+  SpecialtyDropdownMenu({
+    required this.specialties,
+    required this.onSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _SpecialtyDropdownMenuState createState() => _SpecialtyDropdownMenuState();
