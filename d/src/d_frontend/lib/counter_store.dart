@@ -135,8 +135,11 @@ abstract class _CounterStore with Store {
 
   @action
   Future<Status> remove_duty_slot(String id) async {
-    setDisplayedMessage('Async action in progress...');
+    setDisplayedMessage('Removing duty slot in progress...');
     Status s = await counter.remove_duty_slot(id);
+    if (s.is_success()) {
+      duty_slots.removeWhere((element) => element.id == id);
+    }
     setDisplayedMessage(null);
     return s;
   }
