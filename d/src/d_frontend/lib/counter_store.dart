@@ -70,7 +70,6 @@ abstract class _CounterStore with Store {
     Status status = await counter.performRegistration(
         username, password, role, specialty, localization);
     setDisplayedMessage(null);
-    setDisplayedMessage(status.getMessage());
     return status;
   }
 
@@ -87,7 +86,7 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> performLogout() async {
     setUsername(null);
-    setDisplayedMessage('Async action in progress...');
+    setDisplayedMessage('Logout in progress...');
     Status s = await counter.performLogout();
     setDisplayedMessage(null);
     return s;
@@ -101,7 +100,7 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> deleteMe() async {
     setUsername(null);
-    setDisplayedMessage('Async action in progress...');
+    setDisplayedMessage('Delete user in progress...');
     Status s = await counter.deleteMe();
     setDisplayedMessage(null);
     return s;
@@ -117,7 +116,7 @@ abstract class _CounterStore with Store {
       required TimeOfDay startTime,
       required DateTime endDate,
       required TimeOfDay endTime}) async {
-    setDisplayedMessage('Async action in progress...');
+    setDisplayedMessage('Publish duty slot in progress...');
     Status s = await counter.publishDutySlot(
       specialty: Specialty(
           id: specialties.indexOf(specialty).toString(), name: specialty),

@@ -35,9 +35,6 @@ class _SpecialtyDropdownMenuState extends State<SpecialtyDropdownMenu> {
           _selectedSpecialty = newValue;
         });
         widget.onSelected(newValue ?? '');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Selected Specialty: $newValue ?? ''")),
-        );
       },
     );
   }
