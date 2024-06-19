@@ -59,8 +59,10 @@ After running this command in the Docker terminal, you can copy the output and p
 
 # TODO according to: https://docs.flutter.dev/cookbook/design/drawer
 
+- [x] Test for remove duty slot
+- [ ] Remove all snacks that are not necessary, because other visible change show its effect
+- [ ] Remove the tests dependencies on Snacks
 - [x] Rename remove to delete duty slot , rename remove to delete in Rust as well
-- [ ] Test for remove duty slot
 - [x] Publish duty slot
 - [x] 2 app_tests.dart - > one for register hospital, one for doctor
 - [x] Prepare body: widgets (forms - h0ome, register, show users) array 

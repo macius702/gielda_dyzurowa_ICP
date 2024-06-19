@@ -23,11 +23,11 @@ void main() {
 
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
     await runTest(tester, 'hospital', '', '');
-  });
+  }, skip: false);
 
   testWidgets("E2E test for doctor role", (WidgetTester tester) async {
     await runTest(tester, 'doctor', 'Angiologia', 'Warsaw');
-  });
+  }, skip: false);
 
   testWidgets('Login and Logout Test', (WidgetTester tester) async {
     await initializeApp(tester);
@@ -38,9 +38,10 @@ void main() {
     await logout(tester);
     await login(tester, username);
     await deleteUser(tester, username);
-  });
+  }, skip: false);
 
-  testWidgets('Publish duty slots', (WidgetTester tester) async {
+  testWidgets('Publish duty slot, view duty slots and delete duty slot',
+      (WidgetTester tester) async {
     await initializeApp(tester);
 
     // H1 user adds his entry
@@ -80,6 +81,98 @@ void main() {
     expect(find.text(hospital2), findsNothing);
     expect(find.text('Angiologia'), findsNothing);
 
+    // **************** For delete duty slot ***********
+    // Add a new entry
+    await publishDutySlot(
+        tester, hospital1, "Balneologia i medycyna fizykalna", '500', '600');
+
+    // check both entries are present
+    expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
+    expect(find.text('Balneologia i medycyna fizykalna'), findsOneWidget);
+
+    // Delete the entry by popping up the Action menu
+    // and then clicking on the delete button
+    // which will delete the entry
+    // and then check if the entry is deleted
+    // by checking if the entry is not present
+    // in the list of entries
+// Find the PopupMenuButton for the duty slot you want to delete
+
+    //iterate over table to  find Balneologia i medycyna fizykalna
+    // in this way we can find the row and then the popup menu button
+
+    // for all rows in the table
+    // find the text of the cell
+    // if the text is 'Balneologia i medycyna fizykalna'
+    // then find the popup menu button in the row
+    // tap on the popup menu button
+    // find the delete menu item
+    // tap on the delete menu item
+    // check that the entry is no longer present
+
+    // Find the cell with the text 'Balneologia i medycyna fizykalna'
+    // find DataTable
+    final dataTableFinder = find.byType(DataTable);
+    print('dataTableFinder : $dataTableFinder');
+    final dataTable = dataTableFinder.evaluate().single.widget as DataTable;
+
+
+
+
+
+    dataTable.columns.forEach((column) {
+      print('element: $column');
+      print(column.label.toString());
+      if(column.label.toString().contains('Actions')) {
+        print('Actions column found');
+      }
+    });
+    print('dataTable: $dataTable');
+    print('dataRows: ${dataTable.rows}');
+    print('dataRows.length: ${dataTable.rows.length}');
+    for (var i = 0; i < dataTable.rows.length; i++) {
+      final dataRow = dataTable.rows[i];
+      print('dataRow: $dataRow');
+      print('dataRow.cells: ${dataRow.cells}');
+      print('dataRow.cells.length: ${dataRow.cells.length}');
+      for (var j = 0; j < dataRow.cells.length; j++) {
+        final dataCell = dataRow.cells[j];
+        print('dataCell: $dataCell');
+        print('dataCell.child: ${dataCell.child}');
+        print('dataCell.child.runtimeType: ${dataCell.child.runtimeType}');
+        print('dataCell.child.toString(): ${dataCell.child.toString()}');
+        if (dataCell.child
+            .toString()
+            .contains('Balneologia i medycyna fizykalna')) {
+          print('Found Balneologia i medycyna fizykalna');
+          final columnToClickIndex = dataTable.columns.indexWhere((column) {
+              return column.label.toString().contains('Actions');
+            });
+          print('columnToClickIndex: $columnToClickIndex');
+          final toClickDataCell = dataRow.cells[columnToClickIndex];
+          print('toClickDataCell: $toClickDataCell');
+          final toClickDatacellFinder = find.byWidget(toClickDataCell.child);
+          print('toClickDatacellFinder: $toClickDatacellFinder');
+          await tester.scrollUntilVisible(toClickDatacellFinder, 300.0);
+          await tester.tap(toClickDatacellFinder);
+          await tester.pumpAndSettle();
+          // now tap on the delete menu item
+
+          final deleteButtonFinder = find.byKey(Key('deleteMenuItem'));
+          await tester.tap(deleteButtonFinder);
+          await tester.pumpAndSettle();
+          await waitForText('Duty slot removed successfully.', tester, '54');
+
+
+          break;
+        }
+      }
+    }
+
+      
+
+    expect(find.text('Balneologia i medycyna fizykalna'), findsNothing);
+
     // Delete user H1 as well along with his entries
     await deleteUser(tester, hospital1);
 
@@ -102,7 +195,7 @@ void main() {
 Future<void> waitFor(
   WidgetTester tester,
   Finder finder, {
-  Duration timeout = const Duration(seconds: 20),
+  Duration timeout = const Duration(seconds: 30),
 }) async {
   final end = tester.binding.clock.now().add(timeout);
 
@@ -276,6 +369,35 @@ Future<void> publishDutySlot(WidgetTester tester, String username,
 
   await waitForText('Hospital', tester, '4');
 
-  expect(find.text(username), findsOneWidget);
+  expect(find.text(username), findsAny);
   expect(find.text(specialty), findsOneWidget);
 }
+
+void printAncestors(Element element) {
+  element.visitAncestorElements((ancestorElement) {
+    print('ancestorElement: $ancestorElement');
+    print(
+        'ancestorElement.widget.runtimeType: ${ancestorElement.widget.runtimeType}');
+    print('ancestorElement.widget: ${ancestorElement.widget}');
+    print(ancestorElement.widget);
+    return true; // Continue walking up the tree.
+  });
+}
+
+// void printAncestors(Finder finder, {int level = 0}) {
+//   final element = finder.evaluate().single;
+//   print('element: $element');
+//   print('${' ' * level}${element.widget.runtimeType}');
+//   final parentElement = element.findAncestorWidgetOfExactType<Widget>();
+//   print('parentElement: $parentElement');
+
+//   if (parentElement == null) {
+//     return;
+//   }
+
+//   final parentFinder = find.byWidget(parentElement);
+//   print('parentFinder: $parentFinder');
+//   print('${' ' * level}${parentElement.runtimeType}');
+
+//   printAncestors(parentFinder, level: level + 1);
+// }

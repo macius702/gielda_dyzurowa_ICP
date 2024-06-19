@@ -93,6 +93,7 @@ class DutySlotsBody extends StatelessWidget {
                           child: Text('Accept'),
                         ),
                         const PopupMenuItem<String>(
+                          key: Key('deleteMenuItem'),
                           value: 'Delete',
                           child: Text('Delete'),
                         ),
