@@ -161,7 +161,7 @@ void main() {
           final deleteButtonFinder = find.byKey(Key('deleteMenuItem'));
           await tester.tap(deleteButtonFinder);
           await tester.pumpAndSettle();
-          await waitForText('Duty slot removed successfully.', tester, '54');
+          await waitForText('Duty slot removed successfully.', tester, '54', timeout: Duration(seconds: 60));
 
 
           break;
@@ -195,7 +195,7 @@ void main() {
 Future<void> waitFor(
   WidgetTester tester,
   Finder finder, {
-  Duration timeout = const Duration(seconds: 30),
+  Duration timeout = const Duration(seconds: 20),
 }) async {
   final end = tester.binding.clock.now().add(timeout);
 
@@ -210,10 +210,11 @@ Future<void> waitFor(
 }
 
 Future<void> waitForText(
-    String message, WidgetTester tester, String label) async {
+    String message, WidgetTester tester, String label,
+    {Duration timeout = const Duration(seconds: 20),}) async {
   print('$label Waiting for text: $message');
   final snackBarFinder = find.text(message);
-  await waitFor(tester, snackBarFinder);
+  await waitFor(tester, snackBarFinder, timeout: timeout);
   print('$label Found text: $message');
 }
 
