@@ -421,7 +421,7 @@ class Counter {
     }
   }
 
-  Future<Status> remove_duty_slot(String id) async {
+  Future<Status> delete_duty_slot(String id) async {
     try {
       Uri uri = _createUri('/duty/remove');
 

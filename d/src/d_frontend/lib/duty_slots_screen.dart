@@ -93,8 +93,8 @@ class DutySlotsBody extends StatelessWidget {
                           child: Text('Accept'),
                         ),
                         const PopupMenuItem<String>(
-                          value: 'Remove',
-                          child: Text('Remove'),
+                          value: 'Delete',
+                          child: Text('Delete'),
                         ),
                       ],
                       onSelected: (String value) {
@@ -103,10 +103,10 @@ class DutySlotsBody extends StatelessWidget {
                             print(
                                 'Accept action on value: ${counterStore.duty_slots[index]}');
                             break;
-                          case 'Remove':
+                          case 'Delete':
                             print(
-                                'Remove action on value: ${counterStore.duty_slots[index].id}');
-                            counterStore.remove_duty_slot(
+                                'Delete action on value: ${counterStore.duty_slots[index].id}');
+                            counterStore.delete_duty_slot(
                                 counterStore.duty_slots[index].id);
                             break;
                         }

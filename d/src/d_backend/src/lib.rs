@@ -155,7 +155,7 @@ fn get_duty_slot_by_id(id: u32) -> Option<DutySlot> {
     MAP.with(|p| p.borrow().get(&id).clone())
 }
 
-fn remove_duty_slot_by_id(id: u32) {
+fn delete_duty_slot_by_id(id: u32) {
     MAP.with(|p| {
         p.borrow_mut().remove(&id);
     });

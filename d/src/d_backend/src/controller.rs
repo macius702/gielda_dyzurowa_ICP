@@ -2,7 +2,7 @@ use std::cmp::Reverse;
 use std::collections::HashMap;
 
 use crate::{delete_user_internal, TokenData, UserRole};
-use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, remove_duty_slot_by_id, USED_TOKENS_HEAP, USED_TOKENS_MAP};
+use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, delete_duty_slot_by_id, USED_TOKENS_HEAP, USED_TOKENS_MAP};
 use candid;
 use candid::de::IDLDeserialize;
 use candid::ser::IDLBuilder;
@@ -256,7 +256,7 @@ pub(crate) fn setup() -> Router {
         }
 
         // take the duty slot id and remove it from the duty slots
-        let removed_duty_slot = remove_duty_slot_by_id(duty_slot_id);
+        let removed_duty_slot = delete_duty_slot_by_id(duty_slot_id);
         println!("Removed duty slot: {:?}", removed_duty_slot);
 
         Ok(HttpResponse {
