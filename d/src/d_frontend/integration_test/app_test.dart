@@ -161,9 +161,7 @@ void main() {
           final deleteButtonFinder = find.byKey(Key('deleteMenuItem'));
           await tester.tap(deleteButtonFinder);
           await tester.pumpAndSettle();
-          await waitForText('Duty slot removed successfully.', tester, '54', timeout: Duration(seconds: 60));
-
-
+          await waitForRowsCountChangeOfDataTable(tester, dataTableFinder);
           break;
         }
       }
@@ -208,6 +206,27 @@ Future<void> waitFor(
     await Future.delayed(const Duration(milliseconds: 100));
   } while (finder.evaluate().isEmpty);
 }
+
+Future<void> waitForRowsCountChangeOfDataTable(WidgetTester tester, Finder dataTableFinder)
+async {
+  final end = tester.binding.clock.now().add(const Duration(seconds: 20));
+  
+  DataTable dataTable = dataTableFinder.evaluate().single.widget as DataTable;
+  final originalRowsCount = dataTable.rows.length;
+  print('Waiting for rows count to change from $originalRowsCount');
+
+  do {
+    if (tester.binding.clock.now().isAfter(end)) {
+      throw Exception('Timed out waiting for rows count to change');
+    }
+    dataTable = dataTableFinder.evaluate().single.widget as DataTable;
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(milliseconds: 100));
+  } while (dataTable.rows.length == originalRowsCount);
+
+  print('Rows count changed from $originalRowsCount to ${dataTable.rows.length}');
+}
+
 
 Future<void> waitForText(
     String message, WidgetTester tester, String label,

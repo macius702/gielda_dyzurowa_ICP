@@ -138,8 +138,8 @@ abstract class _CounterStore with Store {
     Status s = await counter.delete_duty_slot(id);
     if (s.is_success()) {
       duty_slots.removeWhere((element) => element.id == id);
-      setDisplayedMessage('Duty slot removed successfully.');
     }
+    setDisplayedMessage(null);
     return s;
   }
 }
