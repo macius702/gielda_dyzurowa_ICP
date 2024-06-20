@@ -67,13 +67,9 @@ void main() {
     // Delete user H2 and his entries
     await deleteUser(tester, hospital2);
 
-    // open Duty Slots Page
     await login(tester, hospital1);
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Duty Slots'));
-    await tester.pumpAndSettle();
-    await waitForText('Hospital', tester, '44');
+
+    await openDutySlotsPage(tester);
 
     // Check that only H1 entries remain
     expect(find.text(hospital1), findsOneWidget);
@@ -90,47 +86,13 @@ void main() {
     expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
     expect(find.text('Balneologia i medycyna fizykalna'), findsOneWidget);
 
-    final dataTableFinder = find.byType(DataTable);
-    final dataTable = dataTableFinder.evaluate().single.widget as DataTable;
+    await deleteDutySlotContainingText(tester, 'Balneologia i medycyna fizykalna');
 
-    String cellText;
-    DataColumn actionColumn = dataTable.columns.firstWhere((column) {
-      cellText = column.label.toString();
-      return cellText.contains('Actions');
-    }, orElse: () => DataColumn(label: Text('')));
-
-    if (actionColumn.label is Text &&
-        ((actionColumn.label as Text).data?.isEmpty ?? true)) {
-      print('Actions column not found');
-      return;
-    }
-
-    outerLoop:
-    for (final dataRow in dataTable.rows) {
-      for (final dataCell in dataRow.cells) {
-        cellText = dataCell.child.toString();
-        if (cellText.contains('Balneologia i medycyna fizykalna')) {
-          final toClickDataCell =
-              dataRow.cells[dataTable.columns.indexOf(actionColumn)];
-          final toClickDatacellFinder = find.byWidget(toClickDataCell.child);
-
-          await tester.scrollUntilVisible(toClickDatacellFinder, 300.0);
-          await tester.tap(toClickDatacellFinder);
-          await tester.pumpAndSettle();
-
-          final deleteButtonFinder = find.byKey(Key('deleteMenuItem'));
-          await tester.tap(deleteButtonFinder);
-          await tester.pumpAndSettle();
-          await waitForRowsCountChangeOfDataTable(tester, dataTableFinder);
-
-          break outerLoop; // This will break the outer loop
-        }
-      }
-    }
-
+    // check the proper entry disappeared
+    expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
     expect(find.text('Balneologia i medycyna fizykalna'), findsNothing);
 
-    // Delete user H1 as well along with his entries
+    // Delete user H1 as well, along with his entries
     await deleteUser(tester, hospital1);
 
     // We have to be logged in as someone
@@ -146,6 +108,54 @@ void main() {
 
     await deleteUser(tester, hospital3);
   });
+}
+
+Future<void> deleteDutySlotContainingText(WidgetTester tester, String cellTextToFind) async {
+  final dataTableFinder = find.byType(DataTable);
+  final dataTable = dataTableFinder.evaluate().single.widget as DataTable;
+
+  String cellText;
+  DataColumn actionColumn = dataTable.columns.firstWhere((column) {
+    cellText = column.label.toString();
+    return cellText.contains('Actions');
+  }, orElse: () => DataColumn(label: Text('')));
+
+  if (actionColumn.label is Text &&
+      ((actionColumn.label as Text).data?.isEmpty ?? true)) {
+    print('Actions column not found');
+    assert(false);
+  }
+
+  outerLoop:
+  for (final dataRow in dataTable.rows) {
+    for (final dataCell in dataRow.cells) {
+      cellText = dataCell.child.toString();
+      if (cellText.contains(cellTextToFind)) {
+        final toClickDataCell =
+            dataRow.cells[dataTable.columns.indexOf(actionColumn)];
+        final toClickDatacellFinder = find.byWidget(toClickDataCell.child);
+
+        await tester.scrollUntilVisible(toClickDatacellFinder, 300.0);
+        await tester.tap(toClickDatacellFinder);
+        await tester.pumpAndSettle();
+
+        final deleteButtonFinder = find.byKey(Key('deleteMenuItem'));
+        await tester.tap(deleteButtonFinder);
+        await tester.pumpAndSettle();
+        await waitForRowsCountChangeOfDataTable(tester, dataTableFinder);
+
+        break outerLoop; // This will break the outer loop
+      }
+    }
+  }
+}
+
+Future<void> openDutySlotsPage(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.menu));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Duty Slots'));
+  await tester.pumpAndSettle();
+  await waitForText('Hospital', tester, '44');
 }
 
 // from https://github.com/flutter/flutter/issues/88765#issuecomment-1253639461
