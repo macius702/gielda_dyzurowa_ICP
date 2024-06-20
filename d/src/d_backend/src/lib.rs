@@ -161,6 +161,13 @@ fn delete_duty_slot_by_id(id: u32) {
     });
 }
 
+fn accept_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
+    let mut dutySlot = get_duty_slot_by_id(duty_slot_id).unwrap();
+    dutySlot.assigned_doctor_id = Some(doctor_id);
+    dutySlot.status = DutyStatus::filled;
+    insert_duty_slot_internal(dutySlot);
+}
+
 fn find_user_by_username(username: &str) -> Option<(u32, User)> {
     USER_MAP.with(|user_map| {
         let user_map = user_map.borrow();
@@ -363,7 +370,6 @@ fn delete_user_internal(key: u32) {
             p.borrow_mut().remove(&key);
         }
     });
-
 
     USER_MAP.with(|p| {
         p.borrow_mut().remove(&key);

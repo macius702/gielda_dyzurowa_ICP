@@ -1,8 +1,11 @@
 use std::cmp::Reverse;
 use std::collections::HashMap;
 
-use crate::{delete_user_internal, TokenData, UserRole};
-use crate::{get_duty_slot_by_id, get_user_by_id, jwt::JWT, delete_duty_slot_by_id, USED_TOKENS_HEAP, USED_TOKENS_MAP};
+use crate::{
+    delete_duty_slot_by_id, get_duty_slot_by_id, get_user_by_id, jwt::JWT, USED_TOKENS_HEAP,
+    USED_TOKENS_MAP,
+};
+use crate::{accept_duty_slot_by_id, delete_user_internal, TokenData, UserRole};
 use candid;
 use candid::de::IDLDeserialize;
 use candid::ser::IDLBuilder;
@@ -266,6 +269,93 @@ pub(crate) fn setup() -> Router {
         })
     });
 
+    router.post("/duty/accept", true, |req: HttpRequest| async move {
+        let user_info = match get_authorized_user_info(&req) {
+            Ok(user_info) => user_info,
+            Err(response) => return Ok(response),
+        };
+        let (userid, userrole, username) = user_info;
+        if userrole != "doctor" {
+            return Ok(HttpResponse {
+                status_code: 403,
+                headers: HashMap::new(),
+                body: json!({
+                    "statusCode": 403,
+                    "message": "Only hospitals can remove duty slots"
+                })
+                .into(),
+            });
+        }
+        assert_eq!(userrole, "doctor");
+
+        let body_string = String::from_utf8(req.body.clone()).unwrap();
+        println!("Received body: {}", body_string);
+
+        let data: serde_json::Value = serde_json::from_str(&body_string).unwrap();
+        println!("Parsed data: {:?}", data);
+
+        let duty_slot_id = match data["_id"].as_str() {
+            Some(id_str) => match id_str.parse::<u32>() {
+                Ok(id) => id,
+                Err(_) => {
+                    let response = HttpResponse {
+                        status_code: 400,
+                        headers: HashMap::new(),
+                        body: json!({
+                            "statusCode": 400,
+                            "message": "Cannot parse _id to u32"
+                        })
+                        .into(),
+                    };
+                    return Ok(response);
+                }
+            },
+            None => {
+                let response = HttpResponse {
+                    status_code: 400,
+                    headers: HashMap::new(),
+                    body: json!({
+                        "statusCode": 400,
+                        "message": "_id does not exist or is not a string"
+                    })
+                    .into(),
+                };
+                return Ok(response);
+            }
+        };
+
+        let duty_slot = get_duty_slot_by_id(duty_slot_id);
+
+        // handle duty slot not found with match
+        let duty_slot = match duty_slot {
+            Some(duty_slot) => duty_slot,
+            None => {
+                return Ok(HttpResponse {
+                    status_code: 404,
+                    headers: HashMap::new(),
+                    body: json!({
+                        "statusCode": 404,
+                        "message": "Duty slot not found"
+                    })
+                    .into(),
+                });
+            }
+        };
+
+        // take the duty slot id and change its status to accepted
+        accept_duty_slot_by_id(duty_slot_id, userid);
+        print!(
+            "Accepted duty slot: {:?} for doctor with id: {}",
+            duty_slot, userid
+        );
+
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({}).into(),
+        })
+    });
+
     router.post("/auth/register", true, |req: HttpRequest| async move {
         // req body has fields : username, password, role, specialty, localization
         let body_string = String::from_utf8(req.body.clone()).unwrap();
@@ -308,7 +398,7 @@ pub(crate) fn setup() -> Router {
         println!("Parsed user: {:?}", user); // Debug print
         let key = insert_user_internal(user);
         println!("Inserted user with key: {:?}", key); // Debug print
-        
+
         if key == 0 {
             return Ok(HttpResponse {
                 status_code: 400,
@@ -348,7 +438,6 @@ pub(crate) fn setup() -> Router {
             body: json!({}).into(),
         })
     });
-    
 
     router.post("/auth/login", true, move |req: HttpRequest| async move {
         // Log the full incoming request
@@ -642,7 +731,12 @@ fn add_to_used_tokens(req: HttpRequest) {
     let (token, _) = token_userid_pair;
     let now = ic_cdk::api::time();
     USED_TOKENS_MAP.with(|p| p.borrow_mut().insert(token.clone(), now));
-    USED_TOKENS_HEAP.with(|p| p.borrow_mut().push(TokenData { create_time: Reverse(now), token }));
+    USED_TOKENS_HEAP.with(|p| {
+        p.borrow_mut().push(TokenData {
+            create_time: Reverse(now),
+            token,
+        })
+    });
 }
 
 fn remove_expired_tokens() {
