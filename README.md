@@ -60,8 +60,8 @@ After running this command in the Docker terminal, you can copy the output and p
 # TODO according to: https://docs.flutter.dev/cookbook/design/drawer
 
 - [x] Test for remove duty slot
-- [ ] Remove all snacks that are not necessary, because other visible change show its effect
-- [ ] Remove the tests dependencies on Snacks
+- [x] Remove all snacks that are not necessary, because other visible change show its effect
+- [x] Remove the tests dependencies on Snacks
 - [x] Rename remove to delete duty slot , rename remove to delete in Rust as well
 - [x] Publish duty slot
 - [x] 2 app_tests.dart - > one for register hospital, one for doctor
@@ -77,7 +77,7 @@ After running this command in the Docker terminal, you can copy the output and p
 
 # TODO others
 
-
+- [ ] title in  pages
 - [ ] is router async - I mean no need to specifically guard the common data operations 
 - [ ] @Query("canisterId") canisterId: String into headers
 - [ ] into SharedPreferences some data - cookie , what else ?

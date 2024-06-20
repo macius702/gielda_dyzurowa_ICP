@@ -86,7 +86,8 @@ void main() {
     expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
     expect(find.text('Balneologia i medycyna fizykalna'), findsOneWidget);
 
-    await deleteDutySlotContainingText(tester, 'Balneologia i medycyna fizykalna');
+    await deleteDutySlotContainingText(
+        tester, 'Balneologia i medycyna fizykalna');
 
     // check the proper entry disappeared
     expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
@@ -110,7 +111,8 @@ void main() {
   });
 }
 
-Future<void> deleteDutySlotContainingText(WidgetTester tester, String cellTextToFind) async {
+Future<void> deleteDutySlotContainingText(
+    WidgetTester tester, String cellTextToFind) async {
   final dataTableFinder = find.byType(DataTable);
   final dataTable = dataTableFinder.evaluate().single.widget as DataTable;
 
