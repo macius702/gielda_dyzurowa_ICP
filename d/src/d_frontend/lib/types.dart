@@ -43,7 +43,7 @@ class GetUserDataResponse extends Response {
 
   @override
   String getString() {
-    return 'GetUserDataResponse: id=$id, role=$role';
+    return '{ "id": "$id", "role": "$role"}';
   }
 }
 

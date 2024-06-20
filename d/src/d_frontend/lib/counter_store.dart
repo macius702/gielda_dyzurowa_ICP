@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -15,8 +17,39 @@ abstract class _CounterStore with Store {
   @observable
   String? username;
 
+  @observable
+  UserRole? role;
+
+  @observable
+  int? userId;
+
+  @action
+  bool setUserIdRole(String ids, String role) {
+    //convert ids to int
+    try {
+      userId = int.parse(ids);
+    } catch (e) {
+      return false;
+    }
+
+    //convert role to UserRole
+    if (role == 'doctor') {
+      this.role = UserRole.doctor;
+    } else if (role == 'hospital') {
+      this.role = UserRole.hospital;
+    } else {
+      return false;
+    }
+
+    return true;
+  }
+
   @action
   void setUsername(String? value) {
+    if (value == null) {
+      userId = null;
+      role = null;
+    }
     username = value;
   }
 
@@ -77,10 +110,21 @@ abstract class _CounterStore with Store {
   Future<Status> performLogin(
       {required String username, required String password}) async {
     setDisplayedMessage('Login in progress...');
-    Status s = await counter.performLogin(username, password);
-    setUsername(username);
+    Status status = await counter.performLogin(username, password);
+
+    if (status.is_success()) {
+      Status m = await getUserData();
+      if (m.is_success()) {
+        String json = m.getString(); // i.e  {"id:: "1234", "role" : "doctor"}
+        Map<String, dynamic> map = jsonDecode(json);
+        if (setUserIdRole(map['id'], map['role'])) {
+          setUsername(username);
+          return Response('Login successful');
+        }
+      }
+    }
     setDisplayedMessage(null);
-    return s;
+    return Error('Login failed');
   }
 
   @action
@@ -138,6 +182,18 @@ abstract class _CounterStore with Store {
     Status s = await counter.delete_duty_slot(id);
     if (s.is_success()) {
       duty_slots.removeWhere((element) => element.id == id);
+    }
+    setDisplayedMessage(null);
+    return s;
+  }
+
+  // counterStore.accept_duty_slot(counterStore.duty_slots[index].id);
+  @action
+  Future<Status> accept_duty_slot(String id) async {
+    setDisplayedMessage('Accepting duty slot in progress...');
+    Status s = await counter.accept_duty_slot(id);
+    if (s.is_success()) {
+      //duty_slots.removeWhere((element) => element.id == id);
     }
     setDisplayedMessage(null);
     return s;

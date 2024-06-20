@@ -1,4 +1,5 @@
 import 'package:d_frontend/counter_store.dart';
+import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -84,36 +85,43 @@ class DutySlotsBody extends StatelessWidget {
                       style: TextStyle(color: Colors.orange, fontSize: 16),
                     ),
                   ),
-                  DataCell(
-                    PopupMenuButton<String>(
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'Accept',
-                          child: Text('Accept'),
-                        ),
-                        const PopupMenuItem<String>(
-                          key: Key('deleteMenuItem'),
-                          value: 'Delete',
-                          child: Text('Delete'),
-                        ),
-                      ],
-                      onSelected: (String value) {
-                        switch (value) {
-                          case 'Accept':
-                            print(
-                                'Accept action on value: ${counterStore.duty_slots[index]}');
-                            break;
-                          case 'Delete':
-                            print(
-                                'Delete action on value: ${counterStore.duty_slots[index].id}');
-                            counterStore.delete_duty_slot(
-                                counterStore.duty_slots[index].id);
-                            break;
-                        }
-                      },
-                    ),
-                  ),
+                  DataCell(PopupMenuButton<String>(
+                    onSelected: (String value) {
+                      switch (value) {
+                        case 'Accept':
+                          print(
+                              'Accept action on value: ${counterStore.duty_slots[index]}');
+                          counterStore.accept_duty_slot(
+                              counterStore.duty_slots[index].id);
+                          break;
+                        case 'Delete':
+                          print(
+                              'Delete action on value: ${counterStore.duty_slots[index].id}');
+                          counterStore.delete_duty_slot(
+                              counterStore.duty_slots[index].id);
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) {
+                      if (counterStore.role == UserRole.hospital) {
+                        return <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            key: Key('deleteMenuItem'),
+                            value: 'Delete',
+                            child: Text('Delete'),
+                          ),
+                        ];
+                      } else {
+                        return <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            key: Key('acceptMenuItem'),
+                            value: 'Accept',
+                            child: Text('Accept'),
+                          ),
+                        ];
+                      }
+                    },
+                  )),
                 ],
               ),
             ),
