@@ -162,20 +162,12 @@ fn delete_duty_slot_by_id(id: u32) {
 }
 
 fn accept_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
-    // take the duty slot that has the id equal to duty_slot_id
     let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
     // update the duty slot with the doctor_id and status to filled
-    //mtlk TODO - can it be shorter , without mentioning all the members ?
     let updated_duty_slot = DutySlot {
-        required_specialty: duty_slot.required_specialty,
-        hospital_id: duty_slot.hospital_id,
-        start_date_time: duty_slot.start_date_time,
-        end_date_time: duty_slot.end_date_time,
         status: DutyStatus::filled,
         assigned_doctor_id: Some(doctor_id),
-        price_from: duty_slot.price_from,
-        price_to: duty_slot.price_to,
-        currency: duty_slot.currency,
+        ..duty_slot
     };
     // update the duty slot in the MAP
     MAP.with(|p| {
