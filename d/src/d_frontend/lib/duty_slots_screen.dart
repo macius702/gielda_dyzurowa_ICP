@@ -106,7 +106,7 @@ class DutySlotsBody extends StatelessWidget {
                           case 'Accept':
                             print(
                                 'Accept action on value: ${counterStore.duty_slots[index]}');
-                            counterStore.accept_duty_slot(
+                            counterStore.assign_duty_slot(
                                 counterStore.duty_slots[index].id);
                             break;
                           case 'Delete':

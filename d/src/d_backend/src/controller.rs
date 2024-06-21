@@ -5,7 +5,7 @@ use crate::{
     delete_duty_slot_by_id, get_duty_slot_by_id, get_user_by_id, jwt::JWT, USED_TOKENS_HEAP,
     USED_TOKENS_MAP,
 };
-use crate::{accept_duty_slot_by_id, delete_user_internal, TokenData, UserRole};
+use crate::{assign_duty_slot_by_id, delete_user_internal, TokenData, UserRole};
 use candid;
 use candid::de::IDLDeserialize;
 use candid::ser::IDLBuilder;
@@ -269,7 +269,7 @@ pub(crate) fn setup() -> Router {
         })
     });
 
-    router.post("/duty/accept", true, |req: HttpRequest| async move {
+    router.post("/assign-duty-slot", true, |req: HttpRequest| async move {
         let user_info = match get_authorized_user_info(&req) {
             Ok(user_info) => user_info,
             Err(response) => return Ok(response),
@@ -343,7 +343,7 @@ pub(crate) fn setup() -> Router {
         };
 
         // take the duty slot id and change its status to accepted
-        accept_duty_slot_by_id(duty_slot_id, userid);
+        assign_duty_slot_by_id(duty_slot_id, userid);
         print!(
             "Accepted duty slot: {:?} for doctor with id: {}",
             duty_slot, userid

@@ -161,7 +161,7 @@ fn delete_duty_slot_by_id(id: u32) {
     });
 }
 
-fn accept_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
+fn assign_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
     let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
     // update the duty slot with the doctor_id and status to filled
     let updated_duty_slot = DutySlot {

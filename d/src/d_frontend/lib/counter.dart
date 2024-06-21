@@ -473,10 +473,10 @@ class Counter {
     }
   }
 
-  //Status s = await counter.accept_duty_slot(id);
-  Future<Status> accept_duty_slot(String id) async {
+  //Status s = await counter.assign_duty_slot(id);
+  Future<Status> assign_duty_slot(String id) async {
     try {
-      Uri uri = _createUri('/duty/accept');
+      Uri uri = _createUri('/assign-duty-slot');
 
       // take cookies form SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();

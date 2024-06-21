@@ -259,7 +259,7 @@ class DutySlotForDisplay {
     );
   }
 
- DutySlotForDisplay copyWith({
+  DutySlotForDisplay copyWith({
     String? id,
     Hospital? hospitalId,
     Specialty? requiredSpecialty,
