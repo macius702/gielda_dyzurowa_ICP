@@ -127,7 +127,6 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                         style: ButtonStyle(
                           shape:
                               WidgetStateProperty.all<RoundedRectangleBorder>(
-                                  //mtlk todo
                                   RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10.0),
                                       side: BorderSide(color: Colors.red))),

@@ -128,10 +128,11 @@ class DutySlotsBody extends StatelessWidget {
                           ];
                         } else {
                           assert(counterStore.role == UserRole.doctor);
-                          String value = counterStore.duty_slots[index].status == DutyStatus.open ? 'Accept' : 'Nothing';                            
-
-
-
+                          String value =
+                              counterStore.duty_slots[index].status ==
+                                      DutyStatus.open
+                                  ? 'Accept'
+                                  : 'Nothing';
 
                           return <PopupMenuEntry<String>>[
                             PopupMenuItem<String>(
