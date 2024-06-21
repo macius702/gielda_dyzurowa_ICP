@@ -259,6 +259,32 @@ class DutySlotForDisplay {
     );
   }
 
+ DutySlotForDisplay copyWith({
+    String? id,
+    Hospital? hospitalId,
+    Specialty? requiredSpecialty,
+    DutyStatus? status,
+    Doctor? assignedDoctorId,
+    String? startDateTime,
+    String? endDateTime,
+    Decimal? priceFrom,
+    Decimal? priceTo,
+    String? currency,
+  }) {
+    return DutySlotForDisplay(
+      id: id ?? this.id,
+      hospitalId: hospitalId ?? this.hospitalId,
+      requiredSpecialty: requiredSpecialty ?? this.requiredSpecialty,
+      status: status ?? this.status,
+      assignedDoctorId: assignedDoctorId ?? this.assignedDoctorId,
+      startDateTime: startDateTime ?? this.startDateTime,
+      endDateTime: endDateTime ?? this.endDateTime,
+      priceFrom: priceFrom ?? this.priceFrom,
+      priceTo: priceTo ?? this.priceTo,
+      currency: currency ?? this.currency,
+    );
+  }
+
   @override
   String toString() {
     return 'DutySlotForDisplay: id=$id, hospitalId=$hospitalId, requiredSpecialty=$requiredSpecialty, status=$status, assignedDoctorId=$assignedDoctorId, startDateTime=$startDateTime, endDateTime=$endDateTime, priceFrom=$priceFrom, priceTo=$priceTo, currency=$currency';

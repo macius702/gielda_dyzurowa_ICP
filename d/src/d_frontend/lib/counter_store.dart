@@ -187,13 +187,23 @@ abstract class _CounterStore with Store {
     return s;
   }
 
+
+
+@action
+void updateDutySlotStatus(String id, DutyStatus newStatus) {
+  final index = duty_slots.indexWhere((slot) => slot.id == id);
+  if (index != -1) {
+    final updatedSlot = duty_slots[index].copyWith(status: newStatus);
+    duty_slots[index] = updatedSlot;
+  }
+}
   // counterStore.accept_duty_slot(counterStore.duty_slots[index].id);
   @action
   Future<Status> accept_duty_slot(String id) async {
     setDisplayedMessage('Accepting duty slot in progress...');
     Status s = await counter.accept_duty_slot(id);
     if (s.is_success()) {
-      //duty_slots.removeWhere((element) => element.id == id);
+      updateDutySlotStatus(id, DutyStatus.filled);
     }
     setDisplayedMessage(null);
     return s;
