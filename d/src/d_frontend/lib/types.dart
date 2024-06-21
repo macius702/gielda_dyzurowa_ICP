@@ -145,6 +145,42 @@ class Hospital {
   }
 }
 
+class Doctor {
+  final String id;
+  final String username;
+  final String password; // TODO: Note: Handling passwords like this is insecure, especially on client-side.
+  final String role;
+  final String specialty;
+  final String localization;
+  final bool profileVisible;
+
+  Doctor({
+    required this.id,
+    required this.username,
+    required this.password,
+    required this.role,
+    required this.specialty,
+    required this.localization,
+    required this.profileVisible,
+  });
+
+    static Doctor? fromJson(Map<String, dynamic>? json) {
+      if (json == null) {
+        return null;
+      }
+
+      return Doctor(
+        id: json['_id'],
+        username: json['username'],
+        password: json['password'],
+        role: json['role'],
+        specialty: json['specialty'],
+        localization: json['localization'],
+        profileVisible: json['profileVisible'],
+      );
+    }
+}
+
 enum DutyStatus {
   open,
   pending,
@@ -184,7 +220,7 @@ class DutySlotForDisplay {
   final Hospital hospitalId;
   final Specialty requiredSpecialty;
   final DutyStatus status;
-  final String? assignedDoctorId;
+  final Doctor? assignedDoctorId;
   final String startDateTime;
   final String endDateTime;
   final Decimal priceFrom;
@@ -213,7 +249,7 @@ class DutySlotForDisplay {
         name: json['requiredSpecialty']['name'],
       ),
       status: DutyStatusHelper.fromJson(json['status']),
-      assignedDoctorId: json['assignedDoctorId'],
+      assignedDoctorId: Doctor.fromJson( json['assignedDoctorId']),
       startDateTime: json['startDateTime'],
       endDateTime: json['endDateTime'],
       priceFrom: Decimal.parse(json['priceFrom'].toString()),

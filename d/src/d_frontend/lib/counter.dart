@@ -564,6 +564,7 @@ class Counter {
         List<dynamic> jsonList = jsonDecode(response.body);
         List<DutySlotForDisplay> dutySlots = [];
         for (var e in jsonList) {
+          print("getDutySlots e: $e");
           dutySlots.add(DutySlotForDisplay.fromJson(e));
         }
         return dutySlots;
