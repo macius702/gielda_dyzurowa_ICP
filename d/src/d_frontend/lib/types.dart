@@ -145,11 +145,45 @@ class Hospital {
   }
 }
 
+enum DutyStatus {
+  open,
+  pending,
+  filled,
+}
+
+class DutyStatusHelper {
+  static DutyStatus fromJson(String status) {
+    switch (status) {
+      case 'open':
+        return DutyStatus.open;
+      case 'pending':
+        return DutyStatus.pending;
+      case 'filled':
+        return DutyStatus.filled;
+      default:
+        throw Exception('Unknown duty status: $status');
+    }
+  }
+
+  static String toJson(DutyStatus status) {
+    switch (status) {
+      case DutyStatus.open:
+        return 'open';
+      case DutyStatus.pending:
+        return 'pending';
+      case DutyStatus.filled:
+        return 'filled';
+      default:
+        return '';
+    }
+  }
+}
+
 class DutySlotForDisplay {
   final String id;
   final Hospital hospitalId;
   final Specialty requiredSpecialty;
-  final String status;
+  final DutyStatus status;
   final String? assignedDoctorId;
   final String startDateTime;
   final String endDateTime;
@@ -178,7 +212,7 @@ class DutySlotForDisplay {
         id: json['requiredSpecialty']['_id'],
         name: json['requiredSpecialty']['name'],
       ),
-      status: json['status'],
+      status: DutyStatusHelper.fromJson(json['status']),
       assignedDoctorId: json['assignedDoctorId'],
       startDateTime: json['startDateTime'],
       endDateTime: json['endDateTime'],
