@@ -126,7 +126,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                         child: const Text('Publish Duty Slot'),
                         style: ButtonStyle(
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
                                   //mtlk todo
                                   RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10.0),
