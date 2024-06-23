@@ -241,21 +241,21 @@ class Counter {
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response,
 
-        //handle cookies
-        String? rawCookie = response.headers['set-cookie'];
-        if (rawCookie == null) {
-          throw Exception('Failed to login user: no cookie in response');
-        }
+                  //handle cookies
+          String? rawCookie = response.headers['set-cookie'];
+          if (rawCookie == null) {
+            throw Exception('Failed to login user: no cookie in response');
+          }
 
-        // Save the cookies into SharedPreferences
-        try {
           // Save the cookies into SharedPreferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('cookies', rawCookie);
-        } catch (e) {
-          throw Exception('Failed to login user: cannot save cookies');
-        }
-
+          try {
+            // Save the cookies into SharedPreferences
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('cookies', rawCookie);
+          } catch (e) {
+            throw Exception('Failed to login user: cannot save cookies');
+          }
+        
         return Response();
       } else {
         // If the server returns an unexpected response,
@@ -585,17 +585,17 @@ class Counter {
 
       Map<String, String> headers;
       if (!kIsWeb) {
-      // take cookies form SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? cookies = prefs.getString('cookies');
-      if (cookies == null) {
-        throw Exception(
-            'Failed to get user data: no cookies in SharedPreferences');
-      }
+        // take cookies form SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? cookies = prefs.getString('cookies');
+        if (cookies == null) {
+          throw Exception(
+              'Failed to get user data: no cookies in SharedPreferences');
+        }
         headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'cookie': cookies,
-      };
+          'Content-Type': 'application/json; charset=UTF-8',
+          'cookie': cookies,
+        };
       } else {
         headers = {
           'Content-Type': 'application/json; charset=UTF-8',
@@ -728,5 +728,5 @@ String get_frontend_url() {
 }
 
 Uri _createUri(String path) {
-  return Uri.parse('${get_frontend_url()}$path?canisterId=$BASE_CANISTER');
+  return Uri.parse('${get_frontend_url()}$path?canisterId=$backendCanisterId');
 }
