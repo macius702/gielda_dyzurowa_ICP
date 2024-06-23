@@ -583,6 +583,8 @@ class Counter {
     try {
       Uri uri = _createUri('/user/data');
 
+      Map<String, String> headers;
+      if (!kIsWeb) {
       // take cookies form SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
@@ -590,11 +592,15 @@ class Counter {
         throw Exception(
             'Failed to get user data: no cookies in SharedPreferences');
       }
-
-      Map<String, String> headers = {
+        headers = {
         'Content-Type': 'application/json; charset=UTF-8',
         'cookie': cookies,
       };
+      } else {
+        headers = {
+          'Content-Type': 'application/json; charset=UTF-8',
+        };
+      }
 
       mtlk_print('URL: $uri');
       mtlk_print('Headers: $headers');
@@ -674,6 +680,8 @@ class Counter {
   }
 }
 
+String frontend_url = '';
+
 Future<Counter> initCounter({Identity? identity}) async {
   // initialize counter, change canister id here
   //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
@@ -696,24 +704,11 @@ Future<Counter> initCounter({Identity? identity}) async {
   // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
   // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
 
-  var frontend_url;
-
-  if (mode == Mode.playground) {
-    frontend_url = 'https://icp-api.io';
-  } else if (mode == Mode.local) {
-    if (kIsWeb) {
-      frontend_url = 'http://localhost:4944';
-    } else {
-      // for android emulator
-      frontend_url = 'http://10.0.2.2:4944';
-    }
-  } else if (mode == Mode.network) {}
-
   mtlk_print("Before counter construction");
   var counter = Counter(
       canisterId: backendCanisterId,
       url:
-          frontend_url); // set agent when other paramater comes in like new Identity
+          get_frontend_url()); // set agent when other paramater comes in like new Identity
   mtlk_print("After counter construction");
   await counter.setAgent(newIdentity: identity);
   mtlk_print("After counter setAgent");
@@ -722,6 +717,16 @@ Future<Counter> initCounter({Identity? identity}) async {
   return counter;
 }
 
+String get_frontend_url() {
+  return mode == Mode.playground
+      ? 'https://icp-api.io'
+      : mode == Mode.local
+          ? kIsWeb
+              ? 'http://127.0.0.1:4944'
+              : 'http://10.0.2.2:4944' // for android emulator
+          : 'todo'; // for Mode.network
+}
+
 Uri _createUri(String path) {
-  return Uri.parse('$BASE_URL$path?canisterId=$BASE_CANISTER');
+  return Uri.parse('${get_frontend_url()}$path?canisterId=$BASE_CANISTER');
 }
