@@ -6,7 +6,7 @@ import 'package:d_frontend/counter_store.dart';
 class ShowUsernamesBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final counterStore = Provider.of<CounterStore>(context);
+    final counterStore = Provider.of<ViewModel>(context);
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       counterStore.get_users();

@@ -23,7 +23,7 @@ class RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final counterStore = Provider.of<CounterStore>(context);
+    final counterStore = Provider.of<ViewModel>(context);
     return Observer(
         builder: (_) => Column(
               children: <Widget>[
@@ -77,7 +77,7 @@ class RegisterForm extends StatelessWidget {
   }
 }
 
-void onPressed(BuildContext context, CounterStore counterStore,
+void onPressed(BuildContext context, ViewModel counterStore,
     RegisterStore registerStore, VoidCallback onTap) {
   if (registerStore.username.isEmpty ||
       registerStore.password.isEmpty ||
@@ -98,11 +98,8 @@ void onPressed(BuildContext context, CounterStore counterStore,
   }
 }
 
-Future<void> performRegistration(
-    BuildContext context,
-    CounterStore counterStore,
-    RegisterStore registerStore,
-    VoidCallback onTap) async {
+Future<void> performRegistration(BuildContext context, ViewModel counterStore,
+    RegisterStore registerStore, VoidCallback onTap) async {
   UserRole roleEnum = UserRole.values
       .firstWhere((e) => e.toString() == 'UserRole.${registerStore.role}');
   int specialtyIndex =

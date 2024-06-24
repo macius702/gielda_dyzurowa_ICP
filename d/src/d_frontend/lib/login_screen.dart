@@ -22,7 +22,7 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final counterStore = Provider.of<CounterStore>(context);
+    final counterStore = Provider.of<ViewModel>(context);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -55,7 +55,7 @@ class LoginForm extends StatelessWidget {
   }
 }
 
-void onPressed(BuildContext context, CounterStore counterStore,
+void onPressed(BuildContext context, ViewModel counterStore,
     LoginStore loginStore, VoidCallback onTap) {
   if (loginStore.username.isEmpty || loginStore.password.isEmpty) {
     showSnackBar(context, "Username and  password are mandatory");
@@ -64,7 +64,7 @@ void onPressed(BuildContext context, CounterStore counterStore,
   }
 }
 
-Future<void> performLogin(BuildContext context, CounterStore counterStore,
+Future<void> performLogin(BuildContext context, ViewModel counterStore,
     LoginStore loginStore, VoidCallback onTap) async {
   Status status = await counterStore.performLogin(
       username: loginStore.username, password: loginStore.password);

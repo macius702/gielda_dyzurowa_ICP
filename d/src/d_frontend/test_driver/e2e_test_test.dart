@@ -18,12 +18,12 @@ void main() {
     // Initialize the CounterStore
     final counter =
         await initCounter(); // Assuming initCounter is your async function that returns a Counter
-    final counterStore = CounterStore(counter);
+    final counterStore = ViewModel(counter);
     counterStore.setup_specialties();
 
     // Launch the app
     await tester.pumpWidget(
-      Provider<CounterStore>.value(
+      Provider<ViewModel>.value(
         value: counterStore,
         child: MyApp(),
       ),

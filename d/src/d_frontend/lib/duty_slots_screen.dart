@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 class DutySlotsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final counterStore = Provider.of<CounterStore>(context);
+    final counterStore = Provider.of<ViewModel>(context);
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       counterStore.setup_duty_slots();

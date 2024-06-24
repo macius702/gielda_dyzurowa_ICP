@@ -8,12 +8,12 @@ import 'package:d_frontend/counter.dart';
 
 part 'counter_store.g.dart';
 
-class CounterStore = _CounterStore with _$CounterStore;
+class ViewModel = _ViewModel with _$ViewModel;
 
-abstract class _CounterStore with Store {
+abstract class _ViewModel with Store {
   final Api theApi;
 
-  _CounterStore(this.theApi);
+  _ViewModel(this.theApi);
 
   @observable
   String? username;

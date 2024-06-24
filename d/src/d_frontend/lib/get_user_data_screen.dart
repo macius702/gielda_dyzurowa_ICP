@@ -35,7 +35,7 @@ class _UserDataFormState extends State<UserDataForm> {
   }
 
   Future<void> fetchData() async {
-    final counterStore = Provider.of<CounterStore>(context, listen: false);
+    final counterStore = Provider.of<ViewModel>(context, listen: false);
     Status value = await counterStore.getUserData();
     userDataStore.storeUserData(value);
   }

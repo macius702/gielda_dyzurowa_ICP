@@ -20,11 +20,11 @@ void main() async {
 
   final counter =
       await initCounter(); // Assuming createCounter is your async function that returns a Counter
-  final counterStore = CounterStore(counter);
+  final counterStore = ViewModel(counter);
   counterStore.setup_specialties();
 
   runApp(
-    Provider<CounterStore>.value(
+    Provider<ViewModel>.value(
       value: counterStore,
       child: MyApp(),
     ),
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final counterStore = Provider.of<CounterStore>(context);
+    final counterStore = Provider.of<ViewModel>(context);
 
     final Map<Page, Widget> _widgetOptions = {
       Page.register: RegisterForm(
@@ -190,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
               selected: _selectedPage == Page.logout,
               onTap: () async {
                 final counterStore =
-                    Provider.of<CounterStore>(context, listen: false);
+                    Provider.of<ViewModel>(context, listen: false);
 
                 Navigator.pop(context);
                 _onItemTapped(Page.logout);
@@ -211,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
               selected: _selectedPage == Page.deleteMe,
               onTap: () async {
                 final counterStore =
-                    Provider.of<CounterStore>(context, listen: false);
+                    Provider.of<ViewModel>(context, listen: false);
                 // Show a SnackBar with the 'Logging out...' message
                 final username = counterStore.username;
 

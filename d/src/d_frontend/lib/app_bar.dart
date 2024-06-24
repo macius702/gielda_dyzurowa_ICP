@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'counter_store.dart';
 
 CommonAppBar(BuildContext context) {
-  final counterStore = Provider.of<CounterStore>(context);
+  final counterStore = Provider.of<ViewModel>(context);
   return AppBar(
     title: Observer(
       // show not logged in when counterstore.username is null

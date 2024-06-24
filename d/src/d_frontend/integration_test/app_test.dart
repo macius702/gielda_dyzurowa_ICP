@@ -224,17 +224,17 @@ Future<void> waitForTextAndType(
   print('$label Found widget with text: $message and type: $type');
 }
 
-Future<CounterStore> initializeApp(WidgetTester tester) async {
+Future<ViewModel> initializeApp(WidgetTester tester) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize the CounterStore
   final counter = await initCounter();
-  final counterStore = CounterStore(counter);
+  final counterStore = ViewModel(counter);
   await counterStore.setup_specialties();
 
   // Launch the app
   await tester.pumpWidget(
-    Provider<CounterStore>.value(
+    Provider<ViewModel>.value(
       value: counterStore,
       child: MyApp(),
     ),

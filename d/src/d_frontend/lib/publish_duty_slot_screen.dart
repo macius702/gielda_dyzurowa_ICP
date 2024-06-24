@@ -51,7 +51,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final counterStore = Provider.of<CounterStore>(context);
+    final counterStore = Provider.of<ViewModel>(context);
     return SingleChildScrollView(
         padding: EdgeInsets.zero,
         child: Form(
@@ -138,7 +138,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
   }
 }
 
-void onPressed(BuildContext context, CounterStore counterStore,
+void onPressed(BuildContext context, ViewModel counterStore,
     PublishDutySlotStore publishDutySlotStore, VoidCallback onTap) {
   if (publishDutySlotStore.selectedSpecialty == null ||
       publishDutySlotStore.selectedSpecialty!.isEmpty) {
@@ -155,7 +155,7 @@ void onPressed(BuildContext context, CounterStore counterStore,
 
 Future<void> performPublishDutySlot(
   BuildContext context,
-  CounterStore counterStore,
+  ViewModel counterStore,
   PublishDutySlotStore publishDutySlotStore,
   VoidCallback onTap,
 ) async {
