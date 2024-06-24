@@ -4,10 +4,10 @@ import 'package:d_frontend/api.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:d_frontend/counter.dart';
 
 part 'counter_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class ViewModel = _ViewModel with _$ViewModel;
 
 abstract class _ViewModel with Store {
@@ -55,12 +55,11 @@ abstract class _ViewModel with Store {
   }
 
   @observable
-  String? displayed_message = null;
+  String? displayedMessage;
 
   @action
   void setDisplayedMessage(String? value) {
-    print('Setting displayed message to: $value');
-    displayed_message = value;
+    displayedMessage = value;
   }
 
   @observable
@@ -70,23 +69,23 @@ abstract class _ViewModel with Store {
   ObservableList<String> specialties = ObservableList<String>();
 
   @observable
-  ObservableList<DutySlotForDisplay> duty_slots =
+  ObservableList<DutySlotForDisplay> dutySlots =
       ObservableList<DutySlotForDisplay>();
 
   @action
-  Future<void> setup_duty_slots() async {
+  Future<void> setupDutySlots() async {
     final value = await theApi.getDutySlots();
-    duty_slots = ObservableList<DutySlotForDisplay>.of(value);
+    dutySlots = ObservableList<DutySlotForDisplay>.of(value);
   }
 
   @action
-  Future<void> get_users() async {
+  Future<void> getUsers() async {
     final value = await theApi.getUsers();
     usernames = ObservableList<String>.of(value);
   }
 
   @action
-  Future<void> setup_specialties() async {
+  Future<void> setupSpecialties() async {
     if (specialties.isEmpty) {
       final value = await theApi.getSpecialties();
       specialties = ObservableList<String>.of(value);
@@ -178,11 +177,11 @@ abstract class _ViewModel with Store {
   }
 
   @action
-  Future<Status> delete_duty_slot(String id) async {
+  Future<Status> deleteDutySlot(String id) async {
     setDisplayedMessage('Removing duty slot in progress...');
     Status s = await theApi.deleteDutySlot(id);
     if (s.is_success()) {
-      duty_slots.removeWhere((element) => element.id == id);
+      dutySlots.removeWhere((element) => element.id == id);
     }
     setDisplayedMessage(null);
     return s;
@@ -190,16 +189,16 @@ abstract class _ViewModel with Store {
 
   @action
   void updateDutySlotStatus(String id, DutyStatus newStatus) {
-    final index = duty_slots.indexWhere((slot) => slot.id == id);
+    final index = dutySlots.indexWhere((slot) => slot.id == id);
     if (index != -1) {
-      final updatedSlot = duty_slots[index].copyWith(status: newStatus);
-      duty_slots[index] = updatedSlot;
+      final updatedSlot = dutySlots[index].copyWith(status: newStatus);
+      dutySlots[index] = updatedSlot;
     }
   }
 
   // counterStore.assign_duty_slot(counterStore.duty_slots[index].id);
   @action
-  Future<Status> assign_duty_slot(String id) async {
+  Future<Status> assignDutySlot(String id) async {
     setDisplayedMessage('Accepting duty slot in progress...');
     Status s = await theApi.assignDutySlot(id);
     if (s.is_success()) {

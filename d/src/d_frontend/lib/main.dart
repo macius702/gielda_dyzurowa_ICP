@@ -21,7 +21,7 @@ void main() async {
   final counter =
       await initCounter(); // Assuming createCounter is your async function that returns a Counter
   final counterStore = ViewModel(counter);
-  counterStore.setup_specialties();
+  counterStore.setupSpecialties();
 
   runApp(
     Provider<ViewModel>.value(
@@ -111,12 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Observer(
             builder: (_) {
               print('AppBar counterStore.username: ${counterStore.username}');
-              if (counterStore.displayed_message != null) {
+              if (counterStore.displayedMessage != null) {
                 // If async_action_in_progress is true, show a SnackBar
                 WidgetsBinding.instance!.addPostFrameCallback((_) {
-                  print('Showing SnackBar: ${counterStore.displayed_message}');
+                  print('Showing SnackBar: ${counterStore.displayedMessage}');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(counterStore.displayed_message!)),
+                    SnackBar(content: Text(counterStore.displayedMessage!)),
                   );
                 });
               } else {

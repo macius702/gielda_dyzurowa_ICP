@@ -19,7 +19,7 @@ void main() {
     final counter =
         await initCounter(); // Assuming initCounter is your async function that returns a Counter
     final counterStore = ViewModel(counter);
-    counterStore.setup_specialties();
+    counterStore.setupSpecialties();
 
     // Launch the app
     await tester.pumpWidget(

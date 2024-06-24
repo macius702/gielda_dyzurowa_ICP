@@ -9,7 +9,7 @@ class ShowUsernamesBody extends StatelessWidget {
     final counterStore = Provider.of<ViewModel>(context);
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      counterStore.get_users();
+      counterStore.getUsers();
     });
 
     return Observer(

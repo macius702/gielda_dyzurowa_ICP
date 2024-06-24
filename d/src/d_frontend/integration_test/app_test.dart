@@ -230,7 +230,7 @@ Future<ViewModel> initializeApp(WidgetTester tester) async {
   // Initialize the CounterStore
   final counter = await initCounter();
   final counterStore = ViewModel(counter);
-  await counterStore.setup_specialties();
+  await counterStore.setupSpecialties();
 
   // Launch the app
   await tester.pumpWidget(
