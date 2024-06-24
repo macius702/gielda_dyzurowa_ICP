@@ -202,7 +202,7 @@ abstract class _CounterStore with Store {
     setDisplayedMessage('Accepting duty slot in progress...');
     Status s = await counter.assign_duty_slot(id);
     if (s.is_success()) {
-      updateDutySlotStatus(id, DutyStatus.filled);
+      updateDutySlotStatus(id, DutyStatus.pending);
     }
     setDisplayedMessage(null);
     return s;
