@@ -20,6 +20,12 @@ class DutySlotsBody extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             columns: const <DataColumn>[
+              // first will be ActionButton
+              DataColumn(
+                label: Text(
+                  'Button',
+                ),
+              ),
               DataColumn(
                 label: Text(
                   'Hospital',
@@ -70,6 +76,72 @@ class DutySlotsBody extends StatelessWidget {
                 return DataRow(
                   color: WidgetStateProperty.resolveWith((states) => color),
                   cells: <DataCell>[
+                    DataCell(
+                      Builder(builder: (context) {
+                        if (counterStore.role == UserRole.doctor) {
+                          if (counterStore.duty_slots[index].status ==
+                              DutyStatus.open) {
+                            return ElevatedButton(
+                              onPressed: () {
+                                print(
+                                    'Accept action on value: ${counterStore.duty_slots[index]}');
+                                counterStore.assign_duty_slot(
+                                    counterStore.duty_slots[index].id);
+                              },
+                              child: Text('Assign'),
+                            );
+                          } else if (counterStore.duty_slots[index].status ==
+                              DutyStatus.pending) {
+                            return const ElevatedButton(
+                              onPressed: null,
+                              child: Text('Waiting for Consent'),
+                            );
+                          } else if (counterStore.duty_slots[index].status ==
+                              DutyStatus.filled) {
+                            return const ElevatedButton(
+                              onPressed: null, //  todo onPressed: onRevoke,
+                              child: Text('Revoke'),
+                            );
+                          }
+                        } else if (counterStore.role == UserRole.hospital) {
+                          if (counterStore.duty_slots[index].status ==
+                              DutyStatus.open) {
+                            if (counterStore.userId ==
+                                int.parse(counterStore
+                                    .duty_slots[index].hospitalId.id)) {
+                              return ElevatedButton(
+                                onPressed: () {
+                                  print(
+                                      'Delete action on value: ${counterStore.duty_slots[index].id}');
+                                  counterStore.delete_duty_slot(
+                                      counterStore.duty_slots[index].id);
+                                },
+                                child: Text('Delete'),
+                              );
+                            } else {
+                              return const ElevatedButton(
+                                onPressed: null,
+                                child: Text('Waiting'),
+                              );
+                            }
+                          } else if (counterStore.duty_slots[index].status ==
+                              DutyStatus.pending) {
+                            return const ElevatedButton(
+                              onPressed: null, // todo onGiveConsent,
+                              child: Text('Consent'),
+                            );
+                          } else if (counterStore.duty_slots[index].status ==
+                              DutyStatus.filled) {
+                            return const ElevatedButton(
+                              onPressed: null,
+                              child: Text('Filled'),
+                            );
+                          }
+                        }
+                        return const SizedBox
+                            .shrink(); // Return an empty widget if none of the conditions are met
+                      }),
+                    ),
                     DataCell(
                       Text(
                         '${counterStore.duty_slots[index].hospitalId.username}',
