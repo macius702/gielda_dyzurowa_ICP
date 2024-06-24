@@ -1,11 +1,11 @@
 use std::cmp::Reverse;
 use std::collections::HashMap;
 
+use crate::{assign_duty_slot_by_id, delete_user_internal, TokenData, UserRole};
 use crate::{
     delete_duty_slot_by_id, get_duty_slot_by_id, get_user_by_id, jwt::JWT, USED_TOKENS_HEAP,
     USED_TOKENS_MAP,
 };
-use crate::{assign_duty_slot_by_id, delete_user_internal, TokenData, UserRole};
 use candid;
 use candid::de::IDLDeserialize;
 use candid::ser::IDLBuilder;
@@ -356,6 +356,29 @@ pub(crate) fn setup() -> Router {
         })
     });
 
+    router.options("/auth/register", true, |_req: HttpRequest| async move {
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: {
+                let mut headers = HashMap::new();
+                headers.insert(
+                    String::from("Access-Control-Allow-Origin"),
+                    String::from("*"),
+                );
+                headers.insert(
+                    String::from("Access-Control-Allow-Methods"),
+                    String::from("POST, OPTIONS"),
+                );
+                headers.insert(
+                    String::from("Access-Control-Allow-Headers"),
+                    String::from("Content-Type"),
+                );
+                headers
+            },
+            body: "".to_string().into(),
+        })
+    });
+
     router.post("/auth/register", true, |req: HttpRequest| async move {
         // req body has fields : username, password, role, specialty, localization
         let body_string = String::from_utf8(req.body.clone()).unwrap();
@@ -402,7 +425,14 @@ pub(crate) fn setup() -> Router {
         if key == 0 {
             return Ok(HttpResponse {
                 status_code: 400,
-                headers: HashMap::new(),
+                headers: {
+                    let mut headers = HashMap::new();
+                    headers.insert(
+                        String::from("Access-Control-Allow-Origin"),
+                        String::from("*"),
+                    );
+                    headers
+                },
                 body: json!({
                     "statusCode": 400,
                     "message": "Cannot register a new user, the user already exists"
@@ -413,7 +443,23 @@ pub(crate) fn setup() -> Router {
 
         Ok(HttpResponse {
             status_code: 200,
-            headers: HashMap::new(),
+            headers: {
+                let mut headers = HashMap::new();
+                headers.insert(
+                    String::from("Access-Control-Allow-Origin"),
+                    String::from("*"),
+                );
+                //headers.insert(String::from("Access-Control-Allow-Origin"), String::from("http://example.com"));
+                headers.insert(
+                    String::from("Access-Control-Allow-Methods"),
+                    String::from("POST, OPTIONS"),
+                );
+                headers.insert(
+                    String::from("Access-Control-Allow-Headers"),
+                    String::from("Content-Type"),
+                );
+                headers
+            },
             body: json!({
                 "statusCode": 200,
                 "message": "User registered",
@@ -439,6 +485,21 @@ pub(crate) fn setup() -> Router {
         })
     });
 
+
+
+router.options("/auth/login", true, |_req: HttpRequest| async move {
+    Ok(HttpResponse {
+        status_code: 200,
+        headers: {
+            let mut headers = HashMap::new();
+            headers.insert(String::from("Access-Control-Allow-Origin"), String::from("*"));
+            headers.insert(String::from("Access-Control-Allow-Methods"), String::from("POST, OPTIONS"));
+            headers.insert(String::from("Access-Control-Allow-Headers"), String::from("Content-Type"));
+            headers
+        },
+        body: "".to_string().into(),
+    })
+});    
     router.post("/auth/login", true, move |req: HttpRequest| async move {
         // Log the full incoming request
         println!(
@@ -481,7 +542,7 @@ pub(crate) fn setup() -> Router {
                     "your_salt_string".as_bytes(),
                 ));
 
-                if user.password == hashed_password {
+            if user.password == hashed_password {
                     println!("User logged in: {}", user.username);
 
                     let payload =
@@ -507,7 +568,12 @@ pub(crate) fn setup() -> Router {
                         })
                         .into(),
                     };
+
                     response.add_raw_header("Set-Cookie", cookies);
+                    response.add_raw_header("Access-Control-Allow-Origin", String::from("*"));
+                    response.add_raw_header("Access-Control-Allow-Methods", String::from("POST, OPTIONS"));
+                    response.add_raw_header("Access-Control-Allow-Headers", String::from("Content-Type"));
+            
 
                     Ok(response)
                 } else {
@@ -543,6 +609,21 @@ pub(crate) fn setup() -> Router {
         })
     });
 
+
+    router.options("/user/data", true, |_req: HttpRequest| async move {
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: {
+                let mut headers = HashMap::new();
+                headers.insert(String::from("Access-Control-Allow-Origin"), String::from("*"));
+                headers.insert(String::from("Access-Control-Allow-Methods"), String::from("GET, OPTIONS"));
+                headers.insert(String::from("Access-Control-Allow-Headers"), String::from("Content-Type"));
+                headers
+            },
+            body: "".to_string().into(),
+        })
+    });    
+
     router.get("/user/data", false, |req: HttpRequest| async move {
         let user_info = match get_authorized_user_info(&req) {
             Ok(user_info) => user_info,
@@ -550,7 +631,7 @@ pub(crate) fn setup() -> Router {
         };
         let (userid, userrole, username) = user_info;
 
-        Ok(HttpResponse {
+        let mut response =  HttpResponse {
             status_code: 200,
             headers: HashMap::new(),
             body: json!({
@@ -559,7 +640,15 @@ pub(crate) fn setup() -> Router {
                 "role": userrole
             })
             .into(),
-        })
+        };
+
+        // response.add_raw_header("Set-Cookie", cookies);
+        response.add_raw_header("Access-Control-Allow-Origin", String::from("*"));
+        response.add_raw_header("Access-Control-Allow-Methods", String::from("GET, OPTIONS"));
+        response.add_raw_header("Access-Control-Allow-Headers", String::from("Content-Type"));
+
+
+        Ok(response)
     });
 
     router.get("/users", false, |_: HttpRequest| async move {
