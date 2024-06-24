@@ -130,7 +130,7 @@ class Counter implements Api {
   }
 
   // todo - implement with Restful API
-  Future<List<String>> get_specialties() async {
+  Future<List<String>> getSpecialties() async {
     try {
       await saveValue();
       await retrieveValue();
@@ -425,7 +425,7 @@ class Counter implements Api {
     }
   }
 
-  Future<Status> delete_duty_slot(String id) async {
+  Future<Status> deleteDutySlot(String id) async {
     try {
       Uri uri = _createUri('/duty/remove');
 
@@ -478,7 +478,7 @@ class Counter implements Api {
   }
 
   //Status s = await counter.assign_duty_slot(id);
-  Future<Status> assign_duty_slot(String id) async {
+  Future<Status> assignDutySlot(String id) async {
     try {
       Uri uri = _createUri('/assign-duty-slot');
 
@@ -638,7 +638,7 @@ class Counter implements Api {
     }
   }
 
-  Future<List<String>> get_users() async {
+  Future<List<String>> getUsers() async {
     try {
       if (actor == null) {
         throw Exception("Actor is null");

@@ -11,9 +11,9 @@ part 'counter_store.g.dart';
 class CounterStore = _CounterStore with _$CounterStore;
 
 abstract class _CounterStore with Store {
-  final Api counter;
+  final Api theApi;
 
-  _CounterStore(this.counter);
+  _CounterStore(this.theApi);
 
   @observable
   String? username;
@@ -75,20 +75,20 @@ abstract class _CounterStore with Store {
 
   @action
   Future<void> setup_duty_slots() async {
-    final value = await counter.getDutySlots();
+    final value = await theApi.getDutySlots();
     duty_slots = ObservableList<DutySlotForDisplay>.of(value);
   }
 
   @action
   Future<void> get_users() async {
-    final value = await counter.get_users();
+    final value = await theApi.getUsers();
     usernames = ObservableList<String>.of(value);
   }
 
   @action
   Future<void> setup_specialties() async {
     if (specialties.isEmpty) {
-      final value = await counter.get_specialties();
+      final value = await theApi.getSpecialties();
       specialties = ObservableList<String>.of(value);
     }
   }
@@ -101,7 +101,7 @@ abstract class _CounterStore with Store {
       required int? specialty,
       required String? localization}) async {
     setDisplayedMessage('Registration in progress...');
-    Status status = await counter.performRegistration(
+    Status status = await theApi.performRegistration(
         username, password, role, specialty, localization);
     setDisplayedMessage(null);
     return status;
@@ -111,7 +111,7 @@ abstract class _CounterStore with Store {
   Future<Status> performLogin(
       {required String username, required String password}) async {
     setDisplayedMessage('Login in progress...');
-    Status status = await counter.performLogin(username, password);
+    Status status = await theApi.performLogin(username, password);
 
     if (status.is_success()) {
       Status m = await getUserData();
@@ -132,21 +132,21 @@ abstract class _CounterStore with Store {
   Future<Status> performLogout() async {
     setUsername(null);
     setDisplayedMessage('Logout in progress...');
-    Status s = await counter.performLogout();
+    Status s = await theApi.performLogout();
     setDisplayedMessage(null);
     return s;
   }
 
   @action
   Future<Status> getUserData() async {
-    return await counter.getUserData();
+    return await theApi.getUserData();
   }
 
   @action
   Future<Status> deleteMe() async {
     setUsername(null);
     setDisplayedMessage('Delete user in progress...');
-    Status s = await counter.deleteMe();
+    Status s = await theApi.deleteMe();
     setDisplayedMessage(null);
     return s;
   }
@@ -162,7 +162,7 @@ abstract class _CounterStore with Store {
       required DateTime endDate,
       required TimeOfDay endTime}) async {
     setDisplayedMessage('Publish duty slot in progress...');
-    Status s = await counter.publishDutySlot(
+    Status s = await theApi.publishDutySlot(
       specialty: Specialty(
           id: specialties.indexOf(specialty).toString(), name: specialty),
       priceFrom: priceFrom,
@@ -180,7 +180,7 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> delete_duty_slot(String id) async {
     setDisplayedMessage('Removing duty slot in progress...');
-    Status s = await counter.delete_duty_slot(id);
+    Status s = await theApi.deleteDutySlot(id);
     if (s.is_success()) {
       duty_slots.removeWhere((element) => element.id == id);
     }
@@ -201,7 +201,7 @@ abstract class _CounterStore with Store {
   @action
   Future<Status> assign_duty_slot(String id) async {
     setDisplayedMessage('Accepting duty slot in progress...');
-    Status s = await counter.assign_duty_slot(id);
+    Status s = await theApi.assignDutySlot(id);
     if (s.is_success()) {
       updateDutySlotStatus(id, DutyStatus.pending);
     }

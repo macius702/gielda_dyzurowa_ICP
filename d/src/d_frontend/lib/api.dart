@@ -21,15 +21,15 @@ abstract class Api {
       required DateTime endDate,
       required TimeOfDay endTime});
 
-  Future<Status> delete_duty_slot(String id);
+  Future<Status> deleteDutySlot(String id);
 
-  Future<Status> assign_duty_slot(String id);
+  Future<Status> assignDutySlot(String id);
 
   Future<List<DutySlotForDisplay>> getDutySlots();
 
   Future<Status> getUserData();
 
-  Future<List<String>> get_users();
+  Future<List<String>> getUsers();
 
-  Future<List<String>> get_specialties();
+  Future<List<String>> getSpecialties();
 }
