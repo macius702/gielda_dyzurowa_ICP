@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:d_frontend/api.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -10,7 +11,7 @@ part 'counter_store.g.dart';
 class CounterStore = _CounterStore with _$CounterStore;
 
 abstract class _CounterStore with Store {
-  final Counter counter;
+  final Api counter;
 
   _CounterStore(this.counter);
 

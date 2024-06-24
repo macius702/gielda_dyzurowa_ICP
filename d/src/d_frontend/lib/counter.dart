@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:d_frontend/api.dart';
 import 'package:d_frontend/constants.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,7 +37,7 @@ abstract class CounterMethod {
 
 ///
 /// Counter class, with AgentFactory within
-class Counter {
+class Counter implements Api {
   /// AgentFactory is a factory method that creates Actor automatically.
   /// Save your strength, just use this template
   AgentFactory? _agentFactory;
@@ -128,6 +129,7 @@ class Counter {
     }
   }
 
+  // todo - implement with Restful API
   Future<List<String>> get_specialties() async {
     try {
       await saveValue();
