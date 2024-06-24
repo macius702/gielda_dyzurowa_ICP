@@ -241,7 +241,8 @@ class Counter {
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response,
 
-                  //handle cookies
+        if (!kIsWeb) {
+          //handle cookies
           String? rawCookie = response.headers['set-cookie'];
           if (rawCookie == null) {
             throw Exception('Failed to login user: no cookie in response');
@@ -255,7 +256,8 @@ class Counter {
           } catch (e) {
             throw Exception('Failed to login user: cannot save cookies');
           }
-        
+        }
+
         return Response();
       } else {
         // If the server returns an unexpected response,
