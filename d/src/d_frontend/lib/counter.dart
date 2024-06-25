@@ -126,7 +126,7 @@ class Counter implements Api {
 
   // todo - implement with Restful API
   @override
-  Future<List<String>> getSpecialties() async {
+  Future<List<String>> getSpecialtiesCandid() async {
     try {
       await saveValue();
       await retrieveValue();
@@ -151,6 +151,43 @@ class Counter implements Api {
     }
 
     return <String>[];
+  }
+
+  @override
+  Future<List<String>> getSpecialties() async {
+    Uri uri = _createUri('/specialties');
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+
+    mtlk_print('URL: $uri');
+    mtlk_print('Headers: $headers');
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
+
+    mtlk_print('getSpecialties: response.statusCode: ${response.statusCode}');
+    mtlk_print('getSpecialties: response.body: ${response.body}');
+    mtlk_print('getSpecialties: response.headers: ${response.headers}');
+    mtlk_print('getSpecialties: response.request: ${response.request}');
+    mtlk_print('getSpecialties: response: $response');
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response,
+      // then parse the JSON.
+      List<dynamic> responseBody = jsonDecode(response.body);
+      print("getSpecialties responseBody: $responseBody");
+      List<String> specialties = responseBody.map((item) => item['name'] as String).toList();
+      print("getSpecialties specialties: $specialties");
+
+      return specialties;
+    } else {
+      // If the server returns an unexpected response,
+      // then throw an exception.
+      throw Exception('Failed to get specialties');
+    }
   }
 
   @override
