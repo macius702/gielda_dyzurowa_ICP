@@ -165,7 +165,7 @@ fn assign_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
     let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
     // update the duty slot with the doctor_id and status to filled
     let updated_duty_slot = DutySlot {
-        status: DutyStatus::filled,
+        status: DutyStatus::pending,
         assigned_doctor_id: Some(doctor_id),
         ..duty_slot
     };
@@ -174,6 +174,33 @@ fn assign_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
         p.borrow_mut().insert(duty_slot_id, updated_duty_slot);
     });
 
+}
+
+fn give_consent_to_duty_slot_by_id(duty_slot_id: u32, _: u32) {
+    let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
+    // update the duty slot with the status to open
+    let updated_duty_slot = DutySlot {
+        status: DutyStatus::filled,
+        ..duty_slot
+    };
+    // update the duty slot in the MAP
+    MAP.with(|p| {
+        p.borrow_mut().insert(duty_slot_id, updated_duty_slot);
+    });
+}
+
+fn revoke_assignment_from_duty_slot_by_id(duty_slot_id: u32 , _: u32) {
+    let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
+    // update the duty slot with the status to open
+    let updated_duty_slot = DutySlot {
+        status: DutyStatus::open,
+        assigned_doctor_id: None,
+        ..duty_slot
+    };
+    // update the duty slot in the MAP
+    MAP.with(|p| {
+        p.borrow_mut().insert(duty_slot_id, updated_duty_slot);
+    });
 }
 
 fn find_user_by_username(username: &str) -> Option<(u32, User)> {

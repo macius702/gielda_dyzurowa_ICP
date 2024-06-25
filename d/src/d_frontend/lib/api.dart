@@ -25,6 +25,10 @@ abstract class Api {
 
   Future<Status> assignDutySlot(String id);
 
+  Future<Status> giveConsent(String id);
+
+  Future<Status> revokeAssignment(String id);
+
   Future<List<DutySlotForDisplay>> getDutySlots();
 
   Future<Status> getUserData();

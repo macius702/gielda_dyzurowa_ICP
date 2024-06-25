@@ -99,9 +99,14 @@ class DutySlotsBody extends StatelessWidget {
                             );
                           } else if (counterStore.dutySlots[index].status ==
                               DutyStatus.filled) {
-                            return const ElevatedButton(
+                            return ElevatedButton(
                               key: Key('revokeButton'),
-                              onPressed: null, //  todo onPressed: onRevoke,
+                              onPressed: () {
+                                print(
+                                    'Revoke action on value: ${counterStore.dutySlots[index]}');
+                                counterStore.revokeAssignment(
+                                    counterStore.dutySlots[index].id);
+                              },
                               child: Text('Revoke'),
                             );
                           }
@@ -128,8 +133,14 @@ class DutySlotsBody extends StatelessWidget {
                             }
                           } else if (counterStore.dutySlots[index].status ==
                               DutyStatus.pending) {
-                            return const ElevatedButton(
-                              onPressed: null, // todo onGiveConsent,
+                            return ElevatedButton(
+                              key: Key('consentButton'),
+                              onPressed: () {
+                                print(
+                                    'Consent action on value: ${counterStore.dutySlots[index]}');
+                                counterStore.giveConsent(
+                                    counterStore.dutySlots[index].id);
+                              },
                               child: Text('Consent'),
                             );
                           } else if (counterStore.dutySlots[index].status ==
