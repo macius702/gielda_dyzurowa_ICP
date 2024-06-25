@@ -477,18 +477,15 @@ class Counter implements Api {
     }
   }
 
-  //Status s = await counter.assign_duty_slot(id);
-  @override
-  Future<Status> assignDutySlot(String id) async {
+  Future<Status> _performDutySlotAction(String endpoint, String id, String errorMessage) async {
     try {
-      Uri uri = _createUri('/assign-duty-slot');
+      Uri uri = _createUri(endpoint);
 
       // take cookies form SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
       if (cookies == null) {
-        throw Exception(
-            'Failed to accept duty slot: no cookies in SharedPreferences');
+        throw Exception(errorMessage);
       }
 
       Map<String, String> headers = {
@@ -517,124 +514,33 @@ class Counter implements Api {
       } else {
         // If the server returns an unexpected response,
         // then throw an exception.
-        mtlk_print('Error response.statusCode: ${response.statusCode}');
-        mtlk_print('Error response.body: ${response.body}');
-        mtlk_print('Error response.headers: ${response.headers}');
-        mtlk_print('Error response.request: ${response.request}');
-        mtlk_print('Error response: $response');
+        mtlk_print('Print response.statusCode: ${response.statusCode}');
+        mtlk_print('Print response.body: ${response.body}');
+        mtlk_print('Print response.headers: ${response.headers}');
+        mtlk_print('Print response.request: ${response.request}');
+        mtlk_print('Print response: $response');
 
-        throw Exception('Failed to accept duty slot');
+        throw Exception(errorMessage);
       }
     } catch (e) {
       mtlk_print("Caught error: $e");
       return Future.error(e);
     }
+  }
+
+  @override
+  Future<Status> assignDutySlot(String id) async {
+    return _performDutySlotAction('/assign-duty-slot', id, 'Failed to accept duty slot');
   }
 
   @override
   Future<Status> giveConsent(String id) async {
-    try {
-      Uri uri = _createUri('/give-consent');
-
-      // take cookies form SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? cookies = prefs.getString('cookies');
-      if (cookies == null) {
-        throw Exception(
-            'Failed to give consent: no cookies in SharedPreferences');
-      }
-
-      Map<String, String> headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'cookie': cookies,
-      };
-      Map<String, dynamic> bodyMap = {
-        '_id': id,
-      };
-
-      String body = jsonEncode(bodyMap);
-      mtlk_print('URL: $uri');
-      mtlk_print('Headers: $headers');
-      mtlk_print('Body: $body');
-
-      final response = await http.post(
-        uri,
-        headers: headers,
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        // If the server returns a 200 OK response,
-        // then parse the JSON.
-        return Response();
-      } else {
-        // If the server returns an unexpected response,
-        // then throw an exception.
-        mtlk_print('Print response.statusCode: ${response.statusCode}');
-        mtlk_print('Print response.body: ${response.body}');
-        mtlk_print('Print response.headers: ${response.headers}');
-        mtlk_print('Print response.request: ${response.request}');
-        mtlk_print('Print response: $response');
-
-        throw Exception('Failed to give consent');
-      }
-    } catch (e) {
-      mtlk_print("Caught error: $e");
-      return Future.error(e);
-    }
+    return _performDutySlotAction('/give-consent', id, 'Failed to give consent');
   }
 
   @override
   Future<Status> revokeAssignment(String id) async {
-    try {
-      Uri uri = _createUri('/revoke-assignment');
-
-      // take cookies form SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? cookies = prefs.getString('cookies');
-      if (cookies == null) {
-        throw Exception(
-            'Failed to revoke assignment: no cookies in SharedPreferences');
-      }
-
-      Map<String, String> headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'cookie': cookies,
-      };
-      Map<String, dynamic> bodyMap = {
-        '_id': id,
-      };
-
-      String body = jsonEncode(bodyMap);
-      mtlk_print('URL: $uri');
-      mtlk_print('Headers: $headers');
-      mtlk_print('Body: $body');
-
-      final response = await http.post(
-        uri,
-        headers: headers,
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        // If the server returns a 200 OK response,
-        // then parse the JSON.
-        return Response();
-      } else {
-        // If the server returns an unexpected response,
-        // then throw an exception.
-        mtlk_print('Print response.statusCode: ${response.statusCode}');
-        mtlk_print('Print response.body: ${response.body}');
-        mtlk_print('Print response.headers: ${response.headers}');
-        mtlk_print('Print response.request: ${response.request}');
-        mtlk_print('Print response: $response');
-
-        throw Exception('Failed to revoke assignment');
-      }
-    } catch (e) {
-      mtlk_print("Caught error: $e");
-      return Future.error(e);
-    }
+    return _performDutySlotAction('/revoke-assignment', id, 'Failed to revoke assignment');
   }
 
   Future<List<DutySlotForDisplay>> getDutySlots() async {
