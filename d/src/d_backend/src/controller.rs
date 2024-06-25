@@ -1,7 +1,7 @@
 use std::cmp::Reverse;
 use std::collections::HashMap;
 
-use crate::{assign_duty_slot_by_id, delete_user_internal, give_consent_to_duty_slot_by_id, revoke_assignment_from_duty_slot_by_id, TokenData, UserRole};
+use crate::{assign_duty_slot_by_id, delete_user_internal, get_all_usernames_internal, give_consent_to_duty_slot_by_id, revoke_assignment_from_duty_slot_by_id, TokenData, UserRole};
 use crate::{
     delete_duty_slot_by_id, get_duty_slot_by_id, get_user_by_id, jwt::JWT, USED_TOKENS_HEAP,
     USED_TOKENS_MAP,
@@ -677,6 +677,23 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
                 "statusCode": 200,
                 "message": "Hello World from GET /users",
                 "users": get_all_users_internal()
+            })
+            .into(),
+        })
+    });
+
+    router.get("/usernames", false, |_: HttpRequest| async move {
+        println!("Hello World from GET /usernames");
+        println!("Users: {:?}", get_all_usernames_internal());
+
+        //respond with json using users
+        Ok(HttpResponse {
+            status_code: 200,
+            headers: HashMap::new(),
+            body: json!({
+                "statusCode": 200,
+                "message": "Hello World from GET /usernames",
+                "usernames": get_all_usernames_internal()
             })
             .into(),
         })

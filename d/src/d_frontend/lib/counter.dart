@@ -645,7 +645,7 @@ class Counter implements Api {
   }
 
   @override
-  Future<List<String>> getUsers() async {
+  Future<List<String>> getUsersCandid() async {
     try {
       if (actor == null) {
         throw Exception("Actor is null");
@@ -669,6 +669,46 @@ class Counter implements Api {
     } catch (e) {
       mtlk_print("Caught error: $e");
       rethrow;
+    }
+  }
+
+  @override
+  Future<List<String>> getUsers() async {
+    Uri uri = _createUri('/usernames');
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+
+    mtlk_print('URL: $uri');
+    mtlk_print('Headers: $headers');
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
+
+    mtlk_print('getUsers: response.statusCode: ${response.statusCode}');
+    mtlk_print('getUsers: response.body: ${response.body}');
+    mtlk_print('getUsers: response.headers: ${response.headers}');
+    mtlk_print('getUsers: response.request: ${response.request}');
+    mtlk_print('getUsers: response: $response');
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response,
+      // then parse the JSON.
+
+      Map<String, dynamic> responseBody = jsonDecode(response.body);
+      List<dynamic> jsonList = responseBody['usernames'];
+      List<String> usernames = [];
+      for (var e in jsonList) {
+        print("getUsers e: $e");
+        usernames.add(e);
+      }
+      return usernames;
+    } else {
+      // If the server returns an unexpected response,
+      // then throw an exception.
+      throw Exception('Failed to get usernames');
     }
   }
 
