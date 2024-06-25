@@ -41,30 +41,35 @@ void main() {
     // Check if the duty slot is assigned
     await waitForText('Waiting for Consent', tester, '1');
     expect(find.text('Waiting for Consent'), findsOneWidget);
+    await logout(tester);
 
-    await deleteUser(tester, doctor1);
     await login(tester, hospital1);
+    await openDutySlotsPage(tester);
+    expect(find.text('Consent'), findsOneWidget);
+    // tap Consent
+    await tester.tap(find.byKey(Key('consentButton')));
+    await tester.pumpAndSettle();
+    await waitForText('Filled', tester, '2');
+    expect(find.text('Filled'), findsOneWidget);
+    await logout(tester);
+
+    await login(tester, doctor1);
+    await openDutySlotsPage(tester);
+    expect(find.text('Revoke'), findsOneWidget);
+    // tap Revoke
+    await tester.tap(find.byKey(Key('revokeButton')));
+    await tester.pumpAndSettle();
+    await waitForText('Assign', tester, '3');
+    expect(find.text('Assign'), findsOneWidget);
+    await logout(tester);
+
+    await login(tester, hospital1);
+    await openDutySlotsPage(tester);
+    expect(find.text('Delete'), findsOneWidget);
+
     await deleteUser(tester, hospital1);
-
-    // await logout(tester);
-
-    // await login(tester, hospital1);
-    // await openDutySlotsPage(tester);
-
-    // expect(find.text('Filled'), findsOneWidget);
-    // await logout(tester);
-
-    // await login(tester, doctor1);
-    // await openDutySlotsPage(tester);
-    // expect(find.text('Revoke'), findsOneWidget);
-
-    // // tap Revoke
-    // await tester.tap(find.byKey(Key('revokeButton')));
-    // await tester.pumpAndSettle();
-    // await logout(tester);
-
-    // await login(tester, hospital1);
-    // await openDutySlotsPage(tester);
+    await login(tester, doctor1);
+    await deleteUser(tester, doctor1);
   });
 
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
@@ -299,7 +304,7 @@ Future<void> register(WidgetTester tester, String username, String role,
 
   // 3. Fill user
   await tester.enterText(find.byKey(Key('usernameField')), username);
-  await tester.enterText(find.byKey(Key('passwordField')), 'password');
+  await tester.enterText(find.byKey(Key('passwordField')), 'a');
 
   // 4. Click Select role
   await tester.tap(find.byKey(Key('roleDropdown')));
@@ -346,7 +351,7 @@ Future<void> login(WidgetTester tester, String username) async {
   await tester.tap(find.text('Login'));
   await tester.pumpAndSettle();
   await tester.enterText(find.byKey(Key('loginUsernameField')), username);
-  await tester.enterText(find.byKey(Key('loginPasswordField')), 'password');
+  await tester.enterText(find.byKey(Key('loginPasswordField')), 'a');
   await tester.tap(find.byKey(Key('loginButton')));
   await tester.pumpAndSettle();
 

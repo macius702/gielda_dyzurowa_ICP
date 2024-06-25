@@ -207,4 +207,27 @@ abstract class _ViewModel with Store {
     setDisplayedMessage(null);
     return s;
   }
+
+  @action
+  Future<Status> giveConsent(String id) async {
+    setDisplayedMessage('Giving consent in progress...');
+    Status s = await theApi.giveConsent(id);
+    if (s.is_success()) {
+      updateDutySlotStatus(id, DutyStatus.filled);
+    }
+    setDisplayedMessage(null);
+    return s;
+  }
+
+  @action
+  Future<Status> revokeAssignment(String id) async {
+    setDisplayedMessage('Revoking assignment in progress...');
+    final status = await theApi.revokeAssignment(id);
+    if (status.is_success()) {
+      updateDutySlotStatus(id, DutyStatus.open);
+    }
+    setDisplayedMessage(null);
+
+    return status;
+  }
 }

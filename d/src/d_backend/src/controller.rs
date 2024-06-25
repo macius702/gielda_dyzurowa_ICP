@@ -1,7 +1,7 @@
 use std::cmp::Reverse;
 use std::collections::HashMap;
 
-use crate::{assign_duty_slot_by_id, delete_user_internal, TokenData, UserRole};
+use crate::{assign_duty_slot_by_id, delete_user_internal, give_consent_to_duty_slot_by_id, revoke_assignment_from_duty_slot_by_id, TokenData, UserRole};
 use crate::{
     delete_duty_slot_by_id, get_duty_slot_by_id, get_user_by_id, jwt::JWT, USED_TOKENS_HEAP,
     USED_TOKENS_MAP,
@@ -269,14 +269,14 @@ pub(crate) fn setup() -> Router {
         })
     });
 
-    router.post("/assign-duty-slot", true, |req: HttpRequest| async move {
+    async fn change_duty_slot_status(req: HttpRequest, user_role: &str, action: fn(u32, u32)) -> Result<HttpResponse, HttpResponse> {
         let user_info = match get_authorized_user_info(&req) {
             Ok(user_info) => user_info,
-            Err(response) => return Ok(response),
+            Err(response) => return Err(response),
         };
         let (userid, userrole, username) = user_info;
-        if userrole != "doctor" {
-            return Ok(HttpResponse {
+        if userrole != user_role {
+            return Err(HttpResponse {
                 status_code: 403,
                 headers: HashMap::new(),
                 body: json!({
@@ -286,7 +286,7 @@ pub(crate) fn setup() -> Router {
                 .into(),
             });
         }
-        assert_eq!(userrole, "doctor");
+        assert_eq!(userrole, user_role);
 
         let body_string = String::from_utf8(req.body.clone()).unwrap();
         println!("Received body: {}", body_string);
@@ -307,7 +307,7 @@ pub(crate) fn setup() -> Router {
                         })
                         .into(),
                     };
-                    return Ok(response);
+                    return Err(response);
                 }
             },
             None => {
@@ -320,7 +320,7 @@ pub(crate) fn setup() -> Router {
                     })
                     .into(),
                 };
-                return Ok(response);
+                return Err(response);
             }
         };
 
@@ -330,7 +330,7 @@ pub(crate) fn setup() -> Router {
         let duty_slot = match duty_slot {
             Some(duty_slot) => duty_slot,
             None => {
-                return Ok(HttpResponse {
+                return Err(HttpResponse {
                     status_code: 404,
                     headers: HashMap::new(),
                     body: json!({
@@ -343,7 +343,7 @@ pub(crate) fn setup() -> Router {
         };
 
         // take the duty slot id and change its status to accepted
-        assign_duty_slot_by_id(duty_slot_id, userid);
+        action(duty_slot_id, userid);
         print!(
             "Accepted duty slot: {:?} for doctor with id: {}",
             duty_slot, userid
@@ -354,7 +354,21 @@ pub(crate) fn setup() -> Router {
             headers: HashMap::new(),
             body: json!({}).into(),
         })
+    }
+
+    router.post("/assign-duty-slot", true, |req: HttpRequest| async move {
+        change_duty_slot_status(req, "doctor", assign_duty_slot_by_id).await
     });
+
+    router.post("/give-consent", true, |req: HttpRequest| async move {
+        change_duty_slot_status(req, "hospital", give_consent_to_duty_slot_by_id).await
+    });
+
+    router.post("/revoke-assignment", true, |req: HttpRequest| async move {
+        change_duty_slot_status(req, "doctor", revoke_assignment_from_duty_slot_by_id).await
+    });
+    
+
 
     router.options("/auth/register", true, |_req: HttpRequest| async move {
         Ok(HttpResponse {
