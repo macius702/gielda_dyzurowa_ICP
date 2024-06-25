@@ -19,13 +19,11 @@ void main() {
     const hospital1 = 'H1';
     await register(tester, hospital1, 'hospital');
     await login(tester, hospital1);
-    await publishDutySlot(
-        tester, hospital1, 'Chirurgia naczyniowa', '100', '200');
+    await publishDutySlot(tester, hospital1, 'Chirurgia naczyniowa', '100', '200');
     await logout(tester);
 
     const doctor1 = 'D1';
-    await register(tester, doctor1, 'doctor',
-        specialty: 'Chirurgia naczyniowa', localization: 'Warsaw');
+    await register(tester, doctor1, 'doctor', specialty: 'Chirurgia naczyniowa', localization: 'Warsaw');
     await login(tester, doctor1);
 
     await openDutySlotsPage(tester);
@@ -91,16 +89,14 @@ void main() {
     await deleteUser(tester, username);
   }, skip: skip_them);
 
-  testWidgets('Publish duty slot, view duty slots and delete duty slot',
-      (WidgetTester tester) async {
+  testWidgets('Publish duty slot, view duty slots and delete duty slot', (WidgetTester tester) async {
     await initializeApp(tester);
 
     // H1 user adds his entry
     const hospital1 = 'H1';
     await register(tester, hospital1, 'hospital');
     await login(tester, hospital1);
-    await publishDutySlot(
-        tester, hospital1, 'Chirurgia naczyniowa', '100', '200');
+    await publishDutySlot(tester, hospital1, 'Chirurgia naczyniowa', '100', '200');
     await logout(tester);
 
     // H2 user adds his entry
@@ -130,15 +126,13 @@ void main() {
 
     // **************** For delete duty slot ***********
     // Add a new entry
-    await publishDutySlot(
-        tester, hospital1, "Balneologia i medycyna fizykalna", '500', '600');
+    await publishDutySlot(tester, hospital1, "Balneologia i medycyna fizykalna", '500', '600');
 
     // check both entries are present
     expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
     expect(find.text('Balneologia i medycyna fizykalna'), findsOneWidget);
 
-    await deleteDutySlotContainingText(
-        tester, 'Balneologia i medycyna fizykalna');
+    await deleteDutySlotContainingText(tester, 'Balneologia i medycyna fizykalna');
 
     // check the proper entry disappeared
     expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
@@ -162,8 +156,7 @@ void main() {
   }, skip: skip_them);
 }
 
-Future<void> deleteDutySlotContainingText(
-    WidgetTester tester, String cellTextToFind) async {
+Future<void> deleteDutySlotContainingText(WidgetTester tester, String cellTextToFind) async {
   final dataTableFinder = find.byType(DataTable);
   final dataTable = dataTableFinder.evaluate().single.widget as DataTable;
 
@@ -173,8 +166,7 @@ Future<void> deleteDutySlotContainingText(
     return cellText.contains('Actions');
   }, orElse: () => DataColumn(label: Text('')));
 
-  if (actionColumn.label is Text &&
-      ((actionColumn.label as Text).data?.isEmpty ?? true)) {
+  if (actionColumn.label is Text && ((actionColumn.label as Text).data?.isEmpty ?? true)) {
     print('Actions column not found');
     assert(false);
   }
@@ -184,8 +176,7 @@ Future<void> deleteDutySlotContainingText(
     for (final dataCell in dataRow.cells) {
       cellText = dataCell.child.toString();
       if (cellText.contains(cellTextToFind)) {
-        final toClickDataCell =
-            dataRow.cells[dataTable.columns.indexOf(actionColumn)];
+        final toClickDataCell = dataRow.cells[dataTable.columns.indexOf(actionColumn)];
         final toClickDatacellFinder = find.byWidget(toClickDataCell.child);
 
         await tester.scrollUntilVisible(toClickDatacellFinder, 300.0);
@@ -229,8 +220,7 @@ Future<void> waitFor(
   } while (finder.evaluate().isEmpty);
 }
 
-Future<void> waitForRowsCountChangeOfDataTable(
-    WidgetTester tester, Finder dataTableFinder) async {
+Future<void> waitForRowsCountChangeOfDataTable(WidgetTester tester, Finder dataTableFinder) async {
   final end = tester.binding.clock.now().add(const Duration(seconds: 20));
 
   DataTable dataTable = dataTableFinder.evaluate().single.widget as DataTable;
@@ -246,8 +236,7 @@ Future<void> waitForRowsCountChangeOfDataTable(
     await Future.delayed(const Duration(milliseconds: 100));
   } while (dataTable.rows.length == originalRowsCount);
 
-  print(
-      'Rows count changed from $originalRowsCount to ${dataTable.rows.length}');
+  print('Rows count changed from $originalRowsCount to ${dataTable.rows.length}');
 }
 
 Future<void> waitForText(
@@ -262,8 +251,7 @@ Future<void> waitForText(
   print('$label Found text: $message');
 }
 
-Future<void> waitForTextAndType(
-    String message, Type type, WidgetTester tester, String label) async {
+Future<void> waitForTextAndType(String message, Type type, WidgetTester tester, String label) async {
   print('$label Waiting for text: $message and type: $type');
 
   final finder = find.ancestor(
@@ -385,8 +373,8 @@ Future<void> logout(WidgetTester tester) async {
   expect(find.text('Not logged in'), findsOneWidget);
 }
 
-Future<void> publishDutySlot(WidgetTester tester, String username,
-    String specialty, String priceFrom, String priceTo) async {
+Future<void> publishDutySlot(
+    WidgetTester tester, String username, String specialty, String priceFrom, String priceTo) async {
   await tester.tap(find.byIcon(Icons.menu));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Publish Duty Slot'));
@@ -394,8 +382,7 @@ Future<void> publishDutySlot(WidgetTester tester, String username,
 
   await waitForTextAndType('Publish Duty Slot', ElevatedButton, tester, '1');
 
-  final dropdownFinder =
-      find.byKey(const Key('specialtyDropdownInPublishDutySlot'));
+  final dropdownFinder = find.byKey(const Key('specialtyDropdownInPublishDutySlot'));
   await tester.tap(dropdownFinder);
   await tester.pumpAndSettle();
   final specialtyFinder = find.text(specialty);
@@ -418,13 +405,11 @@ Future<void> publishDutySlot(WidgetTester tester, String username,
   expect(find.text(specialty), findsOneWidget);
 }
 
-Future<void> runTest(WidgetTester tester, String role, String specialty,
-    String localization) async {
+Future<void> runTest(WidgetTester tester, String role, String specialty, String localization) async {
   await initializeApp(tester);
 
   final username = role == 'doctor' ? 'D1' : 'H1';
-  await register(tester, username, role,
-      specialty: specialty, localization: localization);
+  await register(tester, username, role, specialty: specialty, localization: localization);
   await login(tester, username);
   await deleteUser(tester, username);
 }

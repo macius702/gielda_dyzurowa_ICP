@@ -18,8 +18,7 @@ void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure flutter binding is initialized if you're going to use async code in main
 
-  final counter =
-      await initCounter(); // Assuming createCounter is your async function that returns a Counter
+  final counter = await initCounter(); // Assuming createCounter is your async function that returns a Counter
   final counterStore = ViewModel(counter);
   counterStore.setupSpecialties();
 
@@ -72,8 +71,7 @@ enum Page {
 class _MyHomePageState extends State<MyHomePage> {
   Page _selectedPage = Page.nic;
 
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   void _onItemTapped(Page page) {
     setState(() {
@@ -86,21 +84,15 @@ class _MyHomePageState extends State<MyHomePage> {
     final counterStore = Provider.of<ViewModel>(context);
 
     final Map<Page, Widget> _widgetOptions = {
-      Page.register: RegisterForm(
-          key: const Key('registerForm'),
-          onTap: () => _onItemTapped(Page.login)),
-      Page.login: LoginForm(
-          key: const Key('loginForm'), onTap: () => _onItemTapped(Page.nic)),
+      Page.register: RegisterForm(key: const Key('registerForm'), onTap: () => _onItemTapped(Page.login)),
+      Page.login: LoginForm(key: const Key('loginForm'), onTap: () => _onItemTapped(Page.nic)),
       Page.showUsers: ShowUsernamesBody(),
       Page.nic: const Text('NIC', style: optionStyle),
-      Page.logout:
-          const Text('Logout'), // This is a placeholder for the logout screen
+      Page.logout: const Text('Logout'), // This is a placeholder for the logout screen
       Page.getUserData: UserDataForm(),
-      Page.deleteMe: const Text(
-          'Delete Me'), // This is a placeholder for the delete me screen
-      Page.publishDutySlot: PublishDutySlotScreen(
-          key: const Key('publishDutySlotScreen'),
-          onTap: () => _onItemTapped(Page.dutySlots)),
+      Page.deleteMe: const Text('Delete Me'), // This is a placeholder for the delete me screen
+      Page.publishDutySlot:
+          PublishDutySlotScreen(key: const Key('publishDutySlotScreen'), onTap: () => _onItemTapped(Page.dutySlots)),
       Page.dutySlots: DutySlotsBody(),
       Page.quitApp: const Text('Quit App'), // This is a placeholder
     };
@@ -127,9 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               }
 
-              return Text(counterStore.username == null
-                  ? 'Not logged in'
-                  : 'Logged in as ${counterStore.username}');
+              return Text(counterStore.username == null ? 'Not logged in' : 'Logged in as ${counterStore.username}');
             },
           ),
           leading: Builder(builder: (context) {
@@ -140,8 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             );
           })),
-      body: Align(
-          alignment: Alignment.topCenter, child: _widgetOptions[_selectedPage]),
+      body: Align(alignment: Alignment.topCenter, child: _widgetOptions[_selectedPage]),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -189,8 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('Logout'),
               selected: _selectedPage == Page.logout,
               onTap: () async {
-                final counterStore =
-                    Provider.of<ViewModel>(context, listen: false);
+                final counterStore = Provider.of<ViewModel>(context, listen: false);
 
                 Navigator.pop(context);
                 _onItemTapped(Page.logout);
@@ -210,8 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('Delete Me'),
               selected: _selectedPage == Page.deleteMe,
               onTap: () async {
-                final counterStore =
-                    Provider.of<ViewModel>(context, listen: false);
+                final counterStore = Provider.of<ViewModel>(context, listen: false);
                 // Show a SnackBar with the 'Logging out...' message
                 final username = counterStore.username;
 

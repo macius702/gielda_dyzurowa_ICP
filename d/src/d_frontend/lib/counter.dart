@@ -53,11 +53,7 @@ class Counter implements Api {
   }
   // A future method because we need debug mode works for local developement
   Future<void> setAgent(
-      {String? newCanisterId,
-      ServiceClass? newIdl,
-      String? newUrl,
-      Identity? newIdentity,
-      bool? debug}) async {
+      {String? newCanisterId, ServiceClass? newIdl, String? newUrl, Identity? newIdentity, bool? debug}) async {
     mtlk_print('newCanisterId: $newCanisterId');
     mtlk_print('newIdl: $newIdl');
     mtlk_print('newUrl: $newUrl');
@@ -77,8 +73,7 @@ class Counter implements Api {
       mtlk_print("After createAgent");
     } catch (e) {
       if (e is SocketException) {
-        mtlk_print(
-            'Cannot connect to the server. Please check your internet connection and server status.');
+        mtlk_print('Cannot connect to the server. Please check your internet connection and server status.');
         mtlk_print('Exception: $e');
       } else {
         // Re-throw the exception for further handling
@@ -159,8 +154,8 @@ class Counter implements Api {
   }
 
   @override
-  Future<Status> performRegistration(String username, String password,
-      UserRole role, int? specialty, String? localization) async {
+  Future<Status> performRegistration(
+      String username, String password, UserRole role, int? specialty, String? localization) async {
     try {
       Uri uri = _createUri('/auth/register');
       Map<String, String> headers = {
@@ -204,13 +199,11 @@ class Counter implements Api {
         // Assuming response is of type http.Response
         var responseBody = jsonDecode(response.body);
         var message = responseBody['message'];
-        return Error(
-            'Failed to register user with status code ${response.statusCode} and message: $message ');
+        return Error('Failed to register user with status code ${response.statusCode} and message: $message ');
       }
     } catch (e) {
       mtlk_print("Caught error: $e");
-      return ExceptionalFailure(
-          'Exceptional failure occurred during registration. with error: $e');
+      return ExceptionalFailure('Exceptional failure occurred during registration. with error: $e');
     }
   }
 
@@ -284,8 +277,7 @@ class Counter implements Api {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
       if (cookies == null) {
-        throw Exception(
-            'Failed to logout user: no cookies in SharedPreferences');
+        throw Exception('Failed to logout user: no cookies in SharedPreferences');
       }
 
       Map<String, String> headers = {
@@ -333,8 +325,7 @@ class Counter implements Api {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
       if (cookies == null) {
-        throw Exception(
-            'Failed to delete user: no cookies in SharedPreferences');
+        throw Exception('Failed to delete user: no cookies in SharedPreferences');
       }
 
       Map<String, String> headers = {
@@ -378,8 +369,7 @@ class Counter implements Api {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
       if (cookies == null) {
-        throw Exception(
-            'Failed to delete user: no cookies in SharedPreferences');
+        throw Exception('Failed to delete user: no cookies in SharedPreferences');
       }
 
       Map<String, String> headers = {
@@ -392,11 +382,9 @@ class Counter implements Api {
         'priceTo': priceTo,
         'currency': currency,
         'startDate': startDate.toIso8601String().split('T')[0],
-        'startTime':
-            '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
+        'startTime': '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
         'endDate': endDate.toIso8601String().split('T')[0],
-        'endTime':
-            '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
+        'endTime': '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
       };
 
       String body = jsonEncode(bodyMap);
@@ -440,8 +428,7 @@ class Counter implements Api {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
       if (cookies == null) {
-        throw Exception(
-            'Failed to delete user: no cookies in SharedPreferences');
+        throw Exception('Failed to delete user: no cookies in SharedPreferences');
       }
 
       Map<String, String> headers = {
@@ -559,8 +546,7 @@ class Counter implements Api {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
       if (cookies == null) {
-        throw Exception(
-            'Failed to get duty slots: no cookies in SharedPreferences');
+        throw Exception('Failed to get duty slots: no cookies in SharedPreferences');
       }
 
       Map<String, String> headers = {
@@ -615,8 +601,7 @@ class Counter implements Api {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? cookies = prefs.getString('cookies');
         if (cookies == null) {
-          throw Exception(
-              'Failed to get user data: no cookies in SharedPreferences');
+          throw Exception('Failed to get user data: no cookies in SharedPreferences');
         }
         headers = {
           'Content-Type': 'application/json; charset=UTF-8',
@@ -646,8 +631,7 @@ class Counter implements Api {
         // If the server returns a 200 OK response,
         // then parse the JSON.
 
-        GetUserDataResponse userData =
-            GetUserDataResponse.fromJson(jsonDecode(response.body));
+        GetUserDataResponse userData = GetUserDataResponse.fromJson(jsonDecode(response.body));
         return userData;
       } else {
         // If the server returns an unexpected response,
@@ -691,8 +675,7 @@ class Counter implements Api {
   // Save a value
   saveValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int randomNumber =
-        Random().nextInt(100) + 1; // Generates a random integer from 1 to 100
+    int randomNumber = Random().nextInt(100) + 1; // Generates a random integer from 1 to 100
 
     await prefs.setInt('myNumber', randomNumber);
     mtlk_print('Saved number: $randomNumber');
@@ -734,8 +717,7 @@ Future<Counter> initCounter({Identity? identity}) async {
   mtlk_print("Before counter construction");
   var counter = Counter(
       canisterId: backendCanisterId,
-      url:
-          get_frontend_url()); // set agent when other paramater comes in like new Identity
+      url: get_frontend_url()); // set agent when other paramater comes in like new Identity
   mtlk_print("After counter construction");
   await counter.setAgent(newIdentity: identity);
   mtlk_print("After counter setAgent");

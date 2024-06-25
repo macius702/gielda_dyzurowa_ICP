@@ -2,8 +2,8 @@ import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 
 abstract class Api {
-  Future<Status> performRegistration(String username, String password,
-      UserRole role, int? specialty, String? localization);
+  Future<Status> performRegistration(
+      String username, String password, UserRole role, int? specialty, String? localization);
 
   Future<Status> performLogin(String username, String password);
 
