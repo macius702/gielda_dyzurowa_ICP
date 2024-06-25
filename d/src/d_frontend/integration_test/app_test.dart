@@ -10,24 +10,70 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<void> runTest(WidgetTester tester, String role, String specialty,
-      String localization) async {
+  bool skip_them = false;
+
+  testWidgets("Assign duty slot, Consent, Revoke", (WidgetTester tester) async {
     await initializeApp(tester);
 
-    final username = role == 'doctor' ? 'D1' : 'H1';
-    await register(tester, username, role,
-        specialty: specialty, localization: localization);
-    await login(tester, username);
-    await deleteUser(tester, username);
-  }
+    // H1 user adds his entry
+    const hospital1 = 'H1';
+    await register(tester, hospital1, 'hospital');
+    await login(tester, hospital1);
+    await publishDutySlot(
+        tester, hospital1, 'Chirurgia naczyniowa', '100', '200');
+    await logout(tester);
+
+    const doctor1 = 'D1';
+    await register(tester, doctor1, 'doctor',
+        specialty: 'Chirurgia naczyniowa', localization: 'Warsaw');
+    await login(tester, doctor1);
+
+    await openDutySlotsPage(tester);
+
+    // Check if the duty slot is present
+    expect(find.text(hospital1), findsOneWidget);
+    expect(find.text('Chirurgia naczyniowa'), findsOneWidget);
+
+    // Assign the duty slot
+    await tester.tap(find.byKey(Key('assignButton')));
+    await tester.pumpAndSettle();
+
+    // Check if the duty slot is assigned
+    await waitForText('Waiting for Consent', tester, '1');
+    expect(find.text('Waiting for Consent'), findsOneWidget);
+
+    await deleteUser(tester, doctor1);
+    await login(tester, hospital1);
+    await deleteUser(tester, hospital1);
+
+    // await logout(tester);
+
+    // await login(tester, hospital1);
+    // await openDutySlotsPage(tester);
+
+    // expect(find.text('Filled'), findsOneWidget);
+    // await logout(tester);
+
+    // await login(tester, doctor1);
+    // await openDutySlotsPage(tester);
+    // expect(find.text('Revoke'), findsOneWidget);
+
+    // // tap Revoke
+    // await tester.tap(find.byKey(Key('revokeButton')));
+    // await tester.pumpAndSettle();
+    // await logout(tester);
+
+    // await login(tester, hospital1);
+    // await openDutySlotsPage(tester);
+  });
 
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
     await runTest(tester, 'hospital', '', '');
-  }, skip: false);
+  }, skip: skip_them);
 
   testWidgets("E2E test for doctor role", (WidgetTester tester) async {
     await runTest(tester, 'doctor', 'Angiologia', 'Warsaw');
-  }, skip: false);
+  }, skip: skip_them);
 
   testWidgets('Login and Logout Test', (WidgetTester tester) async {
     await initializeApp(tester);
@@ -38,7 +84,7 @@ void main() {
     await logout(tester);
     await login(tester, username);
     await deleteUser(tester, username);
-  }, skip: false);
+  }, skip: skip_them);
 
   testWidgets('Publish duty slot, view duty slots and delete duty slot',
       (WidgetTester tester) async {
@@ -108,7 +154,7 @@ void main() {
     expect(find.text('Chirurgia naczyniowa'), findsNothing);
 
     await deleteUser(tester, hospital3);
-  });
+  }, skip: skip_them);
 }
 
 Future<void> deleteDutySlotContainingText(
@@ -365,4 +411,15 @@ Future<void> publishDutySlot(WidgetTester tester, String username,
 
   expect(find.text(username), findsAny);
   expect(find.text(specialty), findsOneWidget);
+}
+
+Future<void> runTest(WidgetTester tester, String role, String specialty,
+    String localization) async {
+  await initializeApp(tester);
+
+  final username = role == 'doctor' ? 'D1' : 'H1';
+  await register(tester, username, role,
+      specialty: specialty, localization: localization);
+  await login(tester, username);
+  await deleteUser(tester, username);
 }

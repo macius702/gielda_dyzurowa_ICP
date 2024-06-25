@@ -82,6 +82,7 @@ class DutySlotsBody extends StatelessWidget {
                           if (counterStore.dutySlots[index].status ==
                               DutyStatus.open) {
                             return ElevatedButton(
+                              key: Key('assignButton'),
                               onPressed: () {
                                 print(
                                     'Accept action on value: ${counterStore.dutySlots[index]}');
@@ -99,6 +100,7 @@ class DutySlotsBody extends StatelessWidget {
                           } else if (counterStore.dutySlots[index].status ==
                               DutyStatus.filled) {
                             return const ElevatedButton(
+                              key: Key('revokeButton'),
                               onPressed: null, //  todo onPressed: onRevoke,
                               child: Text('Revoke'),
                             );
