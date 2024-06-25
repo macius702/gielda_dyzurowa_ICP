@@ -130,6 +130,7 @@ class Counter implements Api {
   }
 
   // todo - implement with Restful API
+  @override
   Future<List<String>> getSpecialties() async {
     try {
       await saveValue();
@@ -157,6 +158,7 @@ class Counter implements Api {
     return <String>[];
   }
 
+  @override
   Future<Status> performRegistration(String username, String password,
       UserRole role, int? specialty, String? localization) async {
     try {
@@ -212,6 +214,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<Status> performLogin(String username, String password) async {
     try {
       Uri uri = _createUri('/auth/login');
@@ -272,6 +275,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<Status> performLogout() async {
     try {
       Uri uri = _createUri('/auth/logout');
@@ -320,6 +324,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<Status> deleteMe() async {
     try {
       Uri uri = _createUri('/auth/delete_user');
@@ -356,6 +361,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<Status> publishDutySlot(
       {required Specialty specialty,
       required int priceFrom,
@@ -425,6 +431,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<Status> deleteDutySlot(String id) async {
     try {
       Uri uri = _createUri('/duty/remove');
@@ -543,6 +550,7 @@ class Counter implements Api {
     return _performDutySlotAction('/revoke-assignment', id, 'Failed to revoke assignment');
   }
 
+  @override
   Future<List<DutySlotForDisplay>> getDutySlots() async {
     try {
       Uri uri = _createUri('/duty/slots/json');
@@ -596,6 +604,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<Status> getUserData() async {
     try {
       Uri uri = _createUri('/user/data');
@@ -651,6 +660,7 @@ class Counter implements Api {
     }
   }
 
+  @override
   Future<List<String>> getUsers() async {
     try {
       if (actor == null) {
