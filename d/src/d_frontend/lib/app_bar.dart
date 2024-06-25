@@ -13,9 +13,7 @@ CommonAppBar(BuildContext context) {
     title: Observer(
       // show not logged in when counterstore.username is null
       // show logged in as <username> when counterstore.username is not null
-      builder: (_) => Text(counterStore.username == null
-          ? 'Not logged in'
-          : 'Logged in as ${counterStore.username}'),
+      builder: (_) => Text(counterStore.username == null ? 'Not logged in' : 'Logged in as ${counterStore.username}'),
     ),
   );
 }

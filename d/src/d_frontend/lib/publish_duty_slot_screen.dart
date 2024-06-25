@@ -62,17 +62,14 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                       SpecialtyDropdownMenu(
                           key: const Key('specialtyDropdownInPublishDutySlot'),
                           specialties: counterStore.specialties,
-                          onSelected:
-                              publishDutySlotStore.setSelectedSpecialty),
+                          onSelected: publishDutySlotStore.setSelectedSpecialty),
                       TextFormField(
                         initialValue: publishDutySlotStore.priceFrom,
                         decoration: const InputDecoration(
                           labelText: 'Price From',
                         ),
                         keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
+                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                         onChanged: (value) {
                           publishDutySlotStore.setPriceFrom(value);
                         },
@@ -83,9 +80,7 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                           labelText: 'Price To',
                         ),
                         keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
+                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                         onChanged: (value) {
                           publishDutySlotStore.setPriceTo(value);
                         },
@@ -108,28 +103,22 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
                       DateTimeInputField(
                           'Start',
                           publishDutySlotStore.startDate,
-                          convertTimeOfDayToDateTime(
-                              publishDutySlotStore.startTime),
+                          convertTimeOfDayToDateTime(publishDutySlotStore.startTime),
                           publishDutySlotStore.setStartDate,
                           publishDutySlotStore.setStartTime),
                       DateTimeInputField(
                           'End',
                           publishDutySlotStore.endDate,
-                          convertTimeOfDayToDateTime(
-                              publishDutySlotStore.endTime),
+                          convertTimeOfDayToDateTime(publishDutySlotStore.endTime),
                           publishDutySlotStore.setEndDate,
                           publishDutySlotStore.setEndTime),
                       ElevatedButton(
                         key: const Key('publishDutySlotButton'),
-                        onPressed: () => onPressed(context, counterStore,
-                            publishDutySlotStore, widget.onTap),
+                        onPressed: () => onPressed(context, counterStore, publishDutySlotStore, widget.onTap),
                         child: const Text('Publish Duty Slot'),
                         style: ButtonStyle(
-                          shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      side: BorderSide(color: Colors.red))),
+                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0), side: BorderSide(color: Colors.red))),
                         ),
                       )
                     ],
@@ -138,13 +127,11 @@ class _PublishDutySlotScreenState extends State<PublishDutySlotScreen> {
   }
 }
 
-void onPressed(BuildContext context, ViewModel counterStore,
-    PublishDutySlotStore publishDutySlotStore, VoidCallback onTap) {
-  if (publishDutySlotStore.selectedSpecialty == null ||
-      publishDutySlotStore.selectedSpecialty!.isEmpty) {
+void onPressed(
+    BuildContext context, ViewModel counterStore, PublishDutySlotStore publishDutySlotStore, VoidCallback onTap) {
+  if (publishDutySlotStore.selectedSpecialty == null || publishDutySlotStore.selectedSpecialty!.isEmpty) {
     showSnackBar(context, "Specialty is mandatory");
-  } else if (publishDutySlotStore.priceFrom.isEmpty ||
-      publishDutySlotStore.priceTo.isEmpty) {
+  } else if (publishDutySlotStore.priceFrom.isEmpty || publishDutySlotStore.priceTo.isEmpty) {
     showSnackBar(context, "Price range is mandatory");
   } else if (publishDutySlotStore.currency == null) {
     showSnackBar(context, "Currency has to be set");

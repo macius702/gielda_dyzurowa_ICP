@@ -69,8 +69,7 @@ abstract class _ViewModel with Store {
   ObservableList<String> specialties = ObservableList<String>();
 
   @observable
-  ObservableList<DutySlotForDisplay> dutySlots =
-      ObservableList<DutySlotForDisplay>();
+  ObservableList<DutySlotForDisplay> dutySlots = ObservableList<DutySlotForDisplay>();
 
   @action
   Future<void> setupDutySlots() async {
@@ -100,15 +99,13 @@ abstract class _ViewModel with Store {
       required int? specialty,
       required String? localization}) async {
     setDisplayedMessage('Registration in progress...');
-    Status status = await theApi.performRegistration(
-        username, password, role, specialty, localization);
+    Status status = await theApi.performRegistration(username, password, role, specialty, localization);
     setDisplayedMessage(null);
     return status;
   }
 
   @action
-  Future<Status> performLogin(
-      {required String username, required String password}) async {
+  Future<Status> performLogin({required String username, required String password}) async {
     setDisplayedMessage('Login in progress...');
     Status status = await theApi.performLogin(username, password);
 
@@ -162,8 +159,7 @@ abstract class _ViewModel with Store {
       required TimeOfDay endTime}) async {
     setDisplayedMessage('Publish duty slot in progress...');
     Status s = await theApi.publishDutySlot(
-      specialty: Specialty(
-          id: specialties.indexOf(specialty).toString(), name: specialty),
+      specialty: Specialty(id: specialties.indexOf(specialty).toString(), name: specialty),
       priceFrom: priceFrom,
       priceTo: priceTo,
       currency: currency,

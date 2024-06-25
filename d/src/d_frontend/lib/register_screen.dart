@@ -55,9 +55,7 @@ class RegisterForm extends StatelessWidget {
                   onChanged: _registerStore.setRole,
                 ),
                 if (_registerStore.role == 'doctor')
-                  SpecialtyDropdownMenu(
-                      specialties: counterStore.specialties,
-                      onSelected: _registerStore.setSpecialty),
+                  SpecialtyDropdownMenu(specialties: counterStore.specialties, onSelected: _registerStore.setSpecialty),
                 if (_registerStore.role == 'doctor')
                   TextField(
                     key: const Key('localizationField'),
@@ -68,8 +66,7 @@ class RegisterForm extends StatelessWidget {
                   ),
                 ElevatedButton(
                   key: const Key('registerButton'),
-                  onPressed: () =>
-                      onPressed(context, counterStore, _registerStore, onTap),
+                  onPressed: () => onPressed(context, counterStore, _registerStore, onTap),
                   child: const Text('Register'),
                 )
               ],
@@ -77,8 +74,7 @@ class RegisterForm extends StatelessWidget {
   }
 }
 
-void onPressed(BuildContext context, ViewModel counterStore,
-    RegisterStore registerStore, VoidCallback onTap) {
+void onPressed(BuildContext context, ViewModel counterStore, RegisterStore registerStore, VoidCallback onTap) {
   if (registerStore.username.isEmpty ||
       registerStore.password.isEmpty ||
       registerStore.role == null ||
@@ -89,8 +85,7 @@ void onPressed(BuildContext context, ViewModel counterStore,
           registerStore.specialty!.isEmpty ||
           registerStore.localization == null ||
           registerStore.localization!.isEmpty)) {
-    showSnackBar(
-        context, "Specialty and localization are mandatory for doctors");
+    showSnackBar(context, "Specialty and localization are mandatory for doctors");
   } else if (registerStore.role == null) {
     showSnackBar(context, "Role has to be set");
   } else {
@@ -98,12 +93,10 @@ void onPressed(BuildContext context, ViewModel counterStore,
   }
 }
 
-Future<void> performRegistration(BuildContext context, ViewModel counterStore,
-    RegisterStore registerStore, VoidCallback onTap) async {
-  UserRole roleEnum = UserRole.values
-      .firstWhere((e) => e.toString() == 'UserRole.${registerStore.role}');
-  int specialtyIndex =
-      counterStore.specialties.indexOf(registerStore.specialty ?? '');
+Future<void> performRegistration(
+    BuildContext context, ViewModel counterStore, RegisterStore registerStore, VoidCallback onTap) async {
+  UserRole roleEnum = UserRole.values.firstWhere((e) => e.toString() == 'UserRole.${registerStore.role}');
+  int specialtyIndex = counterStore.specialties.indexOf(registerStore.specialty ?? '');
 
   Status status = await counterStore.performRegistration(
     username: registerStore.username,

@@ -45,8 +45,7 @@ class LoginForm extends StatelessWidget {
           ),
           ElevatedButton(
             key: const Key('loginButton'),
-            onPressed: () =>
-                onPressed(context, counterStore, loginStore, onTap),
+            onPressed: () => onPressed(context, counterStore, loginStore, onTap),
             child: const Text('Login'),
           ),
         ],
@@ -55,8 +54,7 @@ class LoginForm extends StatelessWidget {
   }
 }
 
-void onPressed(BuildContext context, ViewModel counterStore,
-    LoginStore loginStore, VoidCallback onTap) {
+void onPressed(BuildContext context, ViewModel counterStore, LoginStore loginStore, VoidCallback onTap) {
   if (loginStore.username.isEmpty || loginStore.password.isEmpty) {
     showSnackBar(context, "Username and  password are mandatory");
   } else {
@@ -64,10 +62,9 @@ void onPressed(BuildContext context, ViewModel counterStore,
   }
 }
 
-Future<void> performLogin(BuildContext context, ViewModel counterStore,
-    LoginStore loginStore, VoidCallback onTap) async {
-  Status status = await counterStore.performLogin(
-      username: loginStore.username, password: loginStore.password);
+Future<void> performLogin(
+    BuildContext context, ViewModel counterStore, LoginStore loginStore, VoidCallback onTap) async {
+  Status status = await counterStore.performLogin(username: loginStore.username, password: loginStore.password);
   if (status.is_success()) {
     onTap();
   }

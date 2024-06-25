@@ -148,8 +148,7 @@ class Hospital {
 class Doctor {
   final String id;
   final String username;
-  final String
-      password; // TODO: Note: Handling passwords like this is insecure, especially on client-side.
+  final String password; // TODO: Note: Handling passwords like this is insecure, especially on client-side.
   final String role;
   final String specialty;
   final String localization;

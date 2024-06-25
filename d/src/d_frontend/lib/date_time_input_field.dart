@@ -8,8 +8,7 @@ class DateTimeInputField extends StatefulWidget {
   final ValueChanged<DateTime> onDateChanged;
   final ValueChanged<TimeOfDay> onTimeChanged;
 
-  DateTimeInputField(this.label, this.initialDate, this.initialTime,
-      this.onDateChanged, this.onTimeChanged);
+  DateTimeInputField(this.label, this.initialDate, this.initialTime, this.onDateChanged, this.onTimeChanged);
 
   @override
   _DateTimeInputFieldState createState() => _DateTimeInputFieldState();
@@ -22,10 +21,8 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
   @override
   void initState() {
     super.initState();
-    dateController = TextEditingController(
-        text: DateFormat('yyyy-MM-dd').format(widget.initialDate));
-    timeController = TextEditingController(
-        text: formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime)));
+    dateController = TextEditingController(text: DateFormat('yyyy-MM-dd').format(widget.initialDate));
+    timeController = TextEditingController(text: formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime)));
   }
 
   @override
@@ -86,8 +83,7 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialDate != oldWidget.initialDate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        dateController.text =
-            DateFormat('yyyy-MM-dd').format(widget.initialDate);
+        dateController.text = DateFormat('yyyy-MM-dd').format(widget.initialDate);
       });
     }
     if (widget.initialTime != oldWidget.initialTime) {
@@ -95,16 +91,14 @@ class _DateTimeInputFieldState extends State<DateTimeInputField> {
         print(
             'Changing timeController.text from ${timeController.text} to ${formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime))}');
         print('Which is actually ${widget.initialTime}');
-        timeController.text =
-            formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime));
+        timeController.text = formatTimeOfDay(TimeOfDay.fromDateTime(widget.initialTime));
       });
     }
   }
 
   String formatTimeOfDay(TimeOfDay timeOfDay) {
     final now = DateTime.now();
-    final dt = DateTime(
-        now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
+    final dt = DateTime(now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
     return DateFormat('HH:mm').format(dt);
   }
 }

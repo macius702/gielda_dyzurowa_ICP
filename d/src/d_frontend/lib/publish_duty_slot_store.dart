@@ -72,9 +72,7 @@ abstract class _PublishDutySlotStore with Store {
 
   @computed
   bool get isFormValid {
-    return validateSpecialty() == null &&
-        validatePriceFrom() == null &&
-        validatePriceTo() == null;
+    return validateSpecialty() == null && validatePriceFrom() == null && validatePriceTo() == null;
   }
 
   String? validateSpecialty() {

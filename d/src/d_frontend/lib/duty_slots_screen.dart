@@ -79,49 +79,37 @@ class DutySlotsBody extends StatelessWidget {
                     DataCell(
                       Builder(builder: (context) {
                         if (counterStore.role == UserRole.doctor) {
-                          if (counterStore.dutySlots[index].status ==
-                              DutyStatus.open) {
+                          if (counterStore.dutySlots[index].status == DutyStatus.open) {
                             return ElevatedButton(
                               key: Key('assignButton'),
                               onPressed: () {
-                                print(
-                                    'Accept action on value: ${counterStore.dutySlots[index]}');
-                                counterStore.assignDutySlot(
-                                    counterStore.dutySlots[index].id);
+                                print('Accept action on value: ${counterStore.dutySlots[index]}');
+                                counterStore.assignDutySlot(counterStore.dutySlots[index].id);
                               },
                               child: Text('Assign'),
                             );
-                          } else if (counterStore.dutySlots[index].status ==
-                              DutyStatus.pending) {
+                          } else if (counterStore.dutySlots[index].status == DutyStatus.pending) {
                             return const ElevatedButton(
                               onPressed: null,
                               child: Text('Waiting for Consent'),
                             );
-                          } else if (counterStore.dutySlots[index].status ==
-                              DutyStatus.filled) {
+                          } else if (counterStore.dutySlots[index].status == DutyStatus.filled) {
                             return ElevatedButton(
                               key: Key('revokeButton'),
                               onPressed: () {
-                                print(
-                                    'Revoke action on value: ${counterStore.dutySlots[index]}');
-                                counterStore.revokeAssignment(
-                                    counterStore.dutySlots[index].id);
+                                print('Revoke action on value: ${counterStore.dutySlots[index]}');
+                                counterStore.revokeAssignment(counterStore.dutySlots[index].id);
                               },
                               child: Text('Revoke'),
                             );
                           }
                         } else if (counterStore.role == UserRole.hospital) {
-                          if (counterStore.dutySlots[index].status ==
-                              DutyStatus.open) {
-                            if (counterStore.userId ==
-                                int.parse(counterStore
-                                    .dutySlots[index].hospitalId.id)) {
+                          if (counterStore.dutySlots[index].status == DutyStatus.open) {
+                            if (counterStore.userId == int.parse(counterStore.dutySlots[index].hospitalId.id)) {
                               return ElevatedButton(
                                 onPressed: () {
-                                  print(
-                                      'Delete action on value: ${counterStore.dutySlots[index].id}');
-                                  counterStore.deleteDutySlot(
-                                      counterStore.dutySlots[index].id);
+                                  print('Delete action on value: ${counterStore.dutySlots[index].id}');
+                                  counterStore.deleteDutySlot(counterStore.dutySlots[index].id);
                                 },
                                 child: Text('Delete'),
                               );
@@ -131,28 +119,23 @@ class DutySlotsBody extends StatelessWidget {
                                 child: Text('Waiting'),
                               );
                             }
-                          } else if (counterStore.dutySlots[index].status ==
-                              DutyStatus.pending) {
+                          } else if (counterStore.dutySlots[index].status == DutyStatus.pending) {
                             return ElevatedButton(
                               key: Key('consentButton'),
                               onPressed: () {
-                                print(
-                                    'Consent action on value: ${counterStore.dutySlots[index]}');
-                                counterStore.giveConsent(
-                                    counterStore.dutySlots[index].id);
+                                print('Consent action on value: ${counterStore.dutySlots[index]}');
+                                counterStore.giveConsent(counterStore.dutySlots[index].id);
                               },
                               child: Text('Consent'),
                             );
-                          } else if (counterStore.dutySlots[index].status ==
-                              DutyStatus.filled) {
+                          } else if (counterStore.dutySlots[index].status == DutyStatus.filled) {
                             return const ElevatedButton(
                               onPressed: null,
                               child: Text('Filled'),
                             );
                           }
                         }
-                        return const SizedBox
-                            .shrink(); // Return an empty widget if none of the conditions are met
+                        return const SizedBox.shrink(); // Return an empty widget if none of the conditions are met
                       }),
                     ),
                     DataCell(
@@ -189,16 +172,12 @@ class DutySlotsBody extends StatelessWidget {
                       onSelected: (String value) {
                         switch (value) {
                           case 'Accept':
-                            print(
-                                'Accept action on value: ${counterStore.dutySlots[index]}');
-                            counterStore.assignDutySlot(
-                                counterStore.dutySlots[index].id);
+                            print('Accept action on value: ${counterStore.dutySlots[index]}');
+                            counterStore.assignDutySlot(counterStore.dutySlots[index].id);
                             break;
                           case 'Delete':
-                            print(
-                                'Delete action on value: ${counterStore.dutySlots[index].id}');
-                            counterStore.deleteDutySlot(
-                                counterStore.dutySlots[index].id);
+                            print('Delete action on value: ${counterStore.dutySlots[index].id}');
+                            counterStore.deleteDutySlot(counterStore.dutySlots[index].id);
                             break;
                         }
                       },
@@ -213,10 +192,7 @@ class DutySlotsBody extends StatelessWidget {
                           ];
                         } else {
                           assert(counterStore.role == UserRole.doctor);
-                          String value = counterStore.dutySlots[index].status ==
-                                  DutyStatus.open
-                              ? 'Accept'
-                              : 'Nothing';
+                          String value = counterStore.dutySlots[index].status == DutyStatus.open ? 'Accept' : 'Nothing';
 
                           return <PopupMenuEntry<String>>[
                             PopupMenuItem<String>(
