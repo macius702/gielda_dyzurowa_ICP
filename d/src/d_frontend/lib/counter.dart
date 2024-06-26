@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:d_frontend/ICP_connector.dart';
 import 'package:d_frontend/api.dart';
 import 'package:d_frontend/constants.dart';
 import 'package:d_frontend/types.dart';
@@ -17,141 +18,13 @@ import 'dart:math';
 import 'config.dart' show backendCanisterId, Mode, mode;
 import 'print.dart';
 
-/// motoko/rust function of the Counter canister
-/// see ./dfx/local/counter.did
-abstract class CounterMethod {
-  /// use staic const as method name
-  static const increment = "increment";
-  static const getValue = "getValue";
-  static const get_specialties = "get_specialties";
-  static const get_users = "get_all_usernames";
+class Counter extends ICPconnector implements Api {
+  ///
+  /// Counter class, with AgentFactory within
+  ///
+  Counter({required String canisterId, required String url}) : super(canisterId: canisterId, url: url);
 
-  /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
-  static final ServiceClass idl = IDL.Service({
-    CounterMethod.getValue: IDL.Func([], [IDL.Nat], ['query']),
-    CounterMethod.increment: IDL.Func([], [], []),
-    CounterMethod.get_specialties: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-    CounterMethod.get_users: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-  });
-}
-
-///
-/// Counter class, with AgentFactory within
-class Counter implements Api {
-  /// AgentFactory is a factory method that creates Actor automatically.
-  /// Save your strength, just use this template
-  AgentFactory? _agentFactory;
-
-  /// CanisterCator is the actor that make all the request to Smartcontract.
-  CanisterActor? get actor => _agentFactory?.actor;
-  final String canisterId;
-  final String url;
-
-  Counter({required this.canisterId, required this.url}) {
-    mtlk_print('canisterId: $canisterId');
-    mtlk_print('url: $url');
-  }
-  // A future method because we need debug mode works for local developement
-  Future<void> setAgent(
-      {String? newCanisterId, ServiceClass? newIdl, String? newUrl, Identity? newIdentity, bool? debug}) async {
-    mtlk_print('newCanisterId: $newCanisterId');
-    mtlk_print('newIdl: $newIdl');
-    mtlk_print('newUrl: $newUrl');
-    mtlk_print('newIdentity: $newIdentity');
-    mtlk_print('debug: $debug');
-
-    try {
-      // Your network request code here
-
-      _agentFactory ??= await AgentFactory.createAgent(
-          canisterId: newCanisterId ?? canisterId,
-          url: newUrl ?? url,
-          idl: newIdl ?? CounterMethod.idl,
-          identity: newIdentity,
-          debug: debug ?? true);
-
-      mtlk_print("After createAgent");
-    } catch (e) {
-      if (e is SocketException) {
-        mtlk_print('Cannot connect to the server. Please check your internet connection and server status.');
-        mtlk_print('Exception: $e');
-      } else {
-        // Re-throw the exception for further handling
-        rethrow;
-      }
-    }
-  }
-
-  /// Call canister methods like this signature
-  /// ```dart
-  ///  CanisterActor.getFunc(String)?.call(List<dynamic>) -> Future<dynamic>
-  /// ```
-
-  Future<void> increment() async {
-    try {
-      await actor?.getFunc(CounterMethod.increment)?.call([]);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<int> getValue() async {
-    try {
-      mtlk_print("actor: $actor");
-      mtlk_print("CounterMethod: ${CounterMethod}");
-      mtlk_print("CounterMethod.getValue: ${CounterMethod.getValue}");
-
-      ActorMethod? func = actor?.getFunc(CounterMethod.getValue);
-      mtlk_print("getFunc result: $func");
-
-      if (func != null) {
-        var res = await func([]);
-        mtlk_print("Function call result: $res");
-
-        if (res != null) {
-          return (res as BigInt).toInt();
-        } else {
-          mtlk_print("Function call returned null");
-        }
-      } else {
-        mtlk_print("getFunc returned null");
-      }
-
-      throw "Cannot get count";
-    } catch (e) {
-      mtlk_print("Caught error: $e");
-      rethrow;
-    }
-  }
-
-  // todo - implement with Restful API
-  @override
-  Future<List<String>> getSpecialtiesCandid() async {
-    try {
-      await saveValue();
-      await retrieveValue();
-      ActorMethod? func = actor?.getFunc(CounterMethod.get_specialties);
-      if (func != null) {
-        var res = await func([]);
-        mtlk_print("Function call result: ${res.first} ... ${res.last}");
-
-        if (res != null) {
-          // return (res as BigInt).toInt();
-          mtlk_print("get_spectialties: ${res.first} ... ${res.last}");
-          return (res as List<String>);
-        } else {
-          mtlk_print("Function call returned null");
-        }
-      } else {
-        mtlk_print("getFunc returned null");
-      }
-    } catch (e) {
-      mtlk_print("Caught error: $e");
-      rethrow;
-    }
-
-    return <String>[];
-  }
+  ///
 
   @override
   Future<List<String>> getSpecialties() async {
@@ -678,34 +551,6 @@ class Counter implements Api {
     } catch (e) {
       mtlk_print("Caught error: $e");
       return Future.error(e);
-    }
-  }
-
-  @override
-  Future<List<String>> getUsersCandid() async {
-    try {
-      if (actor == null) {
-        throw Exception("Actor is null");
-      }
-
-      ActorMethod? func = actor?.getFunc(CounterMethod.get_users);
-      if (func != null) {
-        var res = await func([]);
-        mtlk_print("Function call result: $res");
-
-        if (res != null) {
-          return (res as List<String>);
-        } else {
-          mtlk_print("Function call returned null");
-        }
-      } else {
-        mtlk_print("getFunc returned null");
-      }
-
-      throw Exception("Cannot get users");
-    } catch (e) {
-      mtlk_print("Caught error: $e");
-      rethrow;
     }
   }
 

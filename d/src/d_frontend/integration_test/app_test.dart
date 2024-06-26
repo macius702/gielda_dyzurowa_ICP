@@ -1,3 +1,4 @@
+import 'package:d_frontend/candid_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -268,6 +269,8 @@ Future<ViewModel> initializeApp(WidgetTester tester) async {
 
   // Initialize the CounterStore
   final counter = await initCounter();
+  //final counter = await initCandidApi();
+
   final counterStore = ViewModel(counter);
   await counterStore.setupSpecialties();
 

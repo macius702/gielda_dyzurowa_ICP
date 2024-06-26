@@ -13,12 +13,15 @@ import 'package:d_frontend/register_screen.dart';
 import 'package:d_frontend/show_usernames_screen.dart';
 
 import 'package:d_frontend/counter.dart';
+import 'package:d_frontend/candid_api.dart';
 
 void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure flutter binding is initialized if you're going to use async code in main
 
   final counter = await initCounter(); // Assuming createCounter is your async function that returns a Counter
+  //final counter = await initCandidApi();
+
   final counterStore = ViewModel(counter);
   counterStore.setupSpecialties();
 
