@@ -541,7 +541,7 @@ class Counter extends ICPconnector implements Api {
         // If the server returns a 200 OK response,
         // then parse the JSON.
 
-        GetUserDataResponse userData = GetUserDataResponse.fromJson(jsonDecode(response.body));
+        final userData = Status.fromJson(jsonDecode(response.body));
         return userData;
       } else {
         // If the server returns an unexpected response,

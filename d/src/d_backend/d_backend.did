@@ -43,4 +43,5 @@ service : {
   http_request_update : (RawHttpRequest) -> (RawHttpResponse);
   insert_duty_slot : (DutySlot) -> (nat32);
   insert_user : (User) -> (nat32);
+  perform_registration : (text, text, UserRole, opt int32, opt text) -> (nat32);
 }

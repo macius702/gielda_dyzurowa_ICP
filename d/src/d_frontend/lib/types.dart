@@ -1,93 +1,54 @@
 import 'package:decimal/decimal.dart';
 
-abstract class Status {
-  bool is_success() {
-    return true;
-  }
+class Status {
+  final bool isSuccess;
+  final String message;
+  final int? id;
+  final String? role;
 
-  String getString();
-  String getMessage() {
-    return getString();
+  Status({
+    required this.isSuccess,
+    required this.message,
+    this.id,
+    this.role,
+  });
+
+  String getString() {
+    if (id != null && role != null) {
+      return '{ "id": "$id", "role": "$role"}';
+    }
+    return message;
   }
 
   void handleError() {
-    print(getString());
+    print(isSuccess ? message : 'Operation failed with an error: ${getString()}');
   }
-}
 
-class Response extends Status {
-  // Response implementation
-  String message;
-
-  // Response constructor with optional positional argument : message
-  Response([this.message = 'Response']);
-
-  @override
-  String getString() {
-    return message;
-  }
-}
-
-class GetUserDataResponse extends Response {
-  final int id;
-  final String role;
-
-  GetUserDataResponse({required this.id, required this.role});
-
-  factory GetUserDataResponse.fromJson(Map<String, dynamic> json) {
-    return GetUserDataResponse(
+  factory Status.fromJson(Map<String, dynamic> json) {
+    print('Status.fromJson: $json');
+    return Status(
+      isSuccess: true,
+      message: 'No Message',
       id: json['_id'],
       role: json['role'],
     );
   }
 
-  @override
-  String getString() {
-    return '{ "id": "$id", "role": "$role"}';
+  bool is_success() {
+    return isSuccess;
   }
 }
 
-class ExceptionalFailure extends Status {
-  @override
-  bool is_success() {
-    return false;
-  }
-
-  String message;
-
-  // Response constructor with optional positional argument : message
-  ExceptionalFailure([this.message = 'ExceptionalFailure']);
-
-  @override
-  String getString() {
-    return message;
-  }
-
-  @override
-  void handleError() {
-    print('Operation failed with an exceptional failure: ${getString()}');
-  }
+Status Error([String message = 'Error']) {
+  return Status(isSuccess: false, message: message);
 }
 
-class Error extends Status {
-  @override
-  bool is_success() {
-    return false;
-  }
+Status ExceptionalFailure([String message = 'Exceptional failure']) {
+  return Status(isSuccess: false, message: message);
+}
 
-  String message;
-
-  Error([this.message = 'Error']);
-
-  @override
-  String getString() {
-    return message;
-  }
-
-  @override
-  void handleError() {
-    print('Operation failed with an error: ${getString()}');
-  }
+Status Response([String message = 'Success']) {
+  return Status(isSuccess: true, message: message);
 }
 
 enum UserRole {

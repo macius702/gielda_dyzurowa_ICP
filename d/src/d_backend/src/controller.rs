@@ -392,7 +392,7 @@ pub(crate) fn setup() -> Router {
             body: "".to_string().into(),
         })
     });
-
+    
     router.post("/auth/register", true, |req: HttpRequest| async move {
         // req body has fields : username, password, role, specialty, localization
         let body_string = String::from_utf8(req.body.clone()).unwrap();
@@ -879,4 +879,60 @@ fn remove_expired_tokens() {
 
 fn is_in_used_tokens(token: &String) -> bool {
     USED_TOKENS_MAP.with(|p| p.borrow().contains_key(token))
+}
+
+#[ic_cdk_macros::update]
+async fn perform_registration(
+    username: String, 
+    password: String, 
+    role: UserRole, 
+    specialty: Option<i32>, 
+    localization: Option<String>
+) -> u32 {
+    let mut  user = User {
+        username,
+        password,
+        role,
+        specialty: specialty.map(|s| s as u16),
+        localization,
+        email: None,
+        phone_number: None,
+    };
+
+    // hash the passworf using pbkdf2
+    println!("Before hashing password");
+
+    let salt_string = "your_salt_string";
+    let hashed_password = hex::encode(hash_password_with_pbkdf2(
+        &user.password,
+        salt_string.as_bytes(),
+    ));
+    println!("After hashing password: {}", hashed_password);
+    user.password = hashed_password;
+    println!("Parsed user: {:?}", user); // Debug print
+    let key = insert_user_internal(user);
+    println!("Inserted user with key: {:?}", key); // Debug print
+
+    // if key == 0 {
+    //     return Ok(HttpResponse {
+    //         status_code: 400,
+    //         headers: {
+    //             let mut headers = HashMap::new();
+    //             headers.insert(
+    //                 String::from("Access-Control-Allow-Origin"),
+    //                 String::from("*"),
+    //             );
+    //             headers
+    //         },
+    //         body: json!({
+    //             "statusCode": 400,
+    //             "message": "Cannot register a new user, the user already exists"
+    //         })
+    //         .into(),
+    //     });
+    // }
+
+    
+
+    key
 }
