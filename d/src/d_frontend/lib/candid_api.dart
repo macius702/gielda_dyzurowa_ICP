@@ -78,9 +78,11 @@ class CandidApi extends ICPconnector implements Api {
   }
 
   @override
-  Future<Status> getUserData() async {
+  Future<ResultWithStatus<UserData>> getUserData() async {
     // Dummy implementation
-    return ExceptionalFailure();
+    UserData dummyData = UserData(id: 1, role: UserRole.doctor);
+    Status status = Response('');
+    return ResultWithStatus<UserData>(result: dummyData, status: status);
   }
 
   @override

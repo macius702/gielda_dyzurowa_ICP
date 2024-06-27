@@ -501,7 +501,7 @@ class Counter extends ICPconnector implements Api {
   }
 
   @override
-  Future<Status> getUserData() async {
+  Future<ResultWithStatus<UserData>> getUserData() async {
     try {
       Uri uri = _createUri('/user/data');
 
@@ -541,8 +541,8 @@ class Counter extends ICPconnector implements Api {
         // If the server returns a 200 OK response,
         // then parse the JSON.
 
-        final userData = Status.fromJson(jsonDecode(response.body));
-        return userData;
+        final userData = UserData.fromJson(jsonDecode(response.body));
+        return ResultWithStatus<UserData>(result: userData, status: Response());
       } else {
         // If the server returns an unexpected response,
         // then throw an exception.

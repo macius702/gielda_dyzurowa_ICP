@@ -3,35 +3,18 @@ import 'package:decimal/decimal.dart';
 class Status {
   final bool isSuccess;
   final String message;
-  final int? id;
-  final String? role;
 
   Status({
     required this.isSuccess,
     required this.message,
-    this.id,
-    this.role,
   });
 
   String getString() {
-    if (id != null && role != null) {
-      return '{ "id": "$id", "role": "$role"}';
-    }
     return message;
   }
 
   void handleError() {
     print(isSuccess ? message : 'Operation failed with an error: ${getString()}');
-  }
-
-  factory Status.fromJson(Map<String, dynamic> json) {
-    print('Status.fromJson: $json');
-    return Status(
-      isSuccess: true,
-      message: 'No Message',
-      id: json['_id'],
-      role: json['role'],
-    );
   }
 
   bool is_success() {
@@ -249,4 +232,32 @@ class DutySlotForDisplay {
   String toString() {
     return 'DutySlotForDisplay: id=$id, hospitalId=$hospitalId, requiredSpecialty=$requiredSpecialty, status=$status, assignedDoctorId=$assignedDoctorId, startDateTime=$startDateTime, endDateTime=$endDateTime, priceFrom=$priceFrom, priceTo=$priceTo, currency=$currency';
   }
+}
+
+class UserData {
+  final int id;
+  final UserRole role;
+
+  UserData({required this.id, required this.role});
+
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    print('UserData.fromJson: $json');
+    return UserData(
+      id: json['_id'],
+      // converst String to UserRole
+      role: json['role'] == 'doctor' ? UserRole.doctor : UserRole.hospital,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'UserData: id=$id, role=$role';
+  }
+}
+
+class ResultWithStatus<T> {
+  final T result;
+  final Status status;
+
+  ResultWithStatus({required this.result, required this.status});
 }

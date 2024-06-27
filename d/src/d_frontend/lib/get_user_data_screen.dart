@@ -15,8 +15,8 @@ abstract class _UserDataStore with Store {
   String valueString = '';
 
   @action
-  Future<void> storeUserData(Status value) async {
-    valueString = value.getString();
+  Future<void> storeUserData(UserData value) async {
+    valueString = value.toString();
   }
 }
 
@@ -36,8 +36,10 @@ class _UserDataFormState extends State<UserDataForm> {
 
   Future<void> fetchData() async {
     final counterStore = Provider.of<ViewModel>(context, listen: false);
-    Status value = await counterStore.getUserData();
-    userDataStore.storeUserData(value);
+    final value = await counterStore.getUserData();
+    if (value.status.is_success()) {
+      userDataStore.storeUserData(value.result);
+    }
   }
 
   @override

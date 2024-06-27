@@ -31,7 +31,7 @@ abstract class Api {
 
   Future<List<DutySlotForDisplay>> getDutySlots();
 
-  Future<Status> getUserData();
+  Future<ResultWithStatus<UserData>> getUserData();
 
   Future<List<String>> getUsers();
 

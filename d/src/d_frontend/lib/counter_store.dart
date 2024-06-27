@@ -25,24 +25,9 @@ abstract class _ViewModel with Store {
   int? userId;
 
   @action
-  bool setUserIdRole(String ids, String role) {
-    //convert ids to int
-    try {
-      userId = int.parse(ids);
-    } catch (e) {
-      return false;
-    }
-
-    //convert role to UserRole
-    if (role == 'doctor') {
-      this.role = UserRole.doctor;
-    } else if (role == 'hospital') {
-      this.role = UserRole.hospital;
-    } else {
-      return false;
-    }
-
-    return true;
+  void setUserIdRole(UserData userData) {
+    userId = userData.id;
+    role = userData.role;
   }
 
   @action
@@ -110,14 +95,12 @@ abstract class _ViewModel with Store {
     Status status = await theApi.performLogin(username, password);
 
     if (status.is_success()) {
-      Status m = await getUserData();
-      if (m.is_success()) {
-        String json = m.getString(); // i.e  {"id:: "1234", "role" : "doctor"}
-        Map<String, dynamic> map = jsonDecode(json);
-        if (setUserIdRole(map['id'], map['role'])) {
-          setUsername(username);
-          return Response('Login successful');
-        }
+      final statusAndData = await getUserData();
+      if (statusAndData.status.is_success()) {
+        final userData = statusAndData.result;
+        setUserIdRole(userData);
+        setUsername(username);
+        return Response('Login successful');
       }
     }
     setDisplayedMessage(null);
@@ -134,7 +117,7 @@ abstract class _ViewModel with Store {
   }
 
   @action
-  Future<Status> getUserData() async {
+  Future<ResultWithStatus<UserData>> getUserData() async {
     return await theApi.getUserData();
   }
 
