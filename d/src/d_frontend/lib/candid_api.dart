@@ -7,6 +7,8 @@ import 'package:d_frontend/ICP_connector.dart';
 import 'print.dart';
 
 class CandidApi extends ICPconnector implements Api {
+//    perform_registration : (text, text, UserRole, opt int32, opt text) -> (nat32);
+
   @override
   Future<Status> performRegistration(
       String username, String password, UserRole role, int? specialty, String? localization) async {
@@ -154,6 +156,9 @@ abstract class CounterMethod {
   static const getValue = "getValue";
   static const get_specialties = "get_specialties";
   static const get_users = "get_all_usernames";
+  static const perform_registration = "perform_registration";
+
+  static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
@@ -161,6 +166,11 @@ abstract class CounterMethod {
     CounterMethod.increment: IDL.Func([], [], []),
     CounterMethod.get_specialties: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     CounterMethod.get_users: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    CounterMethod.perform_registration: IDL.Func(
+      [IDL.Text, IDL.Text, UserRole, IDL.Opt(IDL.Int32), IDL.Opt(IDL.Text)],
+      [IDL.Nat32],
+      [],
+    ),
   });
 }
 
