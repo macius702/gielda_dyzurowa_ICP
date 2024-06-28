@@ -27,11 +27,17 @@ class CandidApi implements Api {
 
       ActorMethod? func = actor?.getFunc(CounterMethod.perform_registration);
       if (func != null) {
-        var res = await func([username, password, role, specialty, localization]);
+        var res = await func([
+          username,
+          password,
+          convertUserRoleToMap(role),
+          convertNullableToList(specialty),
+          convertNullableToList(localization)
+        ]);
         mtlk_print("Function call result: $res");
 
         if (res != null) {
-          return (Response(res));
+          return (Response());
         } else {
           mtlk_print("Function call returned null");
         }
@@ -46,7 +52,7 @@ class CandidApi implements Api {
     }
 
     // Dummy implementation
-    return ExceptionalFailure();
+    //return ExceptionalFailure();
   }
 
   @override

@@ -39,6 +39,25 @@ enum UserRole {
   hospital,
 }
 
+Map<String, dynamic> convertUserRoleToMap(UserRole role) {
+  switch (role) {
+    case UserRole.doctor:
+      return {'doctor': null};
+    case UserRole.hospital:
+      return {'hospital': null};
+    default:
+      throw ArgumentError('Invalid UserRole');
+  }
+}
+
+List<T> convertNullableToList<T>(T? value) {
+  if (value != null) {
+    return [value];
+  } else {
+    return [];
+  }
+}
+
 // for publish duty slot only because register uses only id as string
 class Specialty {
   final String id;
