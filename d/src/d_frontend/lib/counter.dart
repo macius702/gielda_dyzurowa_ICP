@@ -22,11 +22,15 @@ import 'dart:math';
 import 'config.dart' show backendCanisterId, Mode, mode;
 import 'print.dart';
 
-class Counter extends ICPconnector implements Api {
+class Counter implements Api {
   ///
   /// Counter class, with AgentFactory within
   ///
-  Counter({required String canisterId, required String url}) : super(canisterId: canisterId, url: url);
+  ///
+  final ICPconnector icpConnector;
+
+  ///
+  Counter({required this.icpConnector});
 
   ///
 
@@ -616,36 +620,14 @@ class Counter extends ICPconnector implements Api {
   }
 
   static Future<Counter> init({Identity? identity}) async {
-    // initialize counter, change canister id here
-    //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
-
-    // String url;
-    // var backendCanisterId;
-    // if (kIsWeb) {
-    //   mtlk_print("kIsWeb");
-    //   url = 'http://localhost:4944';
-
-    // } else {
-    //     mtlk_print("not kIsWeb");
-
-    //   // url = 'http://10.0.2.2:4944'; // default to localhost for other platforms
-
-    //   // url = 'https://mdwwn-niaaa-aaaab-qabta-cai.ic0.app:4944';
-
-    // }
-
-    // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
-    // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
-
-    mtlk_print("Before counter construction");
-    var counter = Counter(
+    ICPconnector icpConnector = ICPconnector(
         canisterId: backendCanisterId,
-        url: get_frontend_url()); // set agent when other paramater comes in like new Identity
-    mtlk_print("After counter construction");
-    await counter.setAgent(newIdentity: identity);
-    mtlk_print("After counter setAgent");
-    // await counter.get_specialties();
-    // mtlk_print("After counter get_specialties");
+        url: get_frontend_url() // set agent when other paramater comes in like new Identity
+        );
+
+    await icpConnector.setAgent(newIdentity: identity);
+
+    var counter = Counter(icpConnector: icpConnector);
     return counter;
   }
 }
