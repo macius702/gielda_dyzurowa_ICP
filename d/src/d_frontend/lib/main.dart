@@ -1,3 +1,4 @@
+import 'package:d_frontend/ICP_connector.dart';
 import 'package:d_frontend/duty_slots_screen.dart';
 import 'package:d_frontend/get_user_data_screen.dart';
 import 'package:d_frontend/publish_duty_slot_screen.dart';
@@ -19,7 +20,9 @@ void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure flutter binding is initialized if you're going to use async code in main
 
-  final counter = await Counter.init(); // Assuming createCounter is your async function that returns a Counter
+  final icpConnector = await ICPconnector.init();
+
+  final counter = Counter(icpConnector);
   //final counter = await initCandidApi();
 
   final counterStore = ViewModel(counter);

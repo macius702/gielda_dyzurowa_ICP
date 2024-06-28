@@ -1,3 +1,4 @@
+import 'package:d_frontend/ICP_connector.dart';
 import 'package:d_frontend/candid_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -267,8 +268,9 @@ Future<void> waitForTextAndType(String message, Type type, WidgetTester tester, 
 Future<ViewModel> initializeApp(WidgetTester tester) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the CounterStore
-  final counter = await Counter.init();
+  final icpConnector = await ICPconnector.init();
+  final counter = Counter(icpConnector);
+
   //final counter = await initCandidApi();
 
   final counterStore = ViewModel(counter);

@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:agent_dart/agent_dart.dart';
+import 'package:d_frontend/counter.dart';
+import 'config.dart' show backendCanisterId;
+
 import 'print.dart';
 
 class ICPconnector {
@@ -45,5 +48,15 @@ class ICPconnector {
         rethrow;
       }
     }
+  }
+
+  static Future<ICPconnector> init({Identity? identity}) async {
+    ICPconnector icpConnector = ICPconnector(
+        canisterId: backendCanisterId,
+        url: get_frontend_url() // set agent when other paramater comes in like new Identity
+        );
+
+    await icpConnector.setAgent(newIdentity: identity);
+    return icpConnector;
   }
 }

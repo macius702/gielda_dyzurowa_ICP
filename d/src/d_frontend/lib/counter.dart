@@ -30,7 +30,7 @@ class Counter implements Api {
   final ICPconnector icpConnector;
 
   ///
-  Counter({required this.icpConnector});
+  Counter(this.icpConnector);
 
   ///
 
@@ -617,18 +617,6 @@ class Counter implements Api {
     int? myNumber = prefs.getInt('myNumber');
     mtlk_print('Retrieved number: $myNumber');
     return myNumber;
-  }
-
-  static Future<Counter> init({Identity? identity}) async {
-    ICPconnector icpConnector = ICPconnector(
-        canisterId: backendCanisterId,
-        url: get_frontend_url() // set agent when other paramater comes in like new Identity
-        );
-
-    await icpConnector.setAgent(newIdentity: identity);
-
-    var counter = Counter(icpConnector: icpConnector);
-    return counter;
   }
 }
 
