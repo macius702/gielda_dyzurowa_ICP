@@ -1,3 +1,7 @@
+// ignore_for_file: unused_import
+// ignore_for_file: avoid_print
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 import 'package:d_frontend/ICP_connector.dart';
 import 'package:d_frontend/api.dart';
