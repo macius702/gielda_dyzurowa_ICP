@@ -268,7 +268,7 @@ Future<ViewModel> initializeApp(WidgetTester tester) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize the CounterStore
-  final counter = await initCounter();
+  final counter = await Counter.init();
   //final counter = await initCandidApi();
 
   final counterStore = ViewModel(counter);

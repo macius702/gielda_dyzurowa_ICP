@@ -610,43 +610,43 @@ class Counter extends ICPconnector implements Api {
     mtlk_print('Retrieved number: $myNumber');
     return myNumber;
   }
+
+  static Future<Counter> init({Identity? identity}) async {
+    // initialize counter, change canister id here
+    //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
+
+    // String url;
+    // var backendCanisterId;
+    // if (kIsWeb) {
+    //   mtlk_print("kIsWeb");
+    //   url = 'http://localhost:4944';
+
+    // } else {
+    //     mtlk_print("not kIsWeb");
+
+    //   // url = 'http://10.0.2.2:4944'; // default to localhost for other platforms
+
+    //   // url = 'https://mdwwn-niaaa-aaaab-qabta-cai.ic0.app:4944';
+
+    // }
+
+    // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
+    // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
+
+    mtlk_print("Before counter construction");
+    var counter = Counter(
+        canisterId: backendCanisterId,
+        url: get_frontend_url()); // set agent when other paramater comes in like new Identity
+    mtlk_print("After counter construction");
+    await counter.setAgent(newIdentity: identity);
+    mtlk_print("After counter setAgent");
+    // await counter.get_specialties();
+    // mtlk_print("After counter get_specialties");
+    return counter;
+  }
 }
 
 String frontend_url = '';
-
-Future<Counter> initCounter({Identity? identity}) async {
-  // initialize counter, change canister id here
-  //10.0.2.2  ? private const val BASE_URL = "http://10.0.2.2:4944"
-
-  // String url;
-  // var backendCanisterId;
-  // if (kIsWeb) {
-  //   mtlk_print("kIsWeb");
-  //   url = 'http://localhost:4944';
-
-  // } else {
-  //     mtlk_print("not kIsWeb");
-
-  //   // url = 'http://10.0.2.2:4944'; // default to localhost for other platforms
-
-  //   // url = 'https://mdwwn-niaaa-aaaab-qabta-cai.ic0.app:4944';
-
-  // }
-
-  // url = 'https://z7chj-7qaaa-aaaab-qacbq-cai.icp0.io:4944';
-  // backendCanisterId = 'ocpcu-jaaaa-aaaab-qab6q-cai';
-
-  mtlk_print("Before counter construction");
-  var counter = Counter(
-      canisterId: backendCanisterId,
-      url: get_frontend_url()); // set agent when other paramater comes in like new Identity
-  mtlk_print("After counter construction");
-  await counter.setAgent(newIdentity: identity);
-  mtlk_print("After counter setAgent");
-  // await counter.get_specialties();
-  // mtlk_print("After counter get_specialties");
-  return counter;
-}
 
 String get_frontend_url() {
   return mode == Mode.playground
