@@ -19,20 +19,16 @@ import 'dart:convert';
 import 'package:agent_dart/agent_dart.dart';
 import 'dart:math';
 
-import 'config.dart' show backendCanisterId, Mode, mode;
 import 'print.dart';
 
 class Counter implements Api {
-  ///
-  /// Counter class, with AgentFactory within
-  ///
-  ///
   final ICPconnector icpConnector;
 
-  ///
   Counter(this.icpConnector);
 
-  ///
+  Uri _createUri(String path) {
+    return ICPconnector.createUri(path);
+  }
 
   @override
   Future<List<String>> getSpecialties() async {
@@ -601,37 +597,4 @@ class Counter implements Api {
       throw Exception('Failed to get usernames');
     }
   }
-
-  // Save a value
-  saveValue() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int randomNumber = Random().nextInt(100) + 1; // Generates a random integer from 1 to 100
-
-    await prefs.setInt('myNumber', randomNumber);
-    mtlk_print('Saved number: $randomNumber');
-  }
-
-  // Retrieve a value
-  retrieveValue() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? myNumber = prefs.getInt('myNumber');
-    mtlk_print('Retrieved number: $myNumber');
-    return myNumber;
-  }
-}
-
-String frontend_url = '';
-
-String get_frontend_url() {
-  return mode == Mode.playground
-      ? 'https://icp-api.io'
-      : mode == Mode.local
-          ? kIsWeb
-              ? 'http://127.0.0.1:4944'
-              : 'http://10.0.2.2:4944' // for android emulator
-          : 'todo'; // for Mode.network
-}
-
-Uri _createUri(String path) {
-  return Uri.parse('${get_frontend_url()}$path?canisterId=$backendCanisterId');
 }

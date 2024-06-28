@@ -1,7 +1,12 @@
+// ignore_for_file: unused_import
+// ignore_for_file: avoid_print
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 import 'package:agent_dart/agent_dart.dart';
 import 'package:d_frontend/counter.dart';
-import 'config.dart' show backendCanisterId;
+import 'config.dart' show backendCanisterId, Mode, mode;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'print.dart';
 
@@ -59,4 +64,20 @@ class ICPconnector {
     await icpConnector.setAgent(newIdentity: identity);
     return icpConnector;
   }
+
+  static Uri createUri(String path) {
+    return Uri.parse('${get_frontend_url()}$path?canisterId=$backendCanisterId');
+  }
+}
+
+String frontend_url = '';
+
+String get_frontend_url() {
+  return mode == Mode.playground
+      ? 'https://icp-api.io'
+      : mode == Mode.local
+          ? kIsWeb
+              ? 'http://127.0.0.1:4944'
+              : 'http://10.0.2.2:4944' // for android emulator
+          : 'todo'; // for Mode.network
 }
