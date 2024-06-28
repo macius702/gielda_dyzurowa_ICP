@@ -268,10 +268,10 @@ Future<void> waitForTextAndType(String message, Type type, WidgetTester tester, 
 Future<ViewModel> initializeApp(WidgetTester tester) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final icpConnector = await ICPconnector.init();
-  final counter = Counter(icpConnector);
+  final icpConnector = await ICPconnector.init(newIdl: CounterMethod.idl);
+  //final counter = Counter(icpConnector);
 
-  //final counter = await initCandidApi();
+  final counter = await CandidApi(icpConnector);
 
   final counterStore = ViewModel(counter);
   await counterStore.setupSpecialties();

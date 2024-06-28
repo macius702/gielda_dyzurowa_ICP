@@ -20,10 +20,10 @@ void main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure flutter binding is initialized if you're going to use async code in main
 
-  final icpConnector = await ICPconnector.init();
+  final icpConnector = await ICPconnector.init(newIdl: CounterMethod.idl);
 
-  final counter = Counter(icpConnector);
-  //final counter = await initCandidApi();
+  //final counter = Counter(icpConnector);
+  final counter = CandidApi(icpConnector);
 
   final counterStore = ViewModel(counter);
   counterStore.setupSpecialties();

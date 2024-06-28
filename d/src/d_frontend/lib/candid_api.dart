@@ -1,3 +1,7 @@
+// ignore_for_file: unused_import, constant_identifier_names
+// ignore_for_file: avoid_print
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:d_frontend/api.dart';
 import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +10,41 @@ import 'package:d_frontend/ICP_connector.dart';
 
 import 'print.dart';
 
-class CandidApi extends ICPconnector implements Api {
-//    perform_registration : (text, text, UserRole, opt int32, opt text) -> (nat32);
+class CandidApi implements Api {
+  final ICPconnector icpConnector;
+
+  CandidApi(this.icpConnector);
+
+  get actor => icpConnector.actor;
 
   @override
   Future<Status> performRegistration(
       String username, String password, UserRole role, int? specialty, String? localization) async {
+    try {
+      if (actor == null) {
+        throw Exception("Actor is null");
+      }
+
+      ActorMethod? func = actor?.getFunc(CounterMethod.perform_registration);
+      if (func != null) {
+        var res = await func([username, password, role, specialty, localization]);
+        mtlk_print("Function call result: $res");
+
+        if (res != null) {
+          return (Response(res));
+        } else {
+          mtlk_print("Function call returned null");
+        }
+      } else {
+        mtlk_print("getFunc returned null");
+      }
+
+      throw Exception("Cannot get users");
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      rethrow;
+    }
+
     // Dummy implementation
     return ExceptionalFailure();
   }
@@ -94,7 +127,7 @@ class CandidApi extends ICPconnector implements Api {
         throw Exception("Actor is null");
       }
 
-      ActorMethod? func = actor?.getFunc(CounterMethod.get_users);
+      ActorMethod? func = actor?.getFunc(CounterMethod.get_all_usernames);
       if (func != null) {
         var res = await func([]);
         mtlk_print("Function call result: $res");
@@ -144,10 +177,6 @@ class CandidApi extends ICPconnector implements Api {
   }
 }
 
-Future<CandidApi> initCandidApi() async {
-  return Future.value(CandidApi());
-}
-
 /// motoko/rust function of the Counter canister
 /// see ./dfx/local/counter.did
 abstract class CounterMethod {
@@ -155,7 +184,7 @@ abstract class CounterMethod {
   static const increment = "increment";
   static const getValue = "getValue";
   static const get_specialties = "get_specialties";
-  static const get_users = "get_all_usernames";
+  static const get_all_usernames = "get_all_usernames";
   static const perform_registration = "perform_registration";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
@@ -165,7 +194,7 @@ abstract class CounterMethod {
     CounterMethod.getValue: IDL.Func([], [IDL.Nat], ['query']),
     CounterMethod.increment: IDL.Func([], [], []),
     CounterMethod.get_specialties: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-    CounterMethod.get_users: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    CounterMethod.get_all_usernames: IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     CounterMethod.perform_registration: IDL.Func(
       [IDL.Text, IDL.Text, UserRole, IDL.Opt(IDL.Int32), IDL.Opt(IDL.Text)],
       [IDL.Nat32],

@@ -20,7 +20,8 @@ class ICPconnector {
   final String canisterId;
   final String url;
 
-  ICPconnector({required this.canisterId, required this.url}) {
+  ICPconnector({required this.canisterId, required this.url, ServiceClass? newIdl}) {
+    mtlk_print('newIdl is $newIdl');
     mtlk_print('canisterId: $canisterId');
     mtlk_print('url: $url');
   }
@@ -55,13 +56,13 @@ class ICPconnector {
     }
   }
 
-  static Future<ICPconnector> init({Identity? identity}) async {
+  static Future<ICPconnector> init({Identity? identity, ServiceClass? newIdl}) async {
     ICPconnector icpConnector = ICPconnector(
         canisterId: backendCanisterId,
-        url: get_frontend_url() // set agent when other paramater comes in like new Identity
-        );
+        url: get_frontend_url(), // set agent when other paramater comes in like new Identity
+        newIdl: newIdl);
 
-    await icpConnector.setAgent(newIdentity: identity);
+    await icpConnector.setAgent(newIdentity: identity, newIdl: newIdl);
     return icpConnector;
   }
 
