@@ -13,6 +13,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   bool skip_them = false;
+  bool skip_register = false;
 
   testWidgets("Assign duty slot, Consent, Revoke", (WidgetTester tester) async {
     await initializeApp(tester);
@@ -70,15 +71,15 @@ void main() {
     await deleteUser(tester, hospital1);
     await login(tester, doctor1);
     await deleteUser(tester, doctor1);
-  });
+  }, skip: skip_them);
 
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
     await runTest(tester, 'hospital', '', '');
-  }, skip: skip_them);
+  }, skip: skip_register);
 
   testWidgets("E2E test for doctor role", (WidgetTester tester) async {
     await runTest(tester, 'doctor', 'Angiologia', 'Warsaw');
-  }, skip: skip_them);
+  }, skip: skip_register);
 
   testWidgets('Login and Logout Test', (WidgetTester tester) async {
     await initializeApp(tester);

@@ -881,14 +881,7 @@ fn get_authorized_user_info_from_cookie(cookie : &str) -> Result<(u32, String, S
     Ok((user_id, user_role.to_string(), user_username.to_string()))
 }
 
-fn add_to_used_tokens(req: HttpRequest) {
-    remove_expired_tokens();
-    let token_userid_pair = extract_cookies_from_request(&req);
-    let token_userid_pair = match token_userid_pair {
-        Some(token_userid_pair) => token_userid_pair,
-        None => return,
-    };
-    let (token, _) = token_userid_pair;
+fn add_token_to_used(token: String) {
     let now = ic_cdk::api::time();
     USED_TOKENS_MAP.with(|p| p.borrow_mut().insert(token.clone(), now));
     USED_TOKENS_HEAP.with(|p| {
@@ -897,6 +890,28 @@ fn add_to_used_tokens(req: HttpRequest) {
             token,
         })
     });
+}
+
+fn add_to_used_tokens(req: HttpRequest) {
+    remove_expired_tokens();
+    let token_userid_pair = extract_cookies_from_request(&req);
+    let token_userid_pair = match token_userid_pair {
+        Some(token_userid_pair) => token_userid_pair,
+        None => return,
+    };
+    let (token, _) = token_userid_pair;
+    add_token_to_used(token);
+}
+
+fn add_to_used_tokens_from_cookie(cookie : &str) {
+    remove_expired_tokens();
+    let token_userid_pair = parse_cookie(cookie);
+    let (token, _) = token_userid_pair;
+    let token = match token {
+        Some(token) => token,
+        None => return,
+    };
+    add_token_to_used(token);
 }
 
 fn remove_expired_tokens() {
@@ -1072,5 +1087,19 @@ async fn get_user_data(cookie : String) -> Result<(u32, String), String> {
     let (userid, userrole, _) = user_info;
 
     Ok((userid, userrole))
+}
+
+#[ic_cdk_macros::query]
+async fn perform_logout(cookie : String) -> Result<(), String> {
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+
+    match user_info {
+        Err(e) => return Err(e.to_string()),
+        _ => {}
+    }
+
+    add_to_used_tokens_from_cookie(&cookie);
+
+    Ok(())
 }
 

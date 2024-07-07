@@ -82,8 +82,17 @@ class CandidApi implements Api {
 
   @override
   Future<Status> performLogout() async {
-    // Dummy implementation
-    return ExceptionalFailure();
+    //first call       callActorMethod
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('cookies');
+      print("performLogout: Removed cookies from SharedPreferences");
+    } catch (e) {
+      print("performLogout: Failed to remove cookies from SharedPreferences: $e");
+      return ExceptionalFailure('Failed to logout user: cannot remove cookies');
+    }
+    return Response('Logout successful');
   }
 
   @override
@@ -194,9 +203,11 @@ abstract class CounterMethod {
   static const get_all_usernames = "get_all_usernames";
   static const perform_registration = "perform_registration";
   static const perform_login = "perform_login";
+  static const perform_logout = "perform_logout";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
   static final Result = IDL.Variant({'Ok': IDL.Text, 'Err': IDL.Text});
+  static final Result_2 = IDL.Variant({'Ok': IDL.Null, 'Err': IDL.Text});
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
@@ -211,6 +222,7 @@ abstract class CounterMethod {
     ),
     //returns type
     CounterMethod.perform_login: IDL.Func([IDL.Text, IDL.Text], [Result], []),
+    CounterMethod.perform_logout: IDL.Func([IDL.Text], [Result_2], ['query']),
   });
 }
 
