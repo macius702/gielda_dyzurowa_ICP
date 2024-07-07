@@ -22,6 +22,7 @@ type RawHttpResponse = record {
   upgrade : opt bool;
   status_code : nat16;
 };
+type Result = variant { Ok : text; Err : text };
 type User = record {
   localization : opt text;
   username : text;
@@ -43,5 +44,6 @@ service : {
   http_request_update : (RawHttpRequest) -> (RawHttpResponse);
   insert_duty_slot : (DutySlot) -> (nat32);
   insert_user : (User) -> (nat32);
+  perform_login : (text, text) -> (Result) query;
   perform_registration : (text, text, UserRole, opt int32, opt text) -> (nat32);
 }

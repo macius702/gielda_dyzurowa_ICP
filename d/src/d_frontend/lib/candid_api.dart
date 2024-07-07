@@ -43,7 +43,20 @@ class CandidApi implements Api {
 
   @override
   Future<Status> performLogin(String username, String password) async {
-    // Dummy implementation
+    try {
+      final result =
+          await callActorMethod<Map<String, dynamic>>(CounterMethod.perform_login, [username, password]);
+      if (result != null) {
+        if (result['Ok'] != null) {
+          return Response('Login successful: ${result['ok']}');
+        } else if (result['Err'] != null) {
+          return Error('Login failed: ${result['err']}');
+        }
+      }
+    } catch (e) {
+      mtlk_print("Caught error: $e");
+      return ExceptionalFailure('Cannot login user $username, Caught error: $e');
+    }
     return ExceptionalFailure();
   }
 
@@ -159,8 +172,10 @@ abstract class CounterMethod {
   static const get_specialties = "get_specialties";
   static const get_all_usernames = "get_all_usernames";
   static const perform_registration = "perform_registration";
+  static const perform_login = "perform_login";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
+  static final Result = IDL.Variant({'Ok': IDL.Text, 'Err': IDL.Text});
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
@@ -173,6 +188,8 @@ abstract class CounterMethod {
       [IDL.Nat32],
       [],
     ),
+    //returns type
+    CounterMethod.perform_login: IDL.Func([IDL.Text, IDL.Text], [Result], []),
   });
 }
 

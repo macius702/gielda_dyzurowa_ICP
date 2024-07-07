@@ -936,3 +936,34 @@ async fn perform_registration(
 
     key
 }
+
+#[ic_cdk_macros::query]
+async fn perform_login(username: String, password: String) -> Result<String, String> {
+    // Find the user
+    let user_result = find_user_by_username(&username);
+
+    match user_result {
+        None => {
+            println!("Login attempt: User not found");
+            // Send response with status 400
+            return Err("Invalid username or password".to_string());
+        }
+        Some((_, user)) => {
+            // Check the password
+            let hashed_password = hex::encode(hash_password_with_pbkdf2(
+                &password,
+                "your_salt_string".as_bytes(),
+            ));
+
+            if user.password == hashed_password {
+                println!("User logged in: {}", user.username);
+
+                Ok("User logged in".to_string())
+            } else {
+                println!("Login attempt failed for user: {}", username);
+                // Send response with status 400
+                return Err("Invalid username or password".to_string());
+            }
+        }
+    }
+}
