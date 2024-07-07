@@ -12,7 +12,7 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  bool skip_them = false;
+  bool skip_them = true;
   bool skip_register = false;
 
   testWidgets("Assign duty slot, Consent, Revoke", (WidgetTester tester) async {

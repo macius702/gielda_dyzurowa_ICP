@@ -757,23 +757,31 @@ fn extract_cookies_from_request(req: &HttpRequest) -> Option<(String, String)> {
 }
 
 fn parse_cookie(cookie_str: &str) -> (Option<String>, Option<String>) {
-    let cookie = Cookie::parse(cookie_str).unwrap();
+    println!("Parsing cookies: {}", cookie_str);
+    let cookies: Vec<&str> = cookie_str.split(',').collect();
     let mut token = None;
     let mut userid = None;
 
-    match cookie.name() {
-        "token" => {
-            token = Some(cookie.value().to_string());
+    for cookie_str in cookies {
+        let cookie = Cookie::parse(cookie_str.trim()).unwrap();
+        match cookie.name() {
+            "token" => {
+                token = Some(cookie.value().to_string());
+                println!("Found token: {}", token.as_ref().unwrap());
+            }
+            "userid" => {
+                userid = Some(cookie.value().to_string());
+                println!("Found userid: {}", userid.as_ref().unwrap());
+            }
+            _ => {
+                println!("Found unrecognized cookie name: {}", cookie.name());
+            }
         }
-        "userid" => {
-            userid = Some(cookie.value().to_string());
-        }
-        _ => {}
     }
 
+    println!("Returning token: {:?}, userid: {:?}", token, userid);
     (token, userid)
 }
-
 
 fn unauthorized_response(message: &str) -> HttpResponse {
     HttpResponse {
@@ -853,8 +861,12 @@ fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), 
 }
 
 fn get_authorized_user_info_from_cookie(cookie : &str) -> Result<(u32, String, String), &str>{
+    println!("Cookie: {}", cookie);
     let token_userid_pair = parse_cookie(&cookie);
+    println!("Token user id pair: {:?}", token_userid_pair);
     let (token, userid) = token_userid_pair;
+    println!("Token: {:?}", token);
+    println!("User id: {:?}", userid);
 
     if token.is_none() || userid.is_none() {
         return Err("No token found in request");
@@ -1091,15 +1103,42 @@ async fn get_user_data(cookie : String) -> Result<(u32, String), String> {
 
 #[ic_cdk_macros::query]
 async fn perform_logout(cookie : String) -> Result<(), String> {
+    println!("Performing logout for cookie: {}", cookie);
     let user_info = get_authorized_user_info_from_cookie(&cookie);
 
     match user_info {
-        Err(e) => return Err(e.to_string()),
+        Err(e) => {
+            println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
         _ => {}
     }
 
+    println!("Adding used tokens from cookie");
     add_to_used_tokens_from_cookie(&cookie);
 
+    println!("Logout successful");
+    Ok(())
+}
+
+#[ic_cdk_macros::update]
+async fn delete_user(cookie : String) -> Result<(), String> {
+    println!("Deleting user for cookie: {}", cookie);
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+
+    match user_info {
+        Err(e) => {
+            println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
+        _ => {}
+    }
+
+    let (userid, _, _) = user_info.unwrap();
+    println!("Deleting user with id: {}", userid);
+    delete_user_internal(userid);
+
+    println!("User deletion successful");
     Ok(())
 }
 

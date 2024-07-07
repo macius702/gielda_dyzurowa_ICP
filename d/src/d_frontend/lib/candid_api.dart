@@ -18,10 +18,6 @@ class CandidApi implements Api {
 
   get actor => icpConnector.actor;
 
-  String? username;
-  UserRole? role;
-  int? userId;
-
   @override
   Future<Status> performRegistration(
       String username, String password, UserRole role, int? specialty, String? localization) async {
@@ -97,7 +93,25 @@ class CandidApi implements Api {
 
   @override
   Future<Status> deleteMe() async {
-    // Dummy implementation
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot delete user: no cookies');
+      }
+
+      final result = await callActorMethod<Map<String, dynamic>>(CounterMethod.delete_user, [cookies]);
+      if (result != null) {
+        if (result['Ok'] != null) {
+          return Response('User deleted');
+        } else if (result['Err'] != null) {
+          return Error('Cannot delete user: ${result['err']}');
+        }
+      }
+    } catch (e) {
+      print("deleteMe: Caught error: $e");
+      return ExceptionalFailure('Cannot delete user, Caught error: $e');
+    }
     return ExceptionalFailure();
   }
 
@@ -204,10 +218,16 @@ abstract class CounterMethod {
   static const perform_registration = "perform_registration";
   static const perform_login = "perform_login";
   static const perform_logout = "perform_logout";
+  static const delete_user = "delete_user";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
-  static final Result = IDL.Variant({'Ok': IDL.Text, 'Err': IDL.Text});
-  static final Result_2 = IDL.Variant({'Ok': IDL.Null, 'Err': IDL.Text});
+
+  static final Result = IDL.Variant({'Ok': IDL.Null, 'Err': IDL.Text});
+  // static final Result_1 = IDL.Variant({
+  //   'Ok': IDL.Tuple([IDL.Nat32, IDL.Text]),
+  //   'Err': IDL.Text
+  // });
+  static final Result_2 = IDL.Variant({'Ok': IDL.Text, 'Err': IDL.Text});
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
@@ -221,8 +241,9 @@ abstract class CounterMethod {
       [],
     ),
     //returns type
-    CounterMethod.perform_login: IDL.Func([IDL.Text, IDL.Text], [Result], []),
-    CounterMethod.perform_logout: IDL.Func([IDL.Text], [Result_2], ['query']),
+    CounterMethod.perform_login: IDL.Func([IDL.Text, IDL.Text], [Result_2], []),
+    CounterMethod.perform_logout: IDL.Func([IDL.Text], [Result], ['query']),
+    CounterMethod.delete_user: IDL.Func([IDL.Text], [Result], []),
   });
 }
 
