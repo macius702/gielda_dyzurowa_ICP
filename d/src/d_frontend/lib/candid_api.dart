@@ -21,38 +21,24 @@ class CandidApi implements Api {
   Future<Status> performRegistration(
       String username, String password, UserRole role, int? specialty, String? localization) async {
     try {
-      if (actor == null) {
-        throw Exception("Actor is null");
-      }
-
-      ActorMethod? func = actor?.getFunc(CounterMethod.perform_registration);
-      if (func != null) {
-        var res = await func([
+      int? result = await callActorMethod<int>(
+        CounterMethod.perform_registration,
+        [
           username,
           password,
           convertUserRoleToMap(role),
           convertNullableToList(specialty),
           convertNullableToList(localization)
-        ]);
-        mtlk_print("Function call result: $res");
-
-        if (res != null) {
-          return (Response());
-        } else {
-          mtlk_print("Function call returned null");
-        }
-      } else {
-        mtlk_print("getFunc returned null");
+        ],
+      );
+      if (result == 0 || result == null) {
+        return Error('Cannot register user $username');
       }
-
-      throw Exception("Cannot get users");
     } catch (e) {
       mtlk_print("Caught error: $e");
-      rethrow;
+      return ExceptionalFailure('Cannot register user $username, Caught error: $e');
     }
-
-    // Dummy implementation
-    //return ExceptionalFailure();
+    return Response('User $username registered');
   }
 
   @override
@@ -126,28 +112,27 @@ class CandidApi implements Api {
     return ResultWithStatus<UserData>(result: dummyData, status: status);
   }
 
+  Future<T?> callActorMethod<T>(String method, [List<dynamic> params = const []]) async {
+    if (actor == null) {
+      throw Exception("Actor is null");
+    }
+
+    ActorMethod? func = actor?.getFunc(method);
+    if (func != null) {
+      var res = await func(params);
+      mtlk_print("Function call result: $res");
+      return res as T?;
+    } else {
+      mtlk_print("getFunc returned null");
+    }
+
+    throw Exception("Cannot call method: $method");
+  }
+
   @override
   Future<List<String>> getUsers() async {
     try {
-      if (actor == null) {
-        throw Exception("Actor is null");
-      }
-
-      ActorMethod? func = actor?.getFunc(CounterMethod.get_all_usernames);
-      if (func != null) {
-        var res = await func([]);
-        mtlk_print("Function call result: $res");
-
-        if (res != null) {
-          return (res as List<String>);
-        } else {
-          mtlk_print("Function call returned null");
-        }
-      } else {
-        mtlk_print("getFunc returned null");
-      }
-
-      throw Exception("Cannot get users");
+      return await callActorMethod<List<String>>(CounterMethod.get_all_usernames) ?? [];
     } catch (e) {
       mtlk_print("Caught error: $e");
       rethrow;
@@ -157,29 +142,11 @@ class CandidApi implements Api {
   @override
   Future<List<String>> getSpecialties() async {
     try {
-      // await saveValue();
-      // await retrieveValue();
-      ActorMethod? func = actor?.getFunc(CounterMethod.get_specialties);
-      if (func != null) {
-        var res = await func([]);
-        mtlk_print("Function call result: ${res.first} ... ${res.last}");
-
-        if (res != null) {
-          // return (res as BigInt).toInt();
-          mtlk_print("get_spectialties: ${res.first} ... ${res.last}");
-          return (res as List<String>);
-        } else {
-          mtlk_print("Function call returned null");
-        }
-      } else {
-        mtlk_print("getFunc returned null");
-      }
+      return await callActorMethod<List<String>>(CounterMethod.get_specialties) ?? [];
     } catch (e) {
       mtlk_print("Caught error: $e");
       rethrow;
     }
-
-    return <String>[];
   }
 }
 
