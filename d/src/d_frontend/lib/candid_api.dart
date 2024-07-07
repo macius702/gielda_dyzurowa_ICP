@@ -7,6 +7,7 @@ import 'package:d_frontend/types.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_dart/agent_dart.dart';
 import 'package:d_frontend/ICP_connector.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'print.dart';
 
@@ -16,6 +17,10 @@ class CandidApi implements Api {
   CandidApi(this.icpConnector);
 
   get actor => icpConnector.actor;
+
+  String? username;
+  UserRole? role;
+  int? userId;
 
   @override
   Future<Status> performRegistration(
@@ -44,17 +49,32 @@ class CandidApi implements Api {
   @override
   Future<Status> performLogin(String username, String password) async {
     try {
-      final result =
-          await callActorMethod<Map<String, dynamic>>(CounterMethod.perform_login, [username, password]);
+      print("performLogin: Attempting to login user: $username");
+      final result = await callActorMethod<Map<String, dynamic>>(CounterMethod.perform_login, [username, password]);
+      print("performLogin: Received result: $result");
       if (result != null) {
         if (result['Ok'] != null) {
+          final rawCookie = result['Ok'];
+          print("performLogin: Received cookie: $rawCookie");
+
+          // Save the cookies into SharedPreferences
+          try {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('cookies', rawCookie);
+            print("performLogin: Saved cookie to SharedPreferences");
+          } catch (e) {
+            print("performLogin: Failed to save cookie to SharedPreferences: $e");
+            return ExceptionalFailure('Failed to login user: cannot save cookies');
+          }
+
           return Response('Login successful: ${result['ok']}');
         } else if (result['Err'] != null) {
+          print("performLogin: Login failed: ${result['err']}");
           return Error('Login failed: ${result['err']}');
         }
       }
     } catch (e) {
-      mtlk_print("Caught error: $e");
+      print("performLogin: Caught error: $e");
       return ExceptionalFailure('Cannot login user $username, Caught error: $e');
     }
     return ExceptionalFailure();
@@ -120,6 +140,7 @@ class CandidApi implements Api {
   @override
   Future<ResultWithStatus<UserData>> getUserData() async {
     // Dummy implementation
+
     UserData dummyData = UserData(id: 1, role: UserRole.doctor);
     Status status = Response('');
     return ResultWithStatus<UserData>(result: dummyData, status: status);

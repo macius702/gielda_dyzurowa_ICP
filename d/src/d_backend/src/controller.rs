@@ -745,17 +745,9 @@ fn extract_cookies_from_request(req: &HttpRequest) -> Option<(String, String)> {
         if header_field.0 == "cookie" {
             let cookies = header_field.1.split(',').map(|s| s.trim());
             for cookie_str in cookies {
-                let cookie = Cookie::parse(cookie_str).unwrap();
-                match cookie.name() {
-                    "token" => {
-                        token = Some(cookie.value().to_string());
-                    }
-                    "userid" => {
-                        userid = Some(cookie.value().to_string());
-                    }
-                    _ => {}
-                }
-            }
+                let (token, userid) = parse_cookie(cookie_str);
+                // Do something with token and userid
+            }     
         }
     }
     match (token, userid) {
@@ -763,6 +755,25 @@ fn extract_cookies_from_request(req: &HttpRequest) -> Option<(String, String)> {
         _ => None,
     }
 }
+
+fn parse_cookie(cookie_str: &str) -> (Option<String>, Option<String>) {
+    let cookie = Cookie::parse(cookie_str).unwrap();
+    let mut token = None;
+    let mut userid = None;
+
+    match cookie.name() {
+        "token" => {
+            token = Some(cookie.value().to_string());
+        }
+        "userid" => {
+            userid = Some(cookie.value().to_string());
+        }
+        _ => {}
+    }
+
+    (token, userid)
+}
+
 
 fn unauthorized_response(message: &str) -> HttpResponse {
     HttpResponse {
@@ -834,6 +845,35 @@ fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), 
     let payload = match result {
         Ok(Some(payload)) => payload,
         _ => return Err(unauthorized_response("Failed to verify token")),
+    };
+
+    let (user_id, user_role, user_username) = extract_user_info(&payload);
+
+    Ok((user_id, user_role.to_string(), user_username.to_string()))
+}
+
+fn get_authorized_user_info_from_cookie(cookie : &str) -> Result<(u32, String, String), &str>{
+    let token_userid_pair = parse_cookie(&cookie);
+    let (token, userid) = token_userid_pair;
+
+    if token.is_none() || userid.is_none() {
+        return Err("No token found in request");
+    }
+
+    let token = token.unwrap();
+    let userid = userid.unwrap();
+
+    if is_in_used_tokens(&token) {
+        return Err("Token already used");
+    }
+
+    let user = get_user_by_id(userid.parse().unwrap());
+    let secret = user.password;
+    let result = JWT::verify(&token, &secret);
+
+    let payload = match result {
+        Ok(Some(payload)) => payload,
+        _ => return Err("Failed to verify token"),
     };
 
     let (user_id, user_role, user_username) = extract_user_info(&payload);
@@ -948,7 +988,7 @@ async fn perform_login(username: String, password: String) -> Result<String, Str
             // Send response with status 400
             return Err("Invalid username or password".to_string());
         }
-        Some((_, user)) => {
+        Some((id , user)) => {
             // Check the password
             let hashed_password = hex::encode(hash_password_with_pbkdf2(
                 &password,
@@ -958,7 +998,21 @@ async fn perform_login(username: String, password: String) -> Result<String, Str
             if user.password == hashed_password {
                 println!("User logged in: {}", user.username);
 
-                Ok("User logged in".to_string())
+                let payload =
+                    json!({ "userId": id, "role": user.role, "username": user.username });
+                let secret = user.password;
+                let token = JWT::sign(payload, &secret, 3600);
+
+                let token_cookie = Cookie::new("token", token);
+                let userid_cookie = Cookie::new("userid", id.to_string());
+
+                let token_cookie_string = token_cookie.to_string();
+                let userid_cookie_string = userid_cookie.to_string();
+
+                let cookies = format!("{}, {}", userid_cookie_string, token_cookie_string);
+
+
+                Ok(cookies)
             } else {
                 println!("Login attempt failed for user: {}", username);
                 // Send response with status 400
@@ -967,3 +1021,56 @@ async fn perform_login(username: String, password: String) -> Result<String, Str
         }
     }
 }
+
+// #[ic_cdk_macros::query]
+// fn perform_logout(username: String) {
+//     let user_info = match get_authorized_user_info(&req) {
+//         Ok(user_info) => user_info,
+//         Err(response) => return Ok(response),
+//     };
+//     let (userid, userrole, username) = user_info;
+
+//     add_to_used_tokens(req);
+
+//     Ok(HttpResponse {
+//         status_code: 200,
+//         headers: HashMap::new(),
+//         body: json!({}).into(),
+//     })
+// }
+
+// router.get("/user/data", false, |req: HttpRequest| async move {
+//     let user_info = match get_authorized_user_info(&req) {
+//         Ok(user_info) => user_info,
+//         Err(response) => return Ok(response),
+//     };
+//     let (userid, userrole, username) = user_info;
+
+//     let mut response =  HttpResponse {
+//         status_code: 200,
+//         headers: HashMap::new(),
+//         body: json!({
+//             "statusCode": 200,
+//             "_id": userid,
+//             "role": userrole
+//         })
+//         .into(),
+//     };
+
+//     // response.add_raw_header("Set-Cookie", cookies);
+//     response.add_raw_header("Access-Control-Allow-Origin", String::from("*"));
+//     response.add_raw_header("Access-Control-Allow-Methods", String::from("GET, OPTIONS"));
+//     response.add_raw_header("Access-Control-Allow-Headers", String::from("Content-Type"));
+
+
+//     Ok(response)
+// });
+
+#[ic_cdk_macros::query]
+async fn get_user_data(cookie : String) -> Result<(u32, String), String> {
+    let user_info = get_authorized_user_info_from_cookie(&cookie)?;
+    let (userid, userrole, _) = user_info;
+
+    Ok((userid, userrole))
+}
+
