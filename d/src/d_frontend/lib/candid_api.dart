@@ -127,6 +127,43 @@ class CandidApi implements Api {
     required TimeOfDay endTime,
   }) async {
     // Dummy implementation
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot delete user: no cookies');
+      }
+
+      // sum start date and time
+      startDate = DateTime(startDate.year, startDate.month, startDate.day, startTime.hour, startTime.minute);
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, endTime.hour, endTime.minute);
+
+      double? priceFromDouble = priceFrom.toDouble();
+
+      final result = await callActorMethod<Map<String, dynamic>>(
+        CounterMethod.publish_duty_slot,
+        [
+          cookies,
+          int.parse(specialty.id),
+          convertNullableToList(priceFrom),
+          convertNullableToList(priceTo),
+          convertNullableToList(currency),
+          startDate.millisecondsSinceEpoch,
+          endDate.millisecondsSinceEpoch,
+        ],
+      );
+      if (result != null) {
+        if (result['Ok'] != null) {
+          print("Duty slot published");
+          return Response('Duty slot published');
+        } else if (result['Err'] != null) {
+          return Error('Cannot publish duty slot: ${result['err']}');
+        }
+      }
+    } catch (e) {
+      print("publishDutySlot: Caught error: $e");
+      return ExceptionalFailure('Cannot publish duty slot, Caught error: $e');
+    }
     return ExceptionalFailure();
   }
 
@@ -246,6 +283,7 @@ abstract class CounterMethod {
   static const perform_logout = "perform_logout";
   static const delete_user = "delete_user";
   static const get_user_data = "get_user_data";
+  static const publish_duty_slot = "publish_duty_slot";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
 
@@ -255,6 +293,8 @@ abstract class CounterMethod {
     'Err': IDL.Text
   });
   static final Result_2 = IDL.Variant({'Ok': IDL.Text, 'Err': IDL.Text});
+
+  static final Result_3 = IDL.Variant({'Ok': IDL.Nat32, 'Err': IDL.Text});
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
   static final ServiceClass idl = IDL.Service({
@@ -272,6 +312,19 @@ abstract class CounterMethod {
     CounterMethod.perform_logout: IDL.Func([IDL.Text], [Result], ['query']),
     CounterMethod.delete_user: IDL.Func([IDL.Text], [Result], []),
     CounterMethod.get_user_data: IDL.Func([IDL.Text], [Result_1], ['query']),
+    CounterMethod.publish_duty_slot: IDL.Func(
+      [
+        IDL.Text,
+        IDL.Nat16,
+        IDL.Opt(IDL.Float64),
+        IDL.Opt(IDL.Float64),
+        IDL.Opt(IDL.Text),
+        IDL.Int64,
+        IDL.Int64,
+      ],
+      [Result_3],
+      [],
+    ),
   });
 }
 

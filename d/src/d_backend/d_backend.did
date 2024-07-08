@@ -25,6 +25,7 @@ type RawHttpResponse = record {
 type Result = variant { Ok; Err : text };
 type Result_1 = variant { Ok : record { nat32; text }; Err : text };
 type Result_2 = variant { Ok : text; Err : text };
+type Result_3 = variant { Ok : nat32; Err : text };
 type User = record {
   localization : opt text;
   username : text;
@@ -51,4 +52,13 @@ service : {
   perform_login : (text, text) -> (Result_2) query;
   perform_logout : (text) -> (Result) query;
   perform_registration : (text, text, UserRole, opt int32, opt text) -> (nat32);
+  publish_duty_slot : (
+      text,
+      nat16,
+      opt float64,
+      opt float64,
+      opt text,
+      int64,
+      int64,
+    ) -> (Result_3);
 }

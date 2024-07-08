@@ -1142,3 +1142,44 @@ async fn delete_user(cookie : String) -> Result<(), String> {
     Ok(())
 }
 
+
+#[ic_cdk_macros::update]
+async fn publish_duty_slot(cookie : String,
+    required_specialty: u16,
+    price_from: Option<f64>,
+    price_to: Option<f64>,
+    currency: Option<String>,
+    start_date_time: i64,
+    end_date_time: i64,
+    ) -> Result<u32, String> {
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+    match user_info {
+        Err(e) => {
+            println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
+        _ => {}
+    }
+
+    let (userid, userrole, _) = user_info.unwrap();
+
+    if userrole != "hospital" {
+        return Err("Only hospitals can publish duty slots".to_string());
+    }
+    
+    let duty_slot = DutySlot {
+        required_specialty: required_specialty,
+        hospital_id: userid,
+        start_date_time: start_date_time,
+        end_date_time: end_date_time,
+        price_from: price_from,
+        price_to: price_to,
+        currency: currency,
+        status: DutyStatus::open,
+        assigned_doctor_id: None,
+    };
+
+    let key = insert_duty_slot_internal(duty_slot);
+
+    Ok(key)
+}   
