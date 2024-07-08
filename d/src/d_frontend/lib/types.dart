@@ -39,6 +39,18 @@ enum UserRole {
   hospital,
 }
 
+//convert string to UserRole
+UserRole UserRoleFromString(String role) {
+  switch (role) {
+    case 'doctor':
+      return UserRole.doctor;
+    case 'hospital':
+      return UserRole.hospital;
+    default:
+      throw ArgumentError('Invalid UserRole');
+  }
+}
+
 Map<String, dynamic> convertUserRoleToMap(UserRole role) {
   switch (role) {
     case UserRole.doctor:

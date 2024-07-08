@@ -162,11 +162,36 @@ class CandidApi implements Api {
 
   @override
   Future<ResultWithStatus<UserData>> getUserData() async {
-    // Dummy implementation
-
     UserData dummyData = UserData(id: 1, role: UserRole.doctor);
-    Status status = Response('');
-    return ResultWithStatus<UserData>(result: dummyData, status: status);
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return ResultWithStatus<UserData>(result: dummyData, status: Error('Cannot get user data: no cookies'));
+      }
+
+      mtlk_print("getUserData: Attempting to get user data with cookies: $cookies");
+
+      final result = await callActorMethod<Map<String, dynamic>>(CounterMethod.get_user_data, [cookies]);
+      mtlk_print("getUserData: Received result: $result");
+      if (result != null) {
+        if (result['Ok'] != null) {
+          final id = result['Ok'][0];
+          final role = UserRoleFromString(result['Ok'][1]);
+          mtlk_print("getUserData: User data received: id=$id, role=$role");
+          return ResultWithStatus<UserData>(
+              result: UserData(id: id, role: role), status: Response('User data received'));
+        } else if (result['Err'] != null) {
+          return ResultWithStatus<UserData>(result: dummyData, status: Error('Cannot get user data: ${result['err']}'));
+        }
+      }
+    } catch (e) {
+      print("getUserData: Caught error: $e");
+      return ResultWithStatus<UserData>(
+          result: dummyData, status: ExceptionalFailure('Cannot get user data, Caught error: $e'));
+    }
+    return ResultWithStatus<UserData>(result: dummyData, status: Error('Cannot get user data'));
   }
 
   Future<T?> callActorMethod<T>(String method, [List<dynamic> params = const []]) async {
@@ -186,6 +211,7 @@ class CandidApi implements Api {
     throw Exception("Cannot call method: $method");
   }
 
+  @override
   @override
   Future<List<String>> getUsers() async {
     try {
@@ -219,14 +245,15 @@ abstract class CounterMethod {
   static const perform_login = "perform_login";
   static const perform_logout = "perform_logout";
   static const delete_user = "delete_user";
+  static const get_user_data = "get_user_data";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
 
   static final Result = IDL.Variant({'Ok': IDL.Null, 'Err': IDL.Text});
-  // static final Result_1 = IDL.Variant({
-  //   'Ok': IDL.Tuple([IDL.Nat32, IDL.Text]),
-  //   'Err': IDL.Text
-  // });
+  static final Result_1 = IDL.Variant({
+    'Ok': IDL.Tuple([IDL.Nat32, IDL.Text]),
+    'Err': IDL.Text
+  });
   static final Result_2 = IDL.Variant({'Ok': IDL.Text, 'Err': IDL.Text});
 
   /// you can copy/paste from .dfx/local/canisters/counter/counter.did.js
@@ -244,6 +271,7 @@ abstract class CounterMethod {
     CounterMethod.perform_login: IDL.Func([IDL.Text, IDL.Text], [Result_2], []),
     CounterMethod.perform_logout: IDL.Func([IDL.Text], [Result], ['query']),
     CounterMethod.delete_user: IDL.Func([IDL.Text], [Result], []),
+    CounterMethod.get_user_data: IDL.Func([IDL.Text], [Result_1], ['query']),
   });
 }
 
