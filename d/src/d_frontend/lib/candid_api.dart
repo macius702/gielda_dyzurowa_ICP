@@ -4,6 +4,7 @@
 
 import 'package:d_frontend/api.dart';
 import 'package:d_frontend/types.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:agent_dart/agent_dart.dart';
 import 'package:d_frontend/ICP_connector.dart';
@@ -82,13 +83,28 @@ class CandidApi implements Api {
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('cookies');
-      print("performLogout: Removed cookies from SharedPreferences");
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot delete user: no cookies');
+      }
+
+      final result = await callActorMethod<Map<String, dynamic>>(CounterMethod.perform_logout, [cookies]);
+
+      if (result != null) {
+        if (result.containsKey('Ok')) {
+          await prefs.remove('cookies');
+
+          print("performLogout: Removed cookies from SharedPreferences");
+          return Response('Logout successful');
+        } else if (result['Err'] != null) {
+          return Error('Cannot delete user: ${result['err']}');
+        }
+      }
     } catch (e) {
       print("performLogout: Failed to remove cookies from SharedPreferences: $e");
       return ExceptionalFailure('Failed to logout user: cannot remove cookies');
     }
-    return Response('Logout successful');
+    return ExceptionalFailure('Failed to logout user: cannot remove cookies 2');
   }
 
   @override
@@ -102,7 +118,7 @@ class CandidApi implements Api {
 
       final result = await callActorMethod<Map<String, dynamic>>(CounterMethod.delete_user, [cookies]);
       if (result != null) {
-        if (result['Ok'] != null) {
+        if (result.containsKey('Ok')) {
           return Response('User deleted');
         } else if (result['Err'] != null) {
           return Error('Cannot delete user: ${result['err']}');
@@ -126,7 +142,6 @@ class CandidApi implements Api {
     required DateTime endDate,
     required TimeOfDay endTime,
   }) async {
-    // Dummy implementation
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? cookies = prefs.getString('cookies');
@@ -138,8 +153,6 @@ class CandidApi implements Api {
       startDate = DateTime(startDate.year, startDate.month, startDate.day, startTime.hour, startTime.minute);
       endDate = DateTime(endDate.year, endDate.month, endDate.day, endTime.hour, endTime.minute);
 
-      double? priceFromDouble = priceFrom.toDouble();
-
       final result = await callActorMethod<Map<String, dynamic>>(
         CounterMethod.publish_duty_slot,
         [
@@ -148,8 +161,8 @@ class CandidApi implements Api {
           convertNullableToList(priceFrom),
           convertNullableToList(priceTo),
           convertNullableToList(currency),
-          startDate.millisecondsSinceEpoch,
-          endDate.millisecondsSinceEpoch,
+          startDate.millisecondsSinceEpoch ~/ 1000,
+          endDate.millisecondsSinceEpoch ~/ 1000,
         ],
       );
       if (result != null) {
@@ -169,7 +182,30 @@ class CandidApi implements Api {
 
   @override
   Future<Status> deleteDutySlot(String id) async {
-    // Dummy implementation
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot delete duty slot: no cookies');
+      }
+
+      final result =
+          await callActorMethod<Map<String, dynamic>>(CounterMethod.delete_duty_slot, [cookies, int.parse(id)]);
+      print('Result: $result');
+      if (result != null) {
+        if (result.containsKey('Ok')) {
+          print("Duty slot deleted");
+          return Response('Duty slot deleted');
+        } else if (result['Err'] != null) {
+          print('Error deleting duty slot: ${result['Err']}');
+          return Error('Cannot delete duty slot: ${result['Err']}');
+        }
+      }
+    } catch (e) {
+      print("deleteDutySlot: Caught error: $e");
+      return ExceptionalFailure('Cannot delete duty slot, Caught error: $e');
+    }
+    print("deleteDutySlot: Exceptional failure");
     return ExceptionalFailure();
   }
 
@@ -193,7 +229,76 @@ class CandidApi implements Api {
 
   @override
   Future<List<DutySlotForDisplay>> getDutySlots() async {
-    // Dummy implementation
+    try {
+      print("Before callActorMethod"); // print the result
+      final result = await callActorMethod(CounterMethod.get_all_duty_slots_for_display);
+      print("Result: $result"); // print the result
+      if (result != null) {
+        List<DutySlotForDisplay> dutySlots = [];
+        for (var slot in result) {
+          print('Printing values');
+          String id = slot['_id'];
+          print('id: $id');
+
+          Map<String, dynamic> statusMap = slot['status'];
+          String status = statusMap.keys.first;
+          print('status: $status');
+
+          Map<String, dynamic> hospitalMap = Map<String, dynamic>.from(slot['hospitalId']);
+          Hospital hospital = Hospital(
+            id: hospitalMap['_id'],
+            username: hospitalMap['username'],
+            password: hospitalMap['password'],
+            role: hospitalMap['role'],
+            profileVisible: hospitalMap['profileVisible'],
+          );
+          print('hospital: $hospital');
+
+          Doctor? assignedDoctorId = slot['assigned_doctor_id'];
+          print('TODO - check null the read Map assignedDoctor: $assignedDoctorId');
+
+          List<dynamic> currencyList = slot['currency'];
+          String currency = currencyList[0];
+          print('currency: $currency');
+
+          String endDateTime = slot['endDateTime'];
+          print('endDateTime: $endDateTime');
+
+          Decimal priceToDecimal = getPrice(slot['priceTo']);
+          print('priceTo: $priceToDecimal');
+
+          Map<String, dynamic> requiredSpecialtyMap = Map<String, dynamic>.from(slot['requiredSpecialty']);
+          Specialty requiredSpecialty = Specialty(
+            id: requiredSpecialtyMap['_id'],
+            name: requiredSpecialtyMap['name'],
+          );
+
+          print('requiredSpecialty: $requiredSpecialty');
+
+          String startDateTime = slot['startDateTime'];
+          print('startDateTime: $startDateTime');
+
+          Decimal priceFromDecimal = getPrice(slot['priceFrom']);
+          print('priceFrom: $priceFromDecimal');
+
+          dutySlots.add(DutySlotForDisplay(
+            id: id,
+            status: DutyStatusHelper.fromString(status),
+            hospitalId: hospital,
+            assignedDoctorId: assignedDoctorId,
+            currency: currency,
+            endDateTime: endDateTime,
+            priceTo: priceToDecimal,
+            requiredSpecialty: requiredSpecialty,
+            startDateTime: startDateTime,
+            priceFrom: priceFromDecimal,
+          ));
+        }
+        return dutySlots;
+      }
+    } catch (e) {
+      print("getDutySlots: Caught error: $e");
+    }
     return [];
   }
 
@@ -284,8 +389,47 @@ abstract class CounterMethod {
   static const delete_user = "delete_user";
   static const get_user_data = "get_user_data";
   static const publish_duty_slot = "publish_duty_slot";
+  static const get_all_duty_slots_for_display = "get_all_duty_slots_for_display";
+  static const delete_duty_slot = "delete_duty_slot";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
+
+  static final Doctor = IDL.Record({
+    '_id': IDL.Text,
+    'localization': IDL.Text,
+    'username': IDL.Text,
+    'password': IDL.Text,
+    'role': IDL.Text,
+    'specialty': IDL.Text,
+    'profileVisible': IDL.Bool,
+  });
+  static final Hospital = IDL.Record({
+    '_id': IDL.Text,
+    'username': IDL.Text,
+    'password': IDL.Text,
+    'role': IDL.Text,
+    'profileVisible': IDL.Bool,
+  });
+  static final Specialty = IDL.Record({'_id': IDL.Text, 'name': IDL.Text});
+
+  static final DutyStatus = IDL.Variant({
+    'pending': IDL.Null,
+    'open': IDL.Null,
+    'filled': IDL.Null,
+  });
+
+  static final DutyVacancyForDisplay = IDL.Record({
+    '_id': IDL.Text,
+    'status': DutyStatus,
+    'assignedDoctorId': IDL.Opt(Doctor),
+    'priceTo': IDL.Opt(IDL.Float64),
+    'hospitalId': Hospital,
+    'endDateTime': IDL.Text,
+    'requiredSpecialty': Specialty,
+    'currency': IDL.Opt(IDL.Text),
+    'priceFrom': IDL.Opt(IDL.Float64),
+    'startDateTime': IDL.Text,
+  });
 
   static final Result = IDL.Variant({'Ok': IDL.Null, 'Err': IDL.Text});
   static final Result_1 = IDL.Variant({
@@ -325,7 +469,19 @@ abstract class CounterMethod {
       [Result_3],
       [],
     ),
+    CounterMethod.get_all_duty_slots_for_display: IDL.Func(
+      [],
+      [IDL.Vec(DutyVacancyForDisplay)],
+      ['query'],
+    ),
+    CounterMethod.delete_duty_slot: IDL.Func([IDL.Text, IDL.Nat32], [Result], []),
   });
+}
+
+Decimal getPrice(dynamic priceTo1) {
+  final priceTo2 = priceTo1 ?? [];
+  final priceTo = priceTo2.isEmpty ? 0 : priceTo2[0];
+  return Decimal.parse(priceTo.toString());
 }
 
 /// ```dart

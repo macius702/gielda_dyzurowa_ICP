@@ -1,3 +1,12 @@
+type Doctor = record {
+  _id : text;
+  localization : text;
+  username : text;
+  password : text;
+  role : text;
+  specialty : text;
+  profileVisible : bool;
+};
 type DutySlot = record {
   status : DutyStatus;
   hospital_id : nat32;
@@ -10,6 +19,25 @@ type DutySlot = record {
   price_from : opt float64;
 };
 type DutyStatus = variant { pending; open; filled };
+type DutyVacancyForDisplay = record {
+  _id : text;
+  status : DutyStatus;
+  assignedDoctorId : opt Doctor;
+  priceTo : opt float64;
+  hospitalId : Hospital;
+  endDateTime : text;
+  requiredSpecialty : Specialty;
+  currency : opt text;
+  priceFrom : opt float64;
+  startDateTime : text;
+};
+type Hospital = record {
+  _id : text;
+  username : text;
+  password : text;
+  role : text;
+  profileVisible : bool;
+};
 type RawHttpRequest = record {
   url : text;
   method : text;
@@ -26,6 +54,7 @@ type Result = variant { Ok; Err : text };
 type Result_1 = variant { Ok : record { nat32; text }; Err : text };
 type Result_2 = variant { Ok : text; Err : text };
 type Result_3 = variant { Ok : nat32; Err : text };
+type Specialty = record { _id : text; name : text };
 type User = record {
   localization : opt text;
   username : text;
@@ -39,8 +68,10 @@ type UserRole = variant { hospital; doctor };
 service : {
   delete_all_duty_slots : () -> ();
   delete_all_users : () -> ();
+  delete_duty_slot : (text, nat32) -> (Result);
   delete_user : (text) -> (Result);
   get_all_duty_slots : () -> (vec DutySlot) query;
+  get_all_duty_slots_for_display : () -> (vec DutyVacancyForDisplay) query;
   get_all_usernames : () -> (vec text) query;
   get_all_users : () -> (vec User) query;
   get_specialties : () -> (vec text) query;

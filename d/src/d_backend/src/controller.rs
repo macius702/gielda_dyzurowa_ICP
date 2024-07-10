@@ -1,3 +1,9 @@
+
+macro_rules! println {
+    () => {
+        compile_error!("println! is not allowed");
+    };
+}
 use std::cmp::Reverse;
 use std::collections::HashMap;
 
@@ -60,7 +66,7 @@ pub(crate) fn setup() -> Router {
     let mut router = Router::new();
 
     router.put("/:value", true, |req: HttpRequest| async move {
-        println!("Hello World from PUT {:?}", req.params.get("value"));
+        ic_cdk::println!("Hello World from PUT {:?}", req.params.get("value"));
 
         Ok(HttpResponse {
             status_code: 200,
@@ -91,8 +97,8 @@ pub(crate) fn setup() -> Router {
     });
 
     router.get("/duty/slots/json", false, |_: HttpRequest| async move {
-        println!("Hello World from GET /duty/slots/json");
-        println!("Duty slots: {:?}", get_all_duty_slots_internal());
+        ic_cdk::println!("Hello World from GET /duty/slots/json");
+        ic_cdk::println!("Duty slots: {:?}", get_all_duty_slots_internal());
 
         //respond with json using duty_slots
         Ok(HttpResponse {
@@ -122,26 +128,26 @@ pub(crate) fn setup() -> Router {
         assert_eq!(userrole, "hospital");
 
         let body_string = String::from_utf8(req.body.clone()).unwrap();
-        println!("Received body: {}", body_string);
+        ic_cdk::println!("Received body: {}", body_string);
         let publish_duty_slot_request: PublishDutySlotRequest =
             serde_json::from_str(&body_string).unwrap();
-        println!("Deserialized request: {:?}", publish_duty_slot_request);
+        ic_cdk::println!("Deserialized request: {:?}", publish_duty_slot_request);
 
         let start_date_time_str = format!(
             "{} {}",
             publish_duty_slot_request.startDate, publish_duty_slot_request.startTime
         );
-        println!("1 Start date time: {}", start_date_time_str);
+        ic_cdk::println!("1 Start date time: {}", start_date_time_str);
         let start_date_time = convert_to_unix_timestamp(&start_date_time_str);
-        println!("2 Start date time: {}", start_date_time);
+        ic_cdk::println!("2 Start date time: {}", start_date_time);
 
         let end_date_time = format!(
             "{} {}",
             publish_duty_slot_request.endDate, publish_duty_slot_request.endTime
         );
-        println!("1 End date time: {}", end_date_time);
+        ic_cdk::println!("1 End date time: {}", end_date_time);
         let end_date_time = convert_to_unix_timestamp(&end_date_time);
-        println!("2 End date time: {}", end_date_time);
+        ic_cdk::println!("2 End date time: {}", end_date_time);
 
         let duty_slot = DutySlot {
             required_specialty: publish_duty_slot_request
@@ -193,10 +199,10 @@ pub(crate) fn setup() -> Router {
         assert_eq!(userrole, "hospital");
 
         let body_string = String::from_utf8(req.body.clone()).unwrap();
-        println!("Received body: {}", body_string);
+        ic_cdk::println!("Received body: {}", body_string);
 
         let data: serde_json::Value = serde_json::from_str(&body_string).unwrap();
-        println!("Parsed data: {:?}", data);
+        ic_cdk::println!("Parsed data: {:?}", data);
 
         let duty_slot_id = match data["_id"].as_str() {
             Some(id_str) => match id_str.parse::<u32>() {
@@ -260,7 +266,7 @@ pub(crate) fn setup() -> Router {
 
         // take the duty slot id and remove it from the duty slots
         let removed_duty_slot = delete_duty_slot_by_id(duty_slot_id);
-        println!("Removed duty slot: {:?}", removed_duty_slot);
+        ic_cdk::println!("Removed duty slot: {:?}", removed_duty_slot);
 
         Ok(HttpResponse {
             status_code: 200,
@@ -289,10 +295,10 @@ pub(crate) fn setup() -> Router {
         assert_eq!(userrole, user_role);
 
         let body_string = String::from_utf8(req.body.clone()).unwrap();
-        println!("Received body: {}", body_string);
+        ic_cdk::println!("Received body: {}", body_string);
 
         let data: serde_json::Value = serde_json::from_str(&body_string).unwrap();
-        println!("Parsed data: {:?}", data);
+        ic_cdk::println!("Parsed data: {:?}", data);
 
         let duty_slot_id = match data["_id"].as_str() {
             Some(id_str) => match id_str.parse::<u32>() {
@@ -396,7 +402,7 @@ pub(crate) fn setup() -> Router {
     router.post("/auth/register", true, |req: HttpRequest| async move {
         // req body has fields : username, password, role, specialty, localization
         let body_string = String::from_utf8(req.body.clone()).unwrap();
-        println!("Received body: {}", body_string); // Debug print
+        ic_cdk::println!("Received body: {}", body_string); // Debug print
         #[derive(serde::Deserialize, Debug)]
         struct UserDeserialize {
             username: String,
@@ -408,7 +414,7 @@ pub(crate) fn setup() -> Router {
             phone_number: Option<String>,
         }
         let user_deserialize: UserDeserialize = serde_json::from_str(&body_string).unwrap();
-        println!("Deserialized user: {:?}", user_deserialize); // Debug print
+        ic_cdk::println!("Deserialized user: {:?}", user_deserialize); // Debug print
         let mut user = User {
             username: user_deserialize.username,
             password: user_deserialize.password,
@@ -423,18 +429,18 @@ pub(crate) fn setup() -> Router {
         };
 
         // hash the passworf using pbkdf2
-        println!("Before hashing password");
+        ic_cdk::println!("Before hashing password");
 
         let salt_string = "your_salt_string";
         let hashed_password = hex::encode(hash_password_with_pbkdf2(
             &user.password,
             salt_string.as_bytes(),
         ));
-        println!("After hashing password: {}", hashed_password);
+        ic_cdk::println!("After hashing password: {}", hashed_password);
         user.password = hashed_password;
-        println!("Parsed user: {:?}", user); // Debug print
+        ic_cdk::println!("Parsed user: {:?}", user); // Debug print
         let key = insert_user_internal(user);
-        println!("Inserted user with key: {:?}", key); // Debug print
+        ic_cdk::println!("Inserted user with key: {:?}", key); // Debug print
 
         if key == 0 {
             return Ok(HttpResponse {
@@ -516,28 +522,28 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
 });    
     router.post("/auth/login", true, move |req: HttpRequest| async move {
         // Log the full incoming request
-        println!(
+        ic_cdk::println!(
             "Incoming Request: method = {}, url = {}",
             req.method, req.url
         );
         // Parse the request body
         let body_string = String::from_utf8(req.body.clone()).unwrap();
 
-        println!("Incoming Request Body: {}", body_string);
+        ic_cdk::println!("Incoming Request Body: {}", body_string);
 
         let data: serde_json::Value = serde_json::from_str(&body_string).unwrap();
         let username = data["username"].as_str().unwrap();
         let password = data["password"].as_str().unwrap();
 
-        println!("Parsed Username: {}", username);
-        println!("Parsed Password: {}", password);
+        ic_cdk::println!("Parsed Username: {}", username);
+        ic_cdk::println!("Parsed Password: {}", password);
 
         // Find the user
         let user_result = find_user_by_username(username);
 
         match user_result {
             None => {
-                println!("Login attempt: User not found");
+                ic_cdk::println!("Login attempt: User not found");
                 // Send response with status 400
                 Ok(HttpResponse {
                     status_code: 400,
@@ -557,7 +563,7 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
                 ));
 
             if user.password == hashed_password {
-                    println!("User logged in: {}", user.username);
+                    ic_cdk::println!("User logged in: {}", user.username);
 
                     let payload =
                         json!({ "userId": id, "role": user.role, "username": user.username });
@@ -591,7 +597,7 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
 
                     Ok(response)
                 } else {
-                    println!("Login attempt failed for user: {}", username);
+                    ic_cdk::println!("Login attempt failed for user: {}", username);
                     // Send response with status 400
                     Ok(HttpResponse {
                         status_code: 400,
@@ -666,8 +672,8 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
     });
 
     router.get("/users", false, |_: HttpRequest| async move {
-        println!("Hello World from GET /users");
-        println!("Users: {:?}", get_all_users_internal());
+        ic_cdk::println!("Hello World from GET /users");
+        ic_cdk::println!("Users: {:?}", get_all_users_internal());
 
         //respond with json using users
         Ok(HttpResponse {
@@ -683,8 +689,8 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
     });
 
     router.get("/usernames", false, |_: HttpRequest| async move {
-        println!("Hello World from GET /usernames");
-        println!("Users: {:?}", get_all_usernames_internal());
+        ic_cdk::println!("Hello World from GET /usernames");
+        ic_cdk::println!("Users: {:?}", get_all_usernames_internal());
 
         //respond with json using users
         Ok(HttpResponse {
@@ -700,7 +706,7 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
     });
 
     router.get("/specialties", false, |_: HttpRequest| async move {
-        println!("Received a request at GET /specialties");
+        ic_cdk::println!("Received a request at GET /specialties");
 
         let specialties: Vec<_> = SPECIALTIES_STRINGS
             .iter()
@@ -714,7 +720,7 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
             })
             .collect();
 
-        println!("Specialties: {:?}", specialties);
+        ic_cdk::println!("Specialties: {:?}", specialties);
 
         let response = HttpResponse {
             status_code: 200,
@@ -722,8 +728,8 @@ router.options("/auth/login", true, |_req: HttpRequest| async move {
             body: serde_json::to_string(&specialties).unwrap().into(),
         };
 
-        println!("Responding with status code: {}", response.status_code);
-        println!("Response body: {:?}", response.body);
+        ic_cdk::println!("Responding with status code: {}", response.status_code);
+        ic_cdk::println!("Response body: {:?}", response.body);
         Ok(response)
     });
     router
@@ -757,7 +763,7 @@ fn extract_cookies_from_request(req: &HttpRequest) -> Option<(String, String)> {
 }
 
 fn parse_cookie(cookie_str: &str) -> (Option<String>, Option<String>) {
-    println!("Parsing cookies: {}", cookie_str);
+    ic_cdk::println!("Parsing cookies: {}", cookie_str);
     let cookies: Vec<&str> = cookie_str.split(',').collect();
     let mut token = None;
     let mut userid = None;
@@ -767,19 +773,19 @@ fn parse_cookie(cookie_str: &str) -> (Option<String>, Option<String>) {
         match cookie.name() {
             "token" => {
                 token = Some(cookie.value().to_string());
-                println!("Found token: {}", token.as_ref().unwrap());
+                ic_cdk::println!("Found token: {}", token.as_ref().unwrap());
             }
             "userid" => {
                 userid = Some(cookie.value().to_string());
-                println!("Found userid: {}", userid.as_ref().unwrap());
+                ic_cdk::println!("Found userid: {}", userid.as_ref().unwrap());
             }
             _ => {
-                println!("Found unrecognized cookie name: {}", cookie.name());
+                ic_cdk::println!("Found unrecognized cookie name: {}", cookie.name());
             }
         }
     }
 
-    println!("Returning token: {:?}, userid: {:?}", token, userid);
+    ic_cdk::println!("Returning token: {:?}, userid: {:?}", token, userid);
     (token, userid)
 }
 
@@ -807,18 +813,25 @@ pub fn convert_from_unix_timestamp(unix_timestamp: i64) -> String {
     let format = format_description!("[year]-[month]-[day]T[hour]:[minute]:00.000Z");
     let date_time = OffsetDateTime::from_unix_timestamp(unix_timestamp);
 
+    ic_cdk::println!("Format: {:?}", format);
+    ic_cdk::println!("Date Time: {:?}", date_time);
     match date_time {
         Ok(dt) => {
+            ic_cdk::println!("Date Time: {:?}", dt);
             match dt.format(format) {
-                Ok(formatted_datetime) => formatted_datetime,
+                Ok(formatted_datetime) => {
+                    ic_cdk::println!("Formatted Date Time: {:?}", formatted_datetime);
+                    formatted_datetime},
                 Err(e) => {
                     eprintln!("An error occurred: {}", e);
+                    ic_cdk::println!("EError: {:?}", e);
                     String::new() // return an empty string in case of an error
                 }
             }
         }
         Err(e) => {
             eprintln!("An error occurred: {}", e);
+            ic_cdk::println!("EEError: {:?}", e);
             String::new() // return an empty string in case of an error
         }
     }
@@ -861,12 +874,12 @@ fn get_authorized_user_info(req: &HttpRequest) -> Result<(u32, String, String), 
 }
 
 fn get_authorized_user_info_from_cookie(cookie : &str) -> Result<(u32, String, String), &str>{
-    println!("Cookie: {}", cookie);
+    ic_cdk::println!("Cookie: {}", cookie);
     let token_userid_pair = parse_cookie(&cookie);
-    println!("Token user id pair: {:?}", token_userid_pair);
+    ic_cdk::println!("Token user id pair: {:?}", token_userid_pair);
     let (token, userid) = token_userid_pair;
-    println!("Token: {:?}", token);
-    println!("User id: {:?}", userid);
+    ic_cdk::println!("Token: {:?}", token);
+    ic_cdk::println!("User id: {:?}", userid);
 
     if token.is_none() || userid.is_none() {
         return Err("No token found in request");
@@ -967,18 +980,18 @@ async fn perform_registration(
     };
 
     // hash the passworf using pbkdf2
-    println!("Before hashing password");
+    ic_cdk::println!("Before hashing password");
 
     let salt_string = "your_salt_string";
     let hashed_password = hex::encode(hash_password_with_pbkdf2(
         &user.password,
         salt_string.as_bytes(),
     ));
-    println!("After hashing password: {}", hashed_password);
+    ic_cdk::println!("After hashing password: {}", hashed_password);
     user.password = hashed_password;
-    println!("Parsed user: {:?}", user); // Debug print
+    ic_cdk::println!("Parsed user: {:?}", user); // Debug print
     let key = insert_user_internal(user);
-    println!("Inserted user with key: {:?}", key); // Debug print
+    ic_cdk::println!("Inserted user with key: {:?}", key); // Debug print
 
     // if key == 0 {
     //     return Ok(HttpResponse {
@@ -1011,7 +1024,7 @@ async fn perform_login(username: String, password: String) -> Result<String, Str
 
     match user_result {
         None => {
-            println!("Login attempt: User not found");
+            ic_cdk::println!("Login attempt: User not found");
             // Send response with status 400
             return Err("Invalid username or password".to_string());
         }
@@ -1023,7 +1036,7 @@ async fn perform_login(username: String, password: String) -> Result<String, Str
             ));
 
             if user.password == hashed_password {
-                println!("User logged in: {}", user.username);
+                ic_cdk::println!("User logged in: {}", user.username);
 
                 let payload =
                     json!({ "userId": id, "role": user.role, "username": user.username });
@@ -1041,7 +1054,7 @@ async fn perform_login(username: String, password: String) -> Result<String, Str
 
                 Ok(cookies)
             } else {
-                println!("Login attempt failed for user: {}", username);
+                ic_cdk::println!("Login attempt failed for user: {}", username);
                 // Send response with status 400
                 return Err("Invalid username or password".to_string());
             }
@@ -1103,42 +1116,42 @@ async fn get_user_data(cookie : String) -> Result<(u32, String), String> {
 
 #[ic_cdk_macros::query]
 async fn perform_logout(cookie : String) -> Result<(), String> {
-    println!("Performing logout for cookie: {}", cookie);
+    ic_cdk::println!("Performing logout for cookie: {}", cookie);
     let user_info = get_authorized_user_info_from_cookie(&cookie);
 
     match user_info {
         Err(e) => {
-            println!("Error getting user info: {}", e);
+            ic_cdk::println!("Error getting user info: {}", e);
             return Err(e.to_string())
         },
         _ => {}
     }
 
-    println!("Adding used tokens from cookie");
+    ic_cdk::println!("Adding used tokens from cookie");
     add_to_used_tokens_from_cookie(&cookie);
 
-    println!("Logout successful");
+    ic_cdk::println!("Logout successful");
     Ok(())
 }
 
 #[ic_cdk_macros::update]
 async fn delete_user(cookie : String) -> Result<(), String> {
-    println!("Deleting user for cookie: {}", cookie);
+    ic_cdk::println!("Deleting user for cookie: {}", cookie);
     let user_info = get_authorized_user_info_from_cookie(&cookie);
 
     match user_info {
         Err(e) => {
-            println!("Error getting user info: {}", e);
+            ic_cdk::println!("Error getting user info: {}", e);
             return Err(e.to_string())
         },
         _ => {}
     }
 
     let (userid, _, _) = user_info.unwrap();
-    println!("Deleting user with id: {}", userid);
+    ic_cdk::println!("Deleting user with id: {}", userid);
     delete_user_internal(userid);
 
-    println!("User deletion successful");
+    ic_cdk::println!("User deletion successful");
     Ok(())
 }
 
@@ -1155,7 +1168,7 @@ async fn publish_duty_slot(cookie : String,
     let user_info = get_authorized_user_info_from_cookie(&cookie);
     match user_info {
         Err(e) => {
-            println!("Error getting user info: {}", e);
+            ic_cdk::println!("Error getting user info: {}", e);
             return Err(e.to_string())
         },
         _ => {}
@@ -1182,4 +1195,39 @@ async fn publish_duty_slot(cookie : String,
     let key = insert_duty_slot_internal(duty_slot);
 
     Ok(key)
-}   
+}
+
+
+ #[ic_cdk_macros::update]
+async fn delete_duty_slot(cookie : String, duty_slot_id: u32) -> Result<(), String> {
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+    match user_info {
+        Err(e) => {
+            ic_cdk::println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
+        _ => {}
+    }
+
+    let (userid, userrole, _) = user_info.unwrap();
+
+    let duty_slot = get_duty_slot_by_id(duty_slot_id);
+
+    // handle duty slot not found with match
+    let duty_slot = match duty_slot {
+        Some(duty_slot) => duty_slot,
+        None => {
+            return Err("Duty slot not found".to_string());
+        }
+    };
+
+    if duty_slot.hospital_id != userid {
+        return Err("Hospital can only remove its own duty slots".to_string());
+    }
+
+    // take the duty slot id and remove it from the duty slots
+    let removed_duty_slot = delete_duty_slot_by_id(duty_slot_id);
+    ic_cdk::println!("Removed duty slot: {:?}", removed_duty_slot);
+
+    Ok(())
+}

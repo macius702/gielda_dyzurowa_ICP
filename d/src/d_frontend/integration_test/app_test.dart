@@ -12,8 +12,10 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  bool skip_them = true;
   bool skip_register = false;
+  bool skip_consent_revoke = true;
+  bool skip_login_logout = false;
+  bool skip_public_view_delete_duty_slot = false;
 
   testWidgets("Assign duty slot, Consent, Revoke", (WidgetTester tester) async {
     await initializeApp(tester);
@@ -71,7 +73,7 @@ void main() {
     await deleteUser(tester, hospital1);
     await login(tester, doctor1);
     await deleteUser(tester, doctor1);
-  }, skip: skip_them);
+  }, skip: skip_consent_revoke);
 
   testWidgets("E2E test for hospital role", (WidgetTester tester) async {
     await runTest(tester, 'hospital', '', '');
@@ -90,7 +92,7 @@ void main() {
     await logout(tester);
     await login(tester, username);
     await deleteUser(tester, username);
-  }, skip: skip_them);
+  }, skip: skip_login_logout);
 
   testWidgets('Publish duty slot, view duty slots and delete duty slot', (WidgetTester tester) async {
     await initializeApp(tester);
@@ -156,7 +158,7 @@ void main() {
     expect(find.text('Chirurgia naczyniowa'), findsNothing);
 
     await deleteUser(tester, hospital3);
-  }, skip: skip_them);
+  }, skip: skip_public_view_delete_duty_slot);
 }
 
 Future<void> deleteDutySlotContainingText(WidgetTester tester, String cellTextToFind) async {

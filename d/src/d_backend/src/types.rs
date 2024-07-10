@@ -1,4 +1,5 @@
 
+use candid::CandidType;
 use serde::Serialize;
 use serde::Deserialize;
 use crate::DutyStatus;
@@ -16,7 +17,7 @@ pub struct PublishDutySlotRequest {
     pub currency: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, CandidType)]
 pub struct Specialty {
     pub _id: String,
     pub name: String,
@@ -24,7 +25,7 @@ pub struct Specialty {
 
 // ignore snake case warning
 // #[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, CandidType)]
 pub struct DutyVacancyForDisplay {
     pub _id: String,
     pub hospitalId: Hospital,
@@ -38,7 +39,7 @@ pub struct DutyVacancyForDisplay {
     pub currency: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, CandidType)]
 pub struct Hospital {
     pub _id: String,
     pub username: String,
@@ -47,7 +48,7 @@ pub struct Hospital {
     pub profileVisible: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, CandidType)]
 pub struct Doctor {
     pub _id: String,
     pub username: String,

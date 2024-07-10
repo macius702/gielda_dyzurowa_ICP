@@ -220,23 +220,33 @@ fn find_user_by_username(username: &str) -> Option<(u32, User)> {
 /// Retrieves all DutySlots as a Vec.
 #[ic_cdk_macros::query]
 fn get_all_duty_slots() -> Vec<DutySlot> {
+    ic_cdk::println!("Entering get_all_duty_slots");
     get_all_duty_slots_internal()
 }
 
 fn get_all_duty_slots_internal() -> Vec<DutySlot> {
+    ic_cdk::println!("Entering get_all_duty_slots_internal");
     MAP.with(|p| p.borrow().iter().map(|(_, v)| v.clone()).collect())
 }
 
 // Retrieve all DutySlots as Vec<DutyVacancyForDisplay>
+#[ic_cdk_macros::query]
 fn get_all_duty_slots_for_display() -> Vec<types::DutyVacancyForDisplay> {
+    ic_cdk::println!("Entering get_all_duty_slots_for_display");
     get_all_duty_slots_for_display_internal()
 }
 
 fn get_all_duty_slots_for_display_internal() -> Vec<types::DutyVacancyForDisplay> {
+    ic_cdk::println!("Entering get_all_duty_slots_for_display_internal");
     MAP.with(|p| {
         p.borrow()
             .iter()
             .map(|(k, v)| {
+                ic_cdk::println!("Key: {}", k);  // print the key
+                ic_cdk::println!("Value: {:?}", v);  // print the value
+                ic_cdk::println!("convert_from_unix_timestamp(v.end_date_time: {}",  v.end_date_time);
+                ic_cdk::println!("convert_from_unix_timestamp(v.end_date_time: {}",  convert_from_unix_timestamp(v.end_date_time));
+
                 types::DutyVacancyForDisplay {
                     // for _id I need the key of the MAP
                     _id: k.to_string(),
@@ -254,7 +264,6 @@ fn get_all_duty_slots_for_display_internal() -> Vec<types::DutyVacancyForDisplay
             .collect()
     })
 }
-
 fn get_hospital_by_id(_id: u32) -> types::Hospital {
     let user = get_user_by_id(_id);
     types::Hospital {
@@ -325,7 +334,7 @@ fn insert_duty_slot_internal(value: DutySlot) -> u32 {
         key
     });
 
-    MAP.with(|p| p.borrow_mut().insert(key, value));
+        MAP.with(|p| p.borrow_mut().insert(key, value));
     key
 }
 
@@ -347,8 +356,8 @@ fn insert_user(value: User) -> u32 {
 }
 
 fn insert_user_internal(value: User) -> u32 {
-    println!("Entering function insert_user");
-    println!("Inserting user: {:?}", value);
+    ic_cdk::println!("Entering function insert_user");
+    ic_cdk::println!("Inserting user: {:?}", value);
 
     let mut user_exists = false;
 
@@ -356,7 +365,7 @@ fn insert_user_internal(value: User) -> u32 {
         let map = p.borrow();
         for (_, v) in map.iter() {
             if v.username.eq_ignore_ascii_case(&value.username) {
-                println!("User already exists, not inserting");
+                ic_cdk::println!("User already exists, not inserting");
                 user_exists = true;
                 break;
             }
@@ -369,10 +378,10 @@ fn insert_user_internal(value: User) -> u32 {
 
     let key = NEXT_USER_KEY.with(|k| {
         let key = *k.borrow();
-        println!("Current key: {}", key);
+        ic_cdk::println!("Current key: {}", key);
 
         *k.borrow_mut() += 1;
-        println!("Incremented key: {}", key);
+        ic_cdk::println!("Incremented key: {}", key);
         key
     });
 
@@ -380,7 +389,7 @@ fn insert_user_internal(value: User) -> u32 {
         p.borrow_mut().insert(key, value);
     });
 
-    println!("Leaving function insert_user");
+    ic_cdk::println!("Leaving function insert_user");
     key
 }
 

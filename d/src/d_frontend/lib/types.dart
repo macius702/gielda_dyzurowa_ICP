@@ -163,7 +163,7 @@ enum DutyStatus {
 }
 
 class DutyStatusHelper {
-  static DutyStatus fromJson(String status) {
+  static DutyStatus fromString(String status) {
     switch (status) {
       case 'open':
         return DutyStatus.open;
@@ -173,19 +173,6 @@ class DutyStatusHelper {
         return DutyStatus.filled;
       default:
         throw Exception('Unknown duty status: $status');
-    }
-  }
-
-  static String toJson(DutyStatus status) {
-    switch (status) {
-      case DutyStatus.open:
-        return 'open';
-      case DutyStatus.pending:
-        return 'pending';
-      case DutyStatus.filled:
-        return 'filled';
-      default:
-        return '';
     }
   }
 }
@@ -223,7 +210,7 @@ class DutySlotForDisplay {
         id: json['requiredSpecialty']['_id'],
         name: json['requiredSpecialty']['name'],
       ),
-      status: DutyStatusHelper.fromJson(json['status']),
+      status: DutyStatusHelper.fromString(json['status']),
       assignedDoctorId: Doctor.fromJson(json['assignedDoctorId']),
       startDateTime: json['startDateTime'],
       endDateTime: json['endDateTime'],
