@@ -66,6 +66,7 @@ type User = record {
 };
 type UserRole = variant { hospital; doctor };
 service : {
+  assign_duty_slot : (text, nat32) -> (Result);
   delete_all_duty_slots : () -> ();
   delete_all_users : () -> ();
   delete_duty_slot : (text, nat32) -> (Result);
@@ -76,6 +77,7 @@ service : {
   get_all_users : () -> (vec User) query;
   get_specialties : () -> (vec text) query;
   get_user_data : (text) -> (Result_1) query;
+  give_consent : (text, nat32, nat32) -> (Result);
   http_request : (RawHttpRequest) -> (RawHttpResponse) query;
   http_request_update : (RawHttpRequest) -> (RawHttpResponse);
   insert_duty_slot : (DutySlot) -> (nat32);
@@ -92,4 +94,5 @@ service : {
       int64,
       int64,
     ) -> (Result_3);
+  revoke_assignment : (text, nat32, nat32) -> (Result);
 }

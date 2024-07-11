@@ -1231,3 +1231,108 @@ async fn delete_duty_slot(cookie : String, duty_slot_id: u32) -> Result<(), Stri
 
     Ok(())
 }
+
+#[ic_cdk_macros::update]
+fn assign_duty_slot(cookie : String, duty_slot_id: u32) -> Result<(), String> {
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+    match user_info {
+        Err(e) => {
+            ic_cdk::println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
+        _ => {}
+    }
+
+    let (userid, userrole, _) = user_info.unwrap();
+
+    let duty_slot = get_duty_slot_by_id(duty_slot_id);
+
+    // handle duty slot not found with match
+    let duty_slot = match duty_slot {
+        Some(duty_slot) => duty_slot,
+        None => {
+            return Err("Duty slot not found".to_string());
+        }
+    };
+
+    assert_eq!(userrole, "doctor");
+    assert_eq!(duty_slot.assigned_doctor_id, None);
+    assert_eq!(duty_slot.status, DutyStatus::open);
+
+
+
+    assign_duty_slot_by_id(duty_slot_id, userid);
+    Ok(())
+}
+
+#[ic_cdk_macros::update]
+fn give_consent(cookie : String, duty_slot_id: u32, _: u32)-> Result<(), String> {
+    ic_cdk::println!("TODO: has to be the hospital that published. in Giving consent for duty slot: {}", duty_slot_id);
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+    match user_info {
+        Err(e) => {
+            ic_cdk::println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
+        _ => {}
+    }
+
+    let (userid, userrole, _) = user_info.unwrap();
+
+    let duty_slot = get_duty_slot_by_id(duty_slot_id);
+
+    // handle duty slot not found with match
+    let duty_slot = match duty_slot {
+        Some(duty_slot) => duty_slot,
+        None => {
+            return Err("Duty slot not found".to_string());
+        }
+    };
+
+    assert_eq!(userrole, "hospital");
+    assert_eq!(duty_slot.assigned_doctor_id, None);
+    assert_eq!(duty_slot.status, DutyStatus::open);
+
+    give_consent_to_duty_slot_by_id(duty_slot_id, 0);
+    Ok(())
+}
+
+
+#[ic_cdk_macros::update]
+fn revoke_assignment(cookie : String, duty_slot_id: u32, _: u32) -> Result<(), String> {
+    ic_cdk::println!("TODO: has to be the doctor that was assigned.  in Revoking assignment for duty slot: {}", duty_slot_id);
+
+
+    let user_info = get_authorized_user_info_from_cookie(&cookie);
+    match user_info {
+        Err(e) => {
+            ic_cdk::println!("Error getting user info: {}", e);
+            return Err(e.to_string())
+        },
+        _ => {}
+    }
+
+    let (userid, userrole, _) = user_info.unwrap();
+
+    let duty_slot = get_duty_slot_by_id(duty_slot_id);
+
+    // handle duty slot not found with match
+    let duty_slot = match duty_slot {
+        Some(duty_slot) => duty_slot,
+        None => {
+            return Err("Duty slot not found".to_string());
+        }
+    };
+
+    assert_eq!(userrole, "doctor");
+    assert_eq!(duty_slot.assigned_doctor_id, None);
+    assert_eq!(duty_slot.status, DutyStatus::open);
+
+
+
+    revoke_assignment_from_duty_slot_by_id(duty_slot_id, 0);
+
+
+    Ok(())
+
+}

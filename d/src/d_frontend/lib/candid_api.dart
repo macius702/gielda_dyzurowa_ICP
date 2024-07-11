@@ -211,6 +211,27 @@ class CandidApi implements Api {
 
   @override
   Future<Status> assignDutySlot(String id) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot assign duty slot: no cookies');
+      }
+
+      final result =
+          await callActorMethod<Map<String, dynamic>>(CounterMethod.assign_duty_slot, [cookies, int.parse(id)]);
+      if (result != null) {
+        if (result.containsKey('Ok')) {
+          print("Duty slot assigned");
+          return Response('Duty slot assigned');
+        } else if (result['Err'] != null) {
+          return Error('Cannot assign duty slot: ${result['err']}');
+        }
+      }
+    } catch (e) {
+      print("assignDutySlot: Caught error: $e");
+      return ExceptionalFailure('Cannot assign duty slot, Caught error: $e');
+    }
     // Dummy implementation
     return ExceptionalFailure();
   }
@@ -218,12 +239,14 @@ class CandidApi implements Api {
   @override
   Future<Status> giveConsent(String id) async {
     // Dummy implementation
+    print("TODO: giveConsent");
     return ExceptionalFailure();
   }
 
   @override
   Future<Status> revokeAssignment(String id) async {
     // Dummy implementation
+    print("TODO: revokeAssignment");
     return ExceptionalFailure();
   }
 
@@ -254,8 +277,34 @@ class CandidApi implements Api {
           );
           print('hospital: $hospital');
 
-          Doctor? assignedDoctorId = slot['assigned_doctor_id'];
-          print('TODO - check null the read Map assignedDoctor: $assignedDoctorId');
+          print("slot['assignedDoctorId']: ${slot['assignedDoctorId']}");
+
+          Doctor? assignedDoctorId;
+          print('BEFORE assignedDoctorId: $assignedDoctorId');
+          List doctorList = slot['assignedDoctorId'];
+          print('doctorList: $doctorList');
+          if (doctorList.isNotEmpty) {
+            print('doctorList.isNotEmpty');
+            Map<String, dynamic>? doctorMap = Map<String, dynamic>.from(doctorList[0]);
+            print('id: ${doctorMap['_id']}');
+            print('localization: ${doctorMap['localization']}');
+            print('username: ${doctorMap['username']}');
+            print('password: ${doctorMap['password']}');
+            print('role: ${doctorMap['role']}');
+            print('specialty: ${doctorMap['specialty']}');
+            print('profileVisible: ${doctorMap['profileVisible']}');
+
+            assignedDoctorId = Doctor(
+              id: doctorMap['_id'],
+              localization: doctorMap['localization'],
+              username: doctorMap['username'],
+              password: doctorMap['password'],
+              role: doctorMap['role'],
+              specialty: doctorMap['specialty'],
+              profileVisible: doctorMap['profileVisible'],
+            );
+          }
+          print('DONE assignedDoctorId: $assignedDoctorId');
 
           List<dynamic> currencyList = slot['currency'];
           String currency = currencyList[0];
@@ -354,7 +403,6 @@ class CandidApi implements Api {
   }
 
   @override
-  @override
   Future<List<String>> getUsers() async {
     try {
       return await callActorMethod<List<String>>(CounterMethod.get_all_usernames) ?? [];
@@ -391,6 +439,9 @@ abstract class CounterMethod {
   static const publish_duty_slot = "publish_duty_slot";
   static const get_all_duty_slots_for_display = "get_all_duty_slots_for_display";
   static const delete_duty_slot = "delete_duty_slot";
+  static const assign_duty_slot = "assign_duty_slot";
+  static const give_consent = "give_consent";
+  static const revoke_assignment = "revoke_assignment";
 
   static final UserRole = IDL.Variant({'hospital': IDL.Null, 'doctor': IDL.Null});
 
@@ -475,6 +526,9 @@ abstract class CounterMethod {
       ['query'],
     ),
     CounterMethod.delete_duty_slot: IDL.Func([IDL.Text, IDL.Nat32], [Result], []),
+    CounterMethod.assign_duty_slot: IDL.Func([IDL.Text, IDL.Nat32], [Result], []),
+    CounterMethod.give_consent: IDL.Func([IDL.Text, IDL.Nat32, IDL.Nat32], [Result], []),
+    CounterMethod.revoke_assignment: IDL.Func([IDL.Text, IDL.Nat32, IDL.Nat32], [Result], []),
   });
 }
 

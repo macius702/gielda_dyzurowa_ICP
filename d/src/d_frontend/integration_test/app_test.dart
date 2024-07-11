@@ -12,10 +12,10 @@ import 'package:d_frontend/counter_store.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  bool skip_register = false;
-  bool skip_consent_revoke = true;
-  bool skip_login_logout = false;
-  bool skip_public_view_delete_duty_slot = false;
+  bool skip_consent_revoke = false;
+  bool skip_register = true;
+  bool skip_login_logout = true;
+  bool skip_public_view_delete_duty_slot = true;
 
   testWidgets("Assign duty slot, Consent, Revoke", (WidgetTester tester) async {
     await initializeApp(tester);

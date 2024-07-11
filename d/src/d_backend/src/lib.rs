@@ -25,7 +25,7 @@ type Memory = VirtualMemory<DefaultMemoryImpl>;
 
 const MAX_VALUE_SIZE: u32 = 1000; // Adjust this value as needed
 
-#[derive(CandidType, Deserialize, Clone, Serialize, Debug)]
+#[derive(CandidType, Deserialize, Clone, Serialize, Debug, PartialEq)]
 pub enum DutyStatus {
     open,
     pending,
@@ -162,7 +162,7 @@ fn delete_duty_slot_by_id(id: u32) {
 }
 
 fn assign_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
-    let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
+        let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
     // update the duty slot with the doctor_id and status to filled
     let updated_duty_slot = DutySlot {
         status: DutyStatus::pending,
@@ -175,6 +175,7 @@ fn assign_duty_slot_by_id(duty_slot_id: u32, doctor_id: u32) {
     });
 
 }
+
 
 fn give_consent_to_duty_slot_by_id(duty_slot_id: u32, _: u32) {
     let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
@@ -189,6 +190,7 @@ fn give_consent_to_duty_slot_by_id(duty_slot_id: u32, _: u32) {
     });
 }
 
+
 fn revoke_assignment_from_duty_slot_by_id(duty_slot_id: u32 , _: u32) {
     let duty_slot = get_duty_slot_by_id(duty_slot_id).unwrap();
     // update the duty slot with the status to open
@@ -202,6 +204,7 @@ fn revoke_assignment_from_duty_slot_by_id(duty_slot_id: u32 , _: u32) {
         p.borrow_mut().insert(duty_slot_id, updated_duty_slot);
     });
 }
+
 
 fn find_user_by_username(username: &str) -> Option<(u32, User)> {
     USER_MAP.with(|user_map| {
