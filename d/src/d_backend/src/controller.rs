@@ -1266,8 +1266,7 @@ fn assign_duty_slot(cookie : String, duty_slot_id: u32) -> Result<(), String> {
 }
 
 #[ic_cdk_macros::update]
-fn give_consent(cookie : String, duty_slot_id: u32, _: u32)-> Result<(), String> {
-    ic_cdk::println!("TODO: has to be the hospital that published. in Giving consent for duty slot: {}", duty_slot_id);
+fn give_consent(cookie: String, duty_slot_id: u32, _: u32) -> Result<(), String> {
     let user_info = get_authorized_user_info_from_cookie(&cookie);
     match user_info {
         Err(e) => {
@@ -1290,8 +1289,13 @@ fn give_consent(cookie : String, duty_slot_id: u32, _: u32)-> Result<(), String>
     };
 
     assert_eq!(userrole, "hospital");
-    assert_eq!(duty_slot.assigned_doctor_id, None);
-    assert_eq!(duty_slot.status, DutyStatus::open);
+    assert_ne!(duty_slot.assigned_doctor_id, None);
+    assert_eq!(duty_slot.status, DutyStatus::pending);
+
+    //check if the hospital is the one that published the duty slot
+    if duty_slot.hospital_id != userid {
+        return Err("Hospital can only give consent to its own duty slots".to_string());
+    }
 
     give_consent_to_duty_slot_by_id(duty_slot_id, 0);
     Ok(())
@@ -1325,10 +1329,13 @@ fn revoke_assignment(cookie : String, duty_slot_id: u32, _: u32) -> Result<(), S
     };
 
     assert_eq!(userrole, "doctor");
-    assert_eq!(duty_slot.assigned_doctor_id, None);
-    assert_eq!(duty_slot.status, DutyStatus::open);
+    assert_ne!(duty_slot.assigned_doctor_id, None);
+    assert_eq!(duty_slot.status, DutyStatus::filled);
 
-
+    //  has to be the doctor that was assigned.
+    if duty_slot.assigned_doctor_id != Some(userid) {
+        return Err("Doctor can only revoke its own assignment".to_string());
+    }
 
     revoke_assignment_from_duty_slot_by_id(duty_slot_id, 0);
 

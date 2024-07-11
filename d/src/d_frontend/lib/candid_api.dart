@@ -12,6 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'print.dart';
 
+const dummyInt = 1;
+
 class CandidApi implements Api {
   final ICPconnector icpConnector;
 
@@ -238,15 +240,54 @@ class CandidApi implements Api {
 
   @override
   Future<Status> giveConsent(String id) async {
-    // Dummy implementation
-    print("TODO: giveConsent");
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot give consent: no cookies');
+      }
+      final result =
+          await callActorMethod<Map<String, dynamic>>(CounterMethod.give_consent, [cookies, int.parse(id), dummyInt]);
+      if (result != null) {
+        if (result.containsKey('Ok')) {
+          print("Consent given");
+          return Response('Consent given');
+        } else if (result['Err'] != null) {
+          return Error('Cannot give consent: ${result['err']}');
+        }
+      }
+    } catch (e) {
+      print("giveConsent: Caught error: $e");
+      return ExceptionalFailure('Cannot give consent, Caught error: $e');
+    }
+    print("giveConsent: Exceptional failure");
     return ExceptionalFailure();
   }
 
   @override
   Future<Status> revokeAssignment(String id) async {
-    // Dummy implementation
-    print("TODO: revokeAssignment");
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cookies = prefs.getString('cookies');
+      if (cookies == null) {
+        return Error('Cannot revoke assignment: no cookies');
+      }
+      final result = await callActorMethod<Map<String, dynamic>>(
+          CounterMethod.revoke_assignment, [cookies, int.parse(id), dummyInt]);
+      if (result != null) {
+        if (result.containsKey('Ok')) {
+          print("Assignment revoked");
+          return Response('Assignment revoked');
+        } else if (result['Err'] != null) {
+          return Error('Cannot revoke assignment: ${result['err']}');
+        }
+      }
+    } catch (e) {
+      print("revokeAssignment: Caught error: $e");
+      return ExceptionalFailure('Cannot revoke assignment, Caught error: $e');
+    }
+
+    print("revokeAssignment: Exceptional failure");
     return ExceptionalFailure();
   }
 
